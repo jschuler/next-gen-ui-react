@@ -14,8 +14,7 @@ import {
     className?: string;
     autoPlay?: boolean;
     controls?: boolean;
-    width?: string | number;
-    height?: string | number;
+    aspectRatio?: '16:9' | '4:3' | '1:1' | 'auto';
   }
   
   const VideoPlayerWrapper: React.FC<VideoPlayerProps> = ({
@@ -26,9 +25,23 @@ import {
     className,
     autoPlay = false,
     controls = true,
-    width = "100%",
-    height = "auto",
+    aspectRatio = '16:9',
   }) => {
+    // Get aspect ratio styles
+    const getAspectRatioStyle = () => {
+      switch (aspectRatio) {
+        case '16:9':
+          return { paddingBottom: '56.25%' };
+        case '4:3':
+          return { paddingBottom: '75%' };
+        case '1:1':
+          return { paddingBottom: '100%' };
+        case 'auto':
+        default:
+          return {};
+      }
+    };
+
     // Extract video ID from YouTube URL for embedding
     const getYouTubeEmbedUrl = (url: string) => {
       // Match various YouTube URL formats
@@ -66,12 +79,9 @@ import {
             <div 
               style={{ 
                 position: 'relative', 
-                paddingBottom: '56.25%', // 16:9 aspect ratio
-                height: 0, 
-                overflow: 'hidden', 
-                maxWidth: '100%',
-                background: '#000',
-                borderRadius: 'var(--pf-global--BorderRadius--sm)'
+                height: aspectRatio === 'auto' ? 'auto' : 0, 
+                overflow: 'hidden',
+                ...getAspectRatioStyle()
               }}
             >
               <iframe
@@ -98,12 +108,6 @@ import {
               src={video}
               controls={controls}
               autoPlay={autoPlay}
-              style={{
-                width,
-                height,
-                maxWidth: '100%',
-                borderRadius: 'var(--pf-global--BorderRadius--sm)'
-              }}
               title={title}
             >
               Your browser does not support the video tag.
@@ -113,32 +117,16 @@ import {
       } else if (video_img) {
         // Show poster image when no video URL is provided
         return (
-          <div style={{ textAlign: 'center' }}>
-            <img
-              src={video_img}
-              alt={title}
-              style={{
-                maxWidth: '100%',
-                height: 'auto',
-                borderRadius: 'var(--pf-global--BorderRadius--sm)',
-                objectFit: 'cover',
-              }}
-            />
-          </div>
+          <img
+            src={video_img}
+            alt={title}
+          />
         );
       }
   
       // Fallback when neither video nor poster image is available
       return (
-        <div 
-          style={{ 
-            textAlign: 'center', 
-            padding: '2rem',
-            backgroundColor: 'var(--pf-global--BackgroundColor--200)',
-            borderRadius: 'var(--pf-global--BorderRadius--sm)',
-            color: 'var(--pf-global--Color--200)'
-          }}
-        >
+        <div>
           No video content available
         </div>
       );
@@ -148,11 +136,6 @@ import {
       <Card 
         id={id} 
         className={className}
-        style={{ 
-          maxWidth: "1440px", 
-          margin: "0 auto",
-          width: "100%"
-        }}
       >
         <CardTitle>
           <Title headingLevel="h4" size="lg">
