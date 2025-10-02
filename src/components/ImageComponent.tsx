@@ -16,7 +16,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({
   className,
 }) => {
   return (
-    <Card id={id} className={className} style={{ maxWidth: "400px" }}>
+    <Card id={id} className={className}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
