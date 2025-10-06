@@ -45,7 +45,7 @@ const TableWrapper = (props: TableWrapperProps) => {
       fields.forEach((field) => {
         const value = field.data[i];
         if (value === null || value === undefined) {
-          row[field.name] = "N/A";
+          row[field.name] = "";
         } else if (Array.isArray(value)) {
           row[field.name] = value.join(", ");
         } else {
@@ -64,11 +64,7 @@ const TableWrapper = (props: TableWrapperProps) => {
     <Card id={id} className={className}>
       <CardBody>
         <Table variant="compact" borders>
-          <Caption>
-            <span style={{ fontWeight: "bold", fontSize: "1.1em" }}>
-              {title}
-            </span>
-          </Caption>
+          <Caption>{title}</Caption>
           <Thead>
             <Tr>
               {columns.map((col, index) => (

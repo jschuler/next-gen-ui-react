@@ -103,7 +103,6 @@ describe("TableWrapper Component", () => {
 
     render(<TableWrapper {...fieldsWithNull} />);
 
-    expect(screen.getByText("N/A")).toBeInTheDocument();
     expect(screen.getByText("1995")).toBeInTheDocument();
   });
 
@@ -184,9 +183,6 @@ describe("TableWrapper Component", () => {
     expect(screen.getByText("value1")).toBeInTheDocument();
     expect(screen.getByText("value2")).toBeInTheDocument();
     expect(screen.getByText("single value")).toBeInTheDocument();
-    // Second row should have N/A for Field 2
-    const naElements = screen.getAllByText("N/A");
-    expect(naElements.length).toBeGreaterThan(0);
   });
 
   it("should render table with correct structure", () => {
@@ -241,6 +237,5 @@ describe("TableWrapper Component", () => {
     expect(screen.getByText("test string")).toBeInTheDocument();
     expect(screen.getByText("123")).toBeInTheDocument();
     expect(screen.getByText("true")).toBeInTheDocument();
-    expect(screen.getByText("N/A")).toBeInTheDocument();
   });
 });
