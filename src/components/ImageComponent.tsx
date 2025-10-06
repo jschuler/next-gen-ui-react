@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core";
-import React from "react";
+import React, { useState } from "react";
 
 interface ImageComponentProps {
   component: "image";
@@ -15,13 +15,15 @@ const ImageComponent: React.FC<ImageComponentProps> = ({
   title,
   className,
 }) => {
+  const [imageError, setImageError] = useState(false);
+
   return (
     <Card id={id} className={className}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardBody>
-        {image ? (
+        {image && !imageError ? (
           <img
             src={image}
             alt={title}
@@ -31,11 +33,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({
               borderRadius: "var(--pf-global--BorderRadius--sm)",
               objectFit: "cover",
             }}
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = "none";
-              target.parentElement!.innerHTML = `<p style="color: var(--pf-global--Color--200); text-align: center; padding: 20px;">Image failed to load</p>`;
-            }}
+            onError={() => setImageError(true)}
           />
         ) : (
           <div
@@ -50,7 +48,7 @@ const ImageComponent: React.FC<ImageComponentProps> = ({
               color: "var(--pf-global--Color--300)",
             }}
           >
-            No image provided
+            {imageError ? "Image failed to load" : "No image provided"}
           </div>
         )}
       </CardBody>
