@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core";
+import { Card, CardBody } from "@patternfly/react-core";
 import {
   Table,
   Thead,
