@@ -13,8 +13,6 @@ This npm package provides a collection of reusable Patternfly React components t
   - ImageComponent
   - OneCardWrapper
   - TableWrapper
-- Dynamic Component Renderer
-  - DynamicComponents
 
 ## Installation
 
@@ -79,6 +77,48 @@ const imageConfig = {
 
 function App() {
   return <DynamicComponent config={imageConfig} />;
+}
+```
+
+### Table Component
+
+```jsx
+import { DynamicComponent } from "@rhngui/patternfly-react-renderer";
+
+const tableConfig = {
+  component: "table",
+  title: "Movie Statistics",
+  id: "movie-stats-table",
+  fields: [
+    {
+      name: "Movie Title",
+      data_path: "movies.title",
+      data: ["Toy Story", "Finding Nemo", "The Incredibles"],
+    },
+    {
+      name: "Release Year",
+      data_path: "movies.year",
+      data: [1995, 2003, 2004],
+    },
+    {
+      name: "Genres",
+      data_path: "movies.genres",
+      data: [
+        ["Animation", "Adventure"],
+        ["Animation", "Adventure"],
+        ["Animation", "Action"],
+      ],
+    },
+    {
+      name: "Rating",
+      data_path: "movies.rating",
+      data: [8.3, 8.1, 8.0],
+    },
+  ],
+};
+
+function App() {
+  return <DynamicComponent config={tableConfig} />;
 }
 ```
 
