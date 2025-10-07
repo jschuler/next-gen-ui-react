@@ -27,27 +27,11 @@ const ImageComponent: React.FC<ImageComponentProps> = ({
           <img
             src={image}
             alt={title}
-            style={{
-              width: "100%",
-              height: "auto",
-              borderRadius: "var(--pf-global--BorderRadius--sm)",
-              objectFit: "cover",
-            }}
+            className="image-component-img"
             onError={() => setImageError(true)}
           />
         ) : (
-          <div
-            style={{
-              width: "100%",
-              height: "200px",
-              backgroundColor: "var(--pf-global--Color--200)",
-              borderRadius: "var(--pf-global--BorderRadius--sm)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              color: "var(--pf-global--Color--300)",
-            }}
-          >
+          <div className="image-component-placeholder">
             {imageError ? "Image failed to load" : "No image provided"}
           </div>
         )}
