@@ -9,19 +9,21 @@ This npm package provides a collection of reusable Patternfly React components t
 
 ## Provides:
 
-* Patternfly React Components
+- Patternfly React Components
   - OneCardWrapper
+  - ImageComponent
   - TableWrapper
   - VideoPlayerWrapper
 * Dynamic Component Renderer
   - DynamicComponents
 * Supported Components
-  - `one-card`, `table`, `video-player`
+  - `one-card`, `image`, `table`, `video-player`
   - `video-player` supports YouTube video URLs and direct video file URLs
 
 ## Installation
 
 **Pre-requisites:**
+
 - React 18+
 - TypeScript
 
@@ -34,27 +36,28 @@ npm install @rhngui/patternfly-react-renderer
 ### OneCard Component
 
 ```jsx
-import { OneCardWrapper } from '@rhngui/patternfly-react-renderer';
+import { OneCardWrapper } from "@rhngui/patternfly-react-renderer";
 
 const mockData = {
   title: "Movie Details",
-  image: "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+  image:
+    "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
   fields: [
     {
       name: "Title",
       data_path: "movie.title",
-      data: ["Toy Story"]
+      data: ["Toy Story"],
     },
     {
       name: "Year",
       data_path: "movie.year",
-      data: [1995]
+      data: [1995],
     },
     {
       name: "Genres",
       data_path: "movie.genres",
-      data: ["Animation", "Adventure"]
-    }
+      data: ["Animation", "Adventure"],
+    },
   ],
   imageSize: "md",
   id: "movie-card",
@@ -62,6 +65,66 @@ const mockData = {
 
 function App() {
   return <OneCardWrapper {...mockData} />;
+}
+```
+
+### Image Component
+
+```jsx
+import { DynamicComponent } from "@rhngui/patternfly-react-renderer";
+
+const imageConfig = {
+  component: "image",
+  title: "Movie Poster",
+  image:
+    "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+  id: "movie-poster-image",
+};
+
+function App() {
+  return <DynamicComponent config={imageConfig} />;
+}
+```
+
+### Table Component
+
+```jsx
+import { DynamicComponent } from "@rhngui/patternfly-react-renderer";
+
+const tableConfig = {
+  component: "table",
+  title: "Movie Statistics",
+  id: "movie-stats-table",
+  fields: [
+    {
+      name: "Movie Title",
+      data_path: "movies.title",
+      data: ["Toy Story", "Finding Nemo", "The Incredibles"],
+    },
+    {
+      name: "Release Year",
+      data_path: "movies.year",
+      data: [1995, 2003, 2004],
+    },
+    {
+      name: "Genres",
+      data_path: "movies.genres",
+      data: [
+        ["Animation", "Adventure"],
+        ["Animation", "Adventure"],
+        ["Animation", "Action"],
+      ],
+    },
+    {
+      name: "Rating",
+      data_path: "movies.rating",
+      data: [8.3, 8.1, 8.0],
+    },
+  ],
+};
+
+function App() {
+  return <DynamicComponent config={tableConfig} />;
 }
 ```
 
@@ -82,13 +145,8 @@ function App() {
 }
 ```
 
-**Supported Video Formats:**
-- YouTube URLs (e.g., `https://www.youtube.com/embed/VIDEO_ID`)
-- Direct video file URLs (e.g., `https://example.com/video.mp4`)
-- Automatic thumbnail generation for YouTube videos
-- Poster image fallback support
-
 ## Links
-* [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/renderer/patternfly_npm/)
-* [Source Code](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs_js/next_gen_ui_react)
-* [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)
+
+- [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/renderer/patternfly_npm/)
+- [Source Code](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs_js/next_gen_ui_react)
+- [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)

@@ -1,0 +1,18 @@
+/* Image Component Styles */
+.image-component-img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--pf-global--BorderRadius--sm);
+  object-fit: cover;
+}
+
+.image-component-placeholder {
+  width: 100%;
+  height: 200px;
+  background-color: var(--pf-global--Color--200);
+  border-radius: var(--pf-global--BorderRadius--sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pf-global--Color--300);
+}
