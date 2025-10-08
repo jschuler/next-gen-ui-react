@@ -4,7 +4,9 @@ import {
     CardTitle,
     Title,
   } from "@patternfly/react-core";
-  import React from "react";
+  import React, { useState } from "react";
+
+  import ErrorPlaceholder from "./ErrorPlaceholder";
   
   interface VideoPlayerProps {
     id?: string;
@@ -27,6 +29,12 @@ import {
     controls = true,
     aspectRatio = '16:9',
   }) => {
+    const [hasVideoError, setHasVideoError] = useState(false);
+
+    const handleVideoError = () => {
+      setHasVideoError(true);
+    };
+
     // Get aspect ratio class
     const getAspectRatioClass = () => {
       switch (aspectRatio) {
@@ -72,7 +80,7 @@ import {
     };
   
     const renderVideoContent = () => {
-      if (video) {
+      if (video && !hasVideoError) {
         if (isYouTubeUrl(video)) {
           // YouTube video embedding
           return (
@@ -84,6 +92,7 @@ import {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
+                onError={handleVideoError}
               />
             </div>
           );
@@ -96,27 +105,31 @@ import {
               autoPlay={autoPlay}
               title={title}
               className="video-player-video"
+              onError={handleVideoError}
             >
               Your browser does not support the video tag.
             </video>
           );
         }
-      } else if (video_img) {
+      } else if (video_img && !hasVideoError) {
         // Show poster image when no video URL is provided
         return (
           <img
             src={video_img}
             alt={title}
             className="video-player-poster"
+            onError={handleVideoError}
           />
         );
       }
   
-      // Fallback when neither video nor poster image is available
+      // Show error placeholder when there's an error or no content
       return (
-        <div>
-          No video content available
-        </div>
+        <ErrorPlaceholder
+          hasError={hasVideoError}
+          errorMessage="Video failed to load"
+          noContentMessage="No video content available"
+        />
       );
     };
   

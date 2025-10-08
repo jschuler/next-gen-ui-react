@@ -90,8 +90,9 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
   const Component = componentsMap[config?.component];
   
   if (!Component) {
-    // Throw an error for missing components so ErrorBoundary can catch it
-    throw new Error(`Component "${config?.component}" is not available in the React package. Available components: ${Object.keys(componentsMap).join(', ')}`);
+    // Return null for unknown components instead of throwing an error
+    console.warn(`Component "${config?.component}" is not available in the React package. Available components: ${Object.keys(componentsMap).join(', ')}`);
+    return null;
   }
   
   const newProps = parseProps(config?.props || config);

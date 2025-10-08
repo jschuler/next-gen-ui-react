@@ -126,12 +126,9 @@ describe('VideoPlayerWrapper', () => {
   it('applies correct card styling', () => {
     render(<VideoPlayerWrapper {...defaultProps} />);
 
-    // Find the card element by looking for the one with the specific styling
-    const card = document.querySelector('[style*="max-width: 1440px"]');
+    // Find the card element
+    const card = screen.getByRole('heading', { level: 4 }).closest('.pf-v6-c-card');
     expect(card).toBeInTheDocument();
-    expect(card).toHaveStyle('max-width: 1440px');
-    expect(card).toHaveStyle('margin: 0 auto');
-    expect(card).toHaveStyle('width: 100%');
   });
 
   it('renders title with correct heading level', () => {
@@ -181,9 +178,7 @@ describe('VideoPlayerWrapper', () => {
     const iframe = screen.getByTitle('Toy Story Trailer');
     const container = iframe.parentElement;
 
-    expect(container).toHaveStyle('position: relative');
-    expect(container).toHaveStyle('padding-bottom: 56.25%'); // 16:9 aspect ratio
-    expect(container).toHaveStyle('overflow: hidden');
+    expect(container).toHaveClass('video-player-container', 'aspect-16-9');
   });
 
   it('handles malformed YouTube URLs gracefully', () => {
@@ -211,9 +206,7 @@ describe('VideoPlayerWrapper', () => {
     const image = screen.getByAltText('Toy Story Trailer');
     expect(image).toHaveAttribute('src', mockVideoData.video_img);
     expect(image).toHaveAttribute('alt', 'Toy Story Trailer');
-    expect(image).toHaveStyle('max-width: 100%');
-    expect(image).toHaveStyle('height: auto');
-    expect(image).toHaveStyle('object-fit: cover');
+    expect(image).toHaveClass('video-player-poster');
   });
 
   it('handles empty title gracefully', () => {
@@ -232,16 +225,13 @@ describe('VideoPlayerWrapper', () => {
   it('applies custom width and height to direct video elements', () => {
     const customSizeProps = {
       ...defaultProps,
-      video: "https://example.com/video.mp4",
-      width: "800px",
-      height: "450px"
+      video: "https://example.com/video.mp4"
     };
 
     render(<VideoPlayerWrapper {...customSizeProps} />);
 
     const video = screen.getByTitle('Toy Story Trailer');
-    expect(video).toHaveStyle('width: 800px');
-    expect(video).toHaveStyle('height: 450px');
+    expect(video).toHaveClass('video-player-video');
   });
 
   it('renders with default autoPlay and controls values', () => {

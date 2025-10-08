@@ -16,17 +16,6 @@
   object-fit: cover;
 }
 
-.image-component-placeholder {
-  width: 100%;
-  height: var(--ngui-image-placeholder-height);
-  background-color: var(--pf-global--Color--200);
-  border-radius: var(--pf-global--BorderRadius--sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--pf-global--Color--300);
-}
-
 /* OneCard Component Styles */
 .onecard-component-img {
   width: 100%;
@@ -106,4 +95,25 @@
 .video-player-poster {
   border-radius: var(--pf-global--BorderRadius--sm);
   object-fit: cover;
+}
+
+/* Common Error Handling Styles */
+.error-placeholder {
+  width: 100%;
+  height: var(--ngui-image-placeholder-height);
+  background-color: var(--pf-global--Color--200);
+  border-radius: var(--pf-global--BorderRadius--sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pf-global--Color--300);
+  font-size: var(--pf-global--FontSize--sm);
+  text-align: center;
+  padding: var(--ngui-spacing-medium);
+}
+
+.error-placeholder.error-state {
+  background-color: var(--pf-global--Color--danger-100);
+  color: var(--pf-global--Color--danger-200);
+  border: 1px solid var(--pf-global--Color--danger-200);
 }

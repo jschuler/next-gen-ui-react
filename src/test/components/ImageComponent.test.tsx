@@ -35,12 +35,7 @@ describe("ImageComponent", () => {
     const image = screen.getByRole("img");
     expect(image).toHaveAttribute("src", mockImageData.image);
     expect(image).toHaveAttribute("alt", "Toy Story Poster");
-    expect(image).toHaveStyle("width: 100%");
-    expect(image).toHaveStyle("height: auto");
-    expect(image).toHaveStyle("object-fit: cover");
-    expect(image).toHaveStyle(
-      "border-radius: var(--pf-global--BorderRadius--sm)"
-    );
+    expect(image).toHaveClass("image-component-img");
   });
 
   it("applies correct card styling", () => {
@@ -75,18 +70,7 @@ describe("ImageComponent", () => {
     expect(screen.getByText("No image provided")).toBeInTheDocument();
 
     const placeholder = screen.getByText("No image provided");
-    expect(placeholder).toHaveStyle("width: 100%");
-    expect(placeholder).toHaveStyle("height: 200px");
-    expect(placeholder).toHaveStyle(
-      "background-color: var(--pf-global--Color--200)"
-    );
-    expect(placeholder).toHaveStyle(
-      "border-radius: var(--pf-global--BorderRadius--sm)"
-    );
-    expect(placeholder).toHaveStyle("display: flex");
-    expect(placeholder).toHaveStyle("align-items: center");
-    expect(placeholder).toHaveStyle("justify-content: center");
-    expect(placeholder).toHaveStyle("color: var(--pf-global--Color--300)");
+    expect(placeholder).toHaveClass("error-placeholder");
   });
 
   it("renders placeholder when image is undefined", () => {
@@ -121,18 +105,7 @@ describe("ImageComponent", () => {
     // Check that error message is displayed
     const errorMessage = screen.getByText("Image failed to load");
     expect(errorMessage).toBeInTheDocument();
-    expect(errorMessage).toHaveStyle("width: 100%");
-    expect(errorMessage).toHaveStyle("height: 200px");
-    expect(errorMessage).toHaveStyle(
-      "background-color: var(--pf-global--Color--200)"
-    );
-    expect(errorMessage).toHaveStyle(
-      "border-radius: var(--pf-global--BorderRadius--sm)"
-    );
-    expect(errorMessage).toHaveStyle("display: flex");
-    expect(errorMessage).toHaveStyle("align-items: center");
-    expect(errorMessage).toHaveStyle("justify-content: center");
-    expect(errorMessage).toHaveStyle("color: var(--pf-global--Color--300)");
+    expect(errorMessage).toHaveClass("error-placeholder", "error-state");
   });
 
   it("renders with different image URLs", () => {
@@ -190,15 +163,12 @@ describe("ImageComponent", () => {
 
     // Test with image
     const image = screen.getByRole("img");
-    expect(image).toHaveStyle("width: 100%");
-    expect(image).toHaveStyle("height: auto");
-    expect(image).toHaveStyle("object-fit: cover");
+    expect(image).toHaveClass("image-component-img");
 
     // Test without image
     rerender(<ImageComponent {...defaultProps} image={null} />);
     const placeholder = screen.getByText("No image provided");
-    expect(placeholder).toHaveStyle("width: 100%");
-    expect(placeholder).toHaveStyle("height: 200px");
+    expect(placeholder).toHaveClass("error-placeholder");
   });
 
   it("maintains accessibility with proper alt text", () => {

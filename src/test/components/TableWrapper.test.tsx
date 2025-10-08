@@ -154,10 +154,10 @@ describe("TableWrapper Component", () => {
   it("should handle empty fields array", () => {
     render(<TableWrapper {...mockFieldsData} fields={[]} />);
 
-    // Check that the title appears in the table caption
-    const tableCaption = screen.getByRole("grid").querySelector("caption");
-    expect(tableCaption).toHaveTextContent("Details of Toy Story");
-    // Should not crash with empty fields
+    // Should show error placeholder when no fields are provided
+    expect(screen.getByText("No data available")).toBeInTheDocument();
+    // Should not render a table
+    expect(screen.queryByRole("grid")).not.toBeInTheDocument();
   });
 
   it("should handle fields with different data lengths", () => {

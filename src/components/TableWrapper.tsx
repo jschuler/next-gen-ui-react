@@ -9,6 +9,8 @@ import {
   Caption,
 } from "@patternfly/react-table";
 
+import ErrorPlaceholder from "./ErrorPlaceholder";
+
 interface FieldData {
   name: string;
   data_path: string;
@@ -25,9 +27,14 @@ interface TableWrapperProps {
 
 const TableWrapper = (props: TableWrapperProps) => {
   const { title, id, fields, className } = props;
+  
+  // Check for missing or invalid data
+  const hasNoFields = !fields || fields.length === 0;
+  const hasNoTitle = !title || title.trim() === "";
+
   // Transform fields data into table format
   const transformFieldsToTableData = () => {
-    if (!fields || fields.length === 0) return { columns: [], rows: [] };
+    if (hasNoFields) return { columns: [], rows: [] };
 
     // Find the maximum number of data items across all fields
     const maxDataLength = Math.max(...fields.map((field) => field.data.length));
@@ -59,29 +66,51 @@ const TableWrapper = (props: TableWrapperProps) => {
   };
 
   const { columns, rows } = transformFieldsToTableData();
+  const hasNoData = rows.length === 0;
+
+  // If no title and no fields, show error
+  if (hasNoTitle && hasNoFields) {
+    return (
+      <Card id={id} className={className}>
+        <CardBody>
+          <ErrorPlaceholder
+            hasError={false}
+            noContentMessage="No content available"
+          />
+        </CardBody>
+      </Card>
+    );
+  }
 
   return (
     <Card id={id} className={className}>
       <CardBody>
-        <Table variant="compact" borders>
-          <Caption>{title}</Caption>
-          <Thead>
-            <Tr>
-              {columns.map((col, index) => (
-                <Th key={index}>{col.label}</Th>
-              ))}
-            </Tr>
-          </Thead>
-          <Tbody>
-            {rows.map((row, rowIndex) => (
-              <Tr key={rowIndex} data-testid={`row-${rowIndex}`}>
-                {columns.map((col, colIndex) => (
-                  <Td key={colIndex}>{row[col.key]}</Td>
+        {hasNoData ? (
+          <ErrorPlaceholder
+            hasError={false}
+            noContentMessage="No data available"
+          />
+        ) : (
+          <Table variant="compact" borders>
+            <Caption>{title}</Caption>
+            <Thead>
+              <Tr>
+                {columns.map((col, index) => (
+                  <Th key={index}>{col.label}</Th>
                 ))}
               </Tr>
-            ))}
-          </Tbody>
-        </Table>
+            </Thead>
+            <Tbody>
+              {rows.map((row, rowIndex) => (
+                <Tr key={rowIndex} data-testid={`row-${rowIndex}`}>
+                  {columns.map((col, colIndex) => (
+                    <Td key={colIndex}>{row[col.key]}</Td>
+                  ))}
+                </Tr>
+              ))}
+            </Tbody>
+          </Table>
+        )}
       </CardBody>
     </Card>
   );
