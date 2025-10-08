@@ -35,51 +35,31 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
   imageSize = "md",
   className,
 }) => {
-  const getImageFlexBasis = () => {
-    switch (imageSize) {
-      case "sm":
-        return "15%";
-      case "lg":
-        return "25%";
-      default:
-        return "20%";
-    }
-  };
 
   return (
     <Card 
       id={id} 
-      className={className}
-      style={{ 
-        maxWidth: "1440px", 
-        margin: "0 auto",
-        width: "100%"
-      }}
+      className={`onecard-component-container ${className || ''}`}
     >
       <CardBody>
         <Flex spaceItems={{ default: "spaceItemsLg" }} alignItems={{ default: "alignItemsFlexStart" }}>
           {/* Left Column - Image */}
           {image && (
-            <FlexItem shrink={{ default: "shrink" }} style={{ flexBasis: getImageFlexBasis() }}>
+            <FlexItem className={`onecard-component-image-container size-${imageSize}`}>
               <img
                 src={image}
                 alt={title}
-                style={{
-                  width: "100%",
-                  height: "auto",
-                  borderRadius: "var(--pf-global--BorderRadius--sm)",
-                  objectFit: "cover",
-                }}
+                className="onecard-component-img"
               />
             </FlexItem>
           )}
 
           {/* Right Column - Title + Fields */}
           <FlexItem grow={{ default: "grow" }}>
-            <Title headingLevel="h4" size="lg" style={{ marginBottom: "16px" }}>
+            <Title headingLevel="h4" size="lg" className="onecard-component-title">
               {title}
             </Title>
-            <Divider component="div" style={{ marginTop: "16px", marginBottom: "16px" }} />
+            <Divider component="div" className="onecard-component-divider" />
             <div>
               <DescriptionList isAutoFit>
                 {fields?.map((field, idx) => (

@@ -27,18 +27,18 @@ import {
     controls = true,
     aspectRatio = '16:9',
   }) => {
-    // Get aspect ratio styles
-    const getAspectRatioStyle = () => {
+    // Get aspect ratio class
+    const getAspectRatioClass = () => {
       switch (aspectRatio) {
         case '16:9':
-          return { paddingBottom: '56.25%' };
+          return 'aspect-16-9';
         case '4:3':
-          return { paddingBottom: '75%' };
+          return 'aspect-4-3';
         case '1:1':
-          return { paddingBottom: '100%' };
+          return 'aspect-1-1';
         case 'auto':
         default:
-          return {};
+          return 'aspect-auto';
       }
     };
 
@@ -76,25 +76,11 @@ import {
         if (isYouTubeUrl(video)) {
           // YouTube video embedding
           return (
-            <div 
-              style={{ 
-                position: 'relative', 
-                height: aspectRatio === 'auto' ? 'auto' : 0, 
-                overflow: 'hidden',
-                ...getAspectRatioStyle()
-              }}
-            >
+            <div className={`video-player-container ${getAspectRatioClass()}`}>
               <iframe
                 title={title}
                 src={getYouTubeEmbedUrl(video)}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width: '100%',
-                  height: '100%',
-                  border: 0
-                }}
+                className="video-player-iframe"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerPolicy="strict-origin-when-cross-origin"
                 allowFullScreen
@@ -109,6 +95,7 @@ import {
               controls={controls}
               autoPlay={autoPlay}
               title={title}
+              className="video-player-video"
             >
               Your browser does not support the video tag.
             </video>
@@ -120,6 +107,7 @@ import {
           <img
             src={video_img}
             alt={title}
+            className="video-player-poster"
           />
         );
       }
