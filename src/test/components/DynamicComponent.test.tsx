@@ -73,8 +73,8 @@ describe("DynamicComponent", () => {
       title: "Unknown",
     };
 
-    render(<DynamicComponent config={unknownConfig} />);
-    // Should render FragmentWrapper (empty fragment)
-    expect(screen.queryByText("Unknown")).not.toBeInTheDocument();
+    const { container } = render(<DynamicComponent config={unknownConfig} />);
+    // Should return null for unknown components
+    expect(container.firstChild).toBeNull();
   });
 });

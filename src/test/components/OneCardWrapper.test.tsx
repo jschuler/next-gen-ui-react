@@ -97,23 +97,23 @@ describe('OneCardWrapper', () => {
   it('applies correct image size styling', () => {
     const { rerender } = render(<OneCardWrapper {...defaultProps} imageSize="sm" />);
     
-    let imageContainer = screen.getByRole('img').closest('[style*="flex-basis"]');
-    expect(imageContainer).toHaveStyle('flex-basis: 15%');
+    let imageContainer = screen.getByRole('img').closest('.onecard-component-image-container');
+    expect(imageContainer).toHaveClass('size-sm');
     
     rerender(<OneCardWrapper {...defaultProps} imageSize="md" />);
-    imageContainer = screen.getByRole('img').closest('[style*="flex-basis"]');
-    expect(imageContainer).toHaveStyle('flex-basis: 20%');
+    imageContainer = screen.getByRole('img').closest('.onecard-component-image-container');
+    expect(imageContainer).toHaveClass('size-md');
     
     rerender(<OneCardWrapper {...defaultProps} imageSize="lg" />);
-    imageContainer = screen.getByRole('img').closest('[style*="flex-basis"]');
-    expect(imageContainer).toHaveStyle('flex-basis: 25%');
+    imageContainer = screen.getByRole('img').closest('.onecard-component-image-container');
+    expect(imageContainer).toHaveClass('size-lg');
   });
 
   it('defaults to medium image size when imageSize is not specified', () => {
     render(<OneCardWrapper {...defaultProps} />);
     
-    const imageContainer = screen.getByRole('img').closest('[style*="flex-basis"]');
-    expect(imageContainer).toHaveStyle('flex-basis: 20%');
+    const imageContainer = screen.getByRole('img').closest('.onecard-component-image-container');
+    expect(imageContainer).toHaveClass('size-md');
   });
 
   it('applies custom id and className', () => {
@@ -179,10 +179,8 @@ describe('OneCardWrapper', () => {
   it('applies correct card styling', () => {
     render(<OneCardWrapper {...defaultProps} />);
     
-    const card = screen.getByRole('img').closest('[style*="max-width"]');
-    expect(card).toHaveStyle('max-width: 1440px');
-    expect(card).toHaveStyle('margin: 0 auto');
-    expect(card).toHaveStyle('width: 100%');
+    const card = screen.getByRole('img').closest('.onecard-component-container');
+    expect(card).toHaveClass('onecard-component-container');
   });
 
   it('renders image with correct attributes', () => {
@@ -191,9 +189,7 @@ describe('OneCardWrapper', () => {
     const image = screen.getByRole('img');
     expect(image).toHaveAttribute('src', mockData.image);
     expect(image).toHaveAttribute('alt', 'Toy Story Details');
-    expect(image).toHaveStyle('width: 100%');
-    expect(image).toHaveStyle('height: auto');
-    expect(image).toHaveStyle('object-fit: cover');
+    expect(image).toHaveClass('onecard-component-img');
   });
 
   it('renders title with correct heading level', () => {

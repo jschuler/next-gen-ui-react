@@ -1,6 +1,8 @@
 import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core";
 import React, { useState } from "react";
 
+import ErrorPlaceholder from "./ErrorPlaceholder";
+
 interface ImageComponentProps {
   component: "image";
   id: string;
@@ -15,7 +17,11 @@ const ImageComponent: React.FC<ImageComponentProps> = ({
   title,
   className,
 }) => {
-  const [imageError, setImageError] = useState(false);
+  const [hasImageError, setHasImageError] = useState(false);
+
+  const handleImageError = () => {
+    setHasImageError(true);
+  };
 
   return (
     <Card id={id} className={className}>
@@ -23,17 +29,19 @@ const ImageComponent: React.FC<ImageComponentProps> = ({
         <CardTitle>{title}</CardTitle>
       </CardHeader>
       <CardBody>
-        {image && !imageError ? (
+        {image && !hasImageError ? (
           <img
             src={image}
             alt={title}
             className="image-component-img"
-            onError={() => setImageError(true)}
+            onError={handleImageError}
           />
         ) : (
-          <div className="image-component-placeholder">
-            {imageError ? "Image failed to load" : "No image provided"}
-          </div>
+          <ErrorPlaceholder
+            hasError={hasImageError}
+            errorMessage="Image failed to load"
+            noContentMessage="No image provided"
+          />
         )}
       </CardBody>
     </Card>

@@ -9,9 +9,6 @@ import { cloneElement, isValidElement, useState } from "react";
 
 import { componentsMap } from "../constants/componentsMap";
 
-const FragmentWrapper = ({ children }: { children?: React.ReactNode }) => (
-  <>{children}</>
-);
 
 interface IProps {
   config: any;
@@ -89,7 +86,15 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
     return newProps;
   };
 
-  const Component = componentsMap[config?.component] || FragmentWrapper;
+  // Check if component exists in componentsMap
+  const Component = componentsMap[config?.component];
+  
+  if (!Component) {
+    // Return null for unknown components instead of throwing an error
+    console.warn(`Component "${config?.component}" is not available in the React package. Available components: ${Object.keys(componentsMap).join(', ')}`);
+    return null;
+  }
+  
   const newProps = parseProps(config?.props || config);
 
   return (
