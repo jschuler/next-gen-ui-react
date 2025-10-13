@@ -11,13 +11,33 @@ export default defineConfig({
       formats: ["es", "cjs"],
       fileName: (format) => `index.${format}.js`,
     },
+    // Target modern browsers for smaller bundles
+    target: 'es2020',
+    // Enable CSS code splitting
+    cssCodeSplit: true,
+    // Enable minification
+    minify: 'esbuild',
     rollupOptions: {
-      external: ["react", "react-dom"],
+      external: (id) => {
+        // Externalize all React-related imports
+        return id === "react" || 
+               id === "react-dom" || 
+               id.startsWith("react/") || 
+               id.startsWith("react-dom/");
+      },
       output: {
         exports: "named",
+        // Manual chunk splitting for better caching
+        manualChunks: {
+          // Separate PatternFly into its own chunk
+          'patternfly': ['@patternfly/react-core', '@patternfly/react-table'],
+        },
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
+          "react/jsx-runtime": "React",
+          "react/jsx-dev-runtime": "React",
+          "react-dom/client": "ReactDOM"
         },
       },
     },

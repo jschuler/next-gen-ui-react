@@ -1,0 +1,165 @@
+/* CSS Custom Properties for Dynamic Values */
+:root {
+  --ngui-image-placeholder-height: 200px;
+  --ngui-container-max-width: 1440px;
+  --ngui-spacing-medium: 16px;
+  --ngui-aspect-ratio-16-9: 56.25%;
+  --ngui-aspect-ratio-4-3: 75%;
+  --ngui-aspect-ratio-1-1: 100%;
+}
+
+/* Image Component Styles */
+.image-component-img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--pf-global--BorderRadius--sm);
+  object-fit: cover;
+}
+
+/* OneCard Component Styles */
+.onecard-component-img {
+  width: 100%;
+  height: auto;
+  border-radius: var(--pf-global--BorderRadius--sm);
+  object-fit: cover;
+}
+
+.onecard-component-container {
+  max-width: var(--ngui-container-max-width);
+  margin: 0 auto;
+  width: 100%;
+}
+
+.onecard-component-image-container {
+  flex-shrink: 0;
+}
+
+.onecard-component-image-container.size-sm {
+  flex-basis: 15%;
+}
+
+.onecard-component-image-container.size-md {
+  flex-basis: 20%;
+}
+
+.onecard-component-image-container.size-lg {
+  flex-basis: 25%;
+}
+
+.onecard-component-title {
+  margin-bottom: var(--ngui-spacing-medium);
+}
+
+.onecard-component-divider {
+  margin-top: var(--ngui-spacing-medium);
+  margin-bottom: var(--ngui-spacing-medium);
+}
+
+/* Video Player Component Styles */
+.video-player-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.video-player-container.aspect-16-9 {
+  padding-bottom: var(--ngui-aspect-ratio-16-9);
+}
+
+.video-player-container.aspect-4-3 {
+  padding-bottom: var(--ngui-aspect-ratio-4-3);
+}
+
+.video-player-container.aspect-1-1 {
+  padding-bottom: var(--ngui-aspect-ratio-1-1);
+}
+
+.video-player-container.aspect-auto {
+  height: auto;
+}
+
+.video-player-iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.video-player-video,
+.video-player-poster {
+  width: 100%;
+  height: auto;
+}
+
+.video-player-poster {
+  border-radius: var(--pf-global--BorderRadius--sm);
+  object-fit: cover;
+}
+
+/* Set of Cards Component Styles */
+.set-of-cards-container {
+  max-width: var(--ngui-container-max-width);
+  margin: 0 auto;
+  width: 100%;
+  padding: var(--ngui-spacing-medium);
+}
+
+.set-of-cards-title {
+  margin-bottom: var(--ngui-spacing-medium);
+  font-size: var(--pf-global--FontSize--xl);
+  font-weight: var(--pf-global--FontWeight--bold);
+  color: var(--pf-global--Color--100);
+}
+
+.set-of-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--ngui-spacing-medium);
+  align-items: start;
+}
+
+.set-of-cards-item {
+  width: 100%;
+  height: fit-content;
+}
+
+/* Responsive adjustments for set-of-cards */
+@media (max-width: 768px) {
+  .set-of-cards-grid {
+    grid-template-columns: 1fr;
+    gap: calc(var(--ngui-spacing-medium) * 0.75);
+  }
+
+  .set-of-cards-container {
+    padding: calc(var(--ngui-spacing-medium) * 0.75);
+  }
+}
+
+@media (min-width: 1200px) {
+  .set-of-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: calc(var(--ngui-spacing-medium) * 1.25);
+  }
+}
+
+/* Common Error Handling Styles */
+.error-placeholder {
+  width: 100%;
+  height: var(--ngui-image-placeholder-height);
+  background-color: var(--pf-global--Color--200);
+  border-radius: var(--pf-global--BorderRadius--sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--pf-global--Color--300);
+  font-size: var(--pf-global--FontSize--sm);
+  text-align: center;
+  padding: var(--ngui-spacing-medium);
+}
+
+.error-placeholder.error-state {
+  background-color: var(--pf-global--Color--danger-100);
+  color: var(--pf-global--Color--danger-200);
+  border: 1px solid var(--pf-global--Color--danger-200);
+}

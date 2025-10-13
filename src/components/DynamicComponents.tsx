@@ -1,15 +1,11 @@
-import "@patternfly/react-core/dist/styles/base.css";
-import "@patternfly/chatbot/dist/css/main.css";
-import isArray from "lodash/isArray";
-import isEmpty from "lodash/isEmpty";
-import map from "lodash/map";
+// Import minimal PatternFly CSS (no-reset version is smaller)
+import "@patternfly/react-core/dist/styles/base-no-reset.css";
+import "../global.css";
+
 import { cloneElement, isValidElement, useState } from "react";
 
 import { componentsMap } from "../constants/componentsMap";
 
-const FragmentWrapper = ({ children }: { children?: React.ReactNode }) => (
-  <>{children}</>
-);
 
 interface IProps {
   config: any;
@@ -22,7 +18,7 @@ interface IProps {
 const DynamicComponent = ({ config, customProps = {} }: IProps) => {
   const [customData, setCustomData] = useState(null);
 
-  if (isEmpty(config)) {
+  if (!config || Object.keys(config).length === 0) {
     console.error("Config is empty");
     return null;
   }
@@ -87,13 +83,21 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
     return newProps;
   };
 
-  const Component = componentsMap[config?.component] || FragmentWrapper;
+  // Check if component exists in componentsMap
+  const Component = componentsMap[config?.component];
+  
+  if (!Component) {
+    // Return null for unknown components instead of throwing an error
+    console.warn(`Component "${config?.component}" is not available in the React package. Available components: ${Object.keys(componentsMap).join(', ')}`);
+    return null;
+  }
+  
   const newProps = parseProps(config?.props || config);
 
   return (
     <Component {...newProps}>
-      {isArray(config?.children)
-        ? map(config?.children, (child, index) => (
+      {Array.isArray(config?.children)
+        ? config?.children.map((child, index) => (
             <DynamicComponent
               config={child}
               key={(child.key || child.component || index) + index}
