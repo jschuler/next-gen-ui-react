@@ -3,7 +3,7 @@ name: Publish Patternfly React Renderer to NPM
 on:
   push:
     tags:
-      - 'v*'
+      - '*'
 
 jobs:
   publish:
