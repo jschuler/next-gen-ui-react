@@ -14,11 +14,14 @@ This npm package provides a collection of reusable Patternfly React components t
   - ImageComponent
   - TableWrapper
   - VideoPlayerWrapper
+  - SetOfCardsWrapper
+
 * Dynamic Component Renderer
   - DynamicComponents
 * Supported Components
-  - `one-card`, `image`, `table`, `video-player`
+  - `one-card`, `image`, `table`, `video-player`, `set-of-cards`
   - `video-player` supports YouTube video URLs and direct video file URLs
+  - `set-of-cards` displays multiple OneCard components in an auto-aligned grid layout
 
 ## Installation
 
@@ -131,17 +134,58 @@ function App() {
 ### VideoPlayer Component
 
 ```jsx
-import { VideoPlayerWrapper } from '@rhngui/patternfly-react-renderer';
+import { VideoPlayerWrapper } from "@rhngui/patternfly-react-renderer";
 
 const videoData = {
   component: "video-player",
   video: "https://www.youtube.com/embed/v-PjgYDrg70",
   video_img: "https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg",
-  title: "Toy Story Trailer"
+  title: "Toy Story Trailer",
 };
 
 function App() {
   return <VideoPlayerWrapper {...videoData} />;
+}
+```
+
+### SetOfCards Component
+
+```jsx
+import { DynamicComponent } from "@rhngui/patternfly-react-renderer";
+
+const setOfCardsConfig = {
+  component: "set-of-cards",
+  id: "test-id",
+  title: "My Favorite Movies",
+  fields: [
+    {
+      data: ["Toy Story", "My Name is Khan"],
+      data_path: "movie.title",
+      name: "Title",
+    },
+    {
+      data: [1995, 2003],
+      data_path: "movie.year",
+      name: "Year",
+    },
+    {
+      data: [8.3, 8.5],
+      data_path: "movie.imdbRating",
+      name: "IMDB Rating",
+    },
+    {
+      data: [
+        ["Jim Varney", "Tim Allen", "Tom Hanks", "Don Rickles"],
+        ["Shah Rukh Khan", "Kajol Devgan"],
+      ],
+      data_path: "actors[*]",
+      name: "Actors",
+    },
+  ],
+};
+
+function App() {
+  return <DynamicComponent config={setOfCardsConfig} />;
 }
 ```
 

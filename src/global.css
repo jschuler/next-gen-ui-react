@@ -97,6 +97,52 @@
   object-fit: cover;
 }
 
+/* Set of Cards Component Styles */
+.set-of-cards-container {
+  max-width: var(--ngui-container-max-width);
+  margin: 0 auto;
+  width: 100%;
+  padding: var(--ngui-spacing-medium);
+}
+
+.set-of-cards-title {
+  margin-bottom: var(--ngui-spacing-medium);
+  font-size: var(--pf-global--FontSize--xl);
+  font-weight: var(--pf-global--FontWeight--bold);
+  color: var(--pf-global--Color--100);
+}
+
+.set-of-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--ngui-spacing-medium);
+  align-items: start;
+}
+
+.set-of-cards-item {
+  width: 100%;
+  height: fit-content;
+}
+
+/* Responsive adjustments for set-of-cards */
+@media (max-width: 768px) {
+  .set-of-cards-grid {
+    grid-template-columns: 1fr;
+    gap: calc(var(--ngui-spacing-medium) * 0.75);
+  }
+
+  .set-of-cards-container {
+    padding: calc(var(--ngui-spacing-medium) * 0.75);
+  }
+}
+
+@media (min-width: 1200px) {
+  .set-of-cards-grid {
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: calc(var(--ngui-spacing-medium) * 1.25);
+  }
+}
+
 /* Common Error Handling Styles */
 .error-placeholder {
   width: 100%;
