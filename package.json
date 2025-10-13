@@ -23,8 +23,7 @@
     "test:ci": "vitest --run",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "prepack": "cp -f ../../LICENSE ./LICENSE"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@patternfly/patternfly": "^6.3.1",
