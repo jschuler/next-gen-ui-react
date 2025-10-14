@@ -39,42 +39,54 @@ npm install @rhngui/patternfly-react-renderer
 ### OneCard Component
 
 ```jsx
-import { OneCardWrapper } from "@rhngui/patternfly-react-renderer";
+import DynamicComponent from "@rhngui/patternfly-react-renderer";
 
-const mockData = {
-  title: "Movie Details",
-  image:
-    "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
-  fields: [
-    {
-      name: "Title",
-      data_path: "movie.title",
-      data: ["Toy Story"],
-    },
-    {
-      name: "Year",
-      data_path: "movie.year",
-      data: [1995],
-    },
-    {
-      name: "Genres",
-      data_path: "movie.genres",
-      data: ["Animation", "Adventure"],
-    },
-  ],
-  imageSize: "md",
-  id: "movie-card",
-};
+const onecardConfig = {
+    component: "one-card",
+    image: "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+    id: "one-card-id",
+    title: "Toy Story Movie",
+    fields: [
+        {
+            "name": "Title",
+            "data_path": "$..movie.title",
+            "data": [
+                "Toy Story"
+            ]
+        },
+        {
+            "name": "Year",
+            "data_path": "$..movie.year",
+            "data": [
+                1995
+            ]
+        },
+        {
+            "name": "Rating",
+            "data_path": "$..movie.imdbRating",
+            "data": [
+                8.3
+            ]
+        },
+        {
+            "name": "Release Date",
+            "data_path": "$..movie.released",
+            "data": [
+                "2022-11-02"
+            ]
+        }
+    ]
+}
 
 function App() {
-  return <OneCardWrapper {...mockData} />;
+  return <DynamicComponent {onecardConfig} />;
 }
 ```
 
 ### Image Component
 
 ```jsx
-import { DynamicComponent } from "@rhngui/patternfly-react-renderer";
+import DynamicComponent from "@rhngui/patternfly-react-renderer";
 
 const imageConfig = {
   component: "image",
@@ -92,7 +104,7 @@ function App() {
 ### Table Component
 
 ```jsx
-import { DynamicComponent } from "@rhngui/patternfly-react-renderer";
+import DynamicComponent from "@rhngui/patternfly-react-renderer";
 
 const tableConfig = {
   component: "table",
@@ -134,9 +146,9 @@ function App() {
 ### VideoPlayer Component
 
 ```jsx
-import { VideoPlayerWrapper } from "@rhngui/patternfly-react-renderer";
+import DynamicComponent from "@rhngui/patternfly-react-renderer";
 
-const videoData = {
+const videoConfig = {
   component: "video-player",
   video: "https://www.youtube.com/embed/v-PjgYDrg70",
   video_img: "https://img.youtube.com/vi/v-PjgYDrg70/maxresdefault.jpg",
@@ -144,14 +156,14 @@ const videoData = {
 };
 
 function App() {
-  return <VideoPlayerWrapper {...videoData} />;
+  return <DynamicComponent {videoConfig} />;
 }
 ```
 
 ### SetOfCards Component
 
 ```jsx
-import { DynamicComponent } from "@rhngui/patternfly-react-renderer";
+import DynamicComponent from "@rhngui/patternfly-react-renderer";
 
 const setOfCardsConfig = {
   component: "set-of-cards",

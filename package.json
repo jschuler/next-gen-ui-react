@@ -12,6 +12,17 @@
     "LICENSE"
   ],
   "license": "Apache-2.0",
+  "contributors": [
+    "Anuj Rajak <arajak@redhat.com>",
+    "Hrithik Gavankar <hgavanka@redhat.com>",
+    "Libor Krzyzanek <lkrzyzan@redhat.com>",
+    "Vlastimil Elias <velias@redhat.com>",
+    "Ivana Rodriguez <ivrodrig@redhat.com>",
+    "Sydney Grant <sgrant@redhat.com>",
+    "Diwanshi Gadgil <dpandey@redhat.com>",
+    "Ryszard Kozmik <rkozmik@redhat.com>",
+    "Nachiket Zadap <nzadap@redhat.com>"
+],
   "exports": {
     "import": "./dist/index.es.js",
     "require": "./dist/index.cjs.js"
