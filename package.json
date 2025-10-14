@@ -1,7 +1,8 @@
 {
-  "name": "dynamicui",
+  "name": "@rhngui/patternfly-react-renderer",
   "private": false,
-  "version": "0.0.1",
+  "version": "1.0.0-alpha.0",
+  "description": "Patternfly React component wrappers for the Next Gen UI Agent",
   "type": "module",
   "main": "dist/index.cjs.js",
   "module": "dist/index.es.js",
@@ -12,6 +13,10 @@
     "LICENSE"
   ],
   "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
   "contributors": [
     "Anuj Rajak <arajak@redhat.com>",
     "Hrithik Gavankar <hgavanka@redhat.com>",
@@ -21,11 +26,16 @@
     "Sydney Grant <sgrant@redhat.com>",
     "Diwanshi Gadgil <dpandey@redhat.com>",
     "Ryszard Kozmik <rkozmik@redhat.com>",
-    "Nachiket Zadap <nzadap@redhat.com>"
+    "Nachiket Zadap <nzadap@redhat.com>",
+    "Benny Powers <web@bennypowers.com>"
 ],
   "exports": {
     "import": "./dist/index.es.js",
     "require": "./dist/index.cjs.js"
+  },
+  "peerDependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "scripts": {
     "dev": "vite",
@@ -34,17 +44,14 @@
     "test:ci": "vitest --run",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@patternfly/patternfly": "^6.3.1",
     "@patternfly/react-core": "^6.3.1",
     "@patternfly/react-table": "^6.2.2",
     "vite-plugin-dts": "^4.5.3"
-  },
-  "peerDependencies": {
-    "react": ">=18.0.0",
-    "react-dom": ">=18.0.0"
   },
   "peerDependenciesMeta": {
     "react": {
