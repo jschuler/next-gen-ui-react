@@ -26,7 +26,8 @@
     "Sydney Grant <sgrant@redhat.com>",
     "Diwanshi Gadgil <dpandey@redhat.com>",
     "Ryszard Kozmik <rkozmik@redhat.com>",
-    "Nachiket Zadap <nzadap@redhat.com>"
+    "Nachiket Zadap <nzadap@redhat.com>",
+    "Benny Powers <web@bennypowers.com>"
 ],
   "exports": {
     "import": "./dist/index.es.js",
