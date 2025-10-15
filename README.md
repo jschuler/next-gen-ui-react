@@ -9,19 +9,18 @@ This npm package provides a collection of reusable Patternfly React components t
 
 ## Provides:
 
-- Patternfly React Components
-  - OneCardWrapper
-  - ImageComponent
-  - TableWrapper
-  - VideoPlayerWrapper
-  - SetOfCardsWrapper
-
+* Rendering for [Next Gen UI Dynamic Componets](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/dynamic_components/) using React components:
+    - Implemented components: `one-card`, `image`, `table`, `video-player`, `set-of-cards`
+    - `video-player` supports YouTube video URLs and direct video file URLs
+    - `set-of-cards` displays multiple OneCard components in an auto-aligned grid layout
 * Dynamic Component Renderer
-  - DynamicComponents
-* Supported Components
-  - `one-card`, `image`, `table`, `video-player`, `set-of-cards`
-  - `video-player` supports YouTube video URLs and direct video file URLs
-  - `set-of-cards` displays multiple OneCard components in an auto-aligned grid layout
+    - `DynamicComponent`
+* Patternfly React Components
+    - `OneCardWrapper`
+    - `ImageComponent`
+    - `TableWrapper`
+    - `VideoPlayerWrapper`
+    - `SetOfCardsWrapper`
 
 ## Installation
 
@@ -35,6 +34,8 @@ npm install @rhngui/patternfly-react-renderer
 ```
 
 ## Usage Examples
+
+**Note:** JSON configs used in examples are normally produced by _Next Gen UI Agent_.
 
 ### OneCard Component
 
@@ -204,5 +205,5 @@ function App() {
 ## Links
 
 - [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/renderer/patternfly_npm/)
-- [Source Code](https://github.com/RedHat-UX/next-gen-ui-agent/tree/main/libs_js/next_gen_ui_react)
+- [Source Code](https://github.com/RedHat-UX/next-gen-ui-react)
 - [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)
