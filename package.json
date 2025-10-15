@@ -29,15 +29,15 @@
     "Nachiket Zadap <nzadap@redhat.com>",
     "Benny Powers <web@bennypowers.com>",
     "Meghan Craft <mecraft@redhat.com>"
-],
+  ],
   "exports": {
     "import": "./dist/index.es.js",
     "require": "./dist/index.cjs.js"
   },
   "peerDependencies": {
-  "react": ">=17.0.0 <20.0.0",
-  "react-dom": ">=17.0.0 <20.0.0"
-},
+    "react": ">=17.0.0 <20.0.0",
+    "react-dom": ">=17.0.0 <20.0.0"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
