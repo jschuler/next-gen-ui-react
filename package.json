@@ -27,15 +27,16 @@
     "Diwanshi Gadgil <dpandey@redhat.com>",
     "Ryszard Kozmik <rkozmik@redhat.com>",
     "Nachiket Zadap <nzadap@redhat.com>",
-    "Benny Powers <web@bennypowers.com>"
-],
+    "Benny Powers <web@bennypowers.com>",
+    "Meghan Craft <mecraft@redhat.com>"
+  ],
   "exports": {
     "import": "./dist/index.es.js",
     "require": "./dist/index.cjs.js"
   },
   "peerDependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": ">=17.0.0 <20.0.0",
+    "react-dom": ">=17.0.0 <20.0.0"
   },
   "scripts": {
     "dev": "vite",
