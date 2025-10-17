@@ -1,3 +1,4 @@
+import EmptyStateWrapper from "../components/EmptyStateWrapper";
 import ImageComponent from "../components/ImageComponent";
 import OneCardWrapper from "../components/OneCardWrapper";
 import SetOfCardsWrapper from "../components/SetOfCardsWrapper";
@@ -10,4 +11,5 @@ export const componentsMap = {
   image: ImageComponent,
   "video-player": VideoPlayerWrapper,
   "set-of-cards": SetOfCardsWrapper,
+  "empty-state": EmptyStateWrapper,
 };
