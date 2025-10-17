@@ -23,10 +23,11 @@ interface TableWrapperProps {
   id: string;
   fields: FieldData[];
   className?: string;
+  onRowClick?: (rowData: Record<string, string | number | null>) => void;
 }
 
 const TableWrapper = (props: TableWrapperProps) => {
-  const { title, id, fields, className } = props;
+  const { title, id, fields, className, onRowClick } = props;
   
   // Check for missing or invalid data
   const hasNoFields = !fields || fields.length === 0;
@@ -102,7 +103,13 @@ const TableWrapper = (props: TableWrapperProps) => {
             </Thead>
             <Tbody>
               {rows.map((row, rowIndex) => (
-                <Tr key={rowIndex} data-testid={`row-${rowIndex}`}>
+                <Tr 
+                  key={rowIndex} 
+                  data-testid={`row-${rowIndex}`}
+                  onClick={() => onRowClick?.(row)}
+                  style={onRowClick ? { cursor: 'pointer' } : undefined}
+                  isHoverable={!!onRowClick}
+                >
                   {columns.map((col, colIndex) => (
                     <Td key={colIndex}>{row[col.key]}</Td>
                   ))}
