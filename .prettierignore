@@ -11,6 +11,3 @@ build
 # OS
 .DS_Store
 
-# App folder has its own config
-app/
-
