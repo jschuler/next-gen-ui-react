@@ -215,7 +215,7 @@ export const chartDemoBar = {
   ],
   width: 600,
   height: 400,
-  themeColor: "multiOrdered" as const,
+  themeColor: "multi" as const,
   legendPosition: "bottom" as const,
 };
 
@@ -259,7 +259,7 @@ export const chartDemoLine = {
       ],
     },
   ],
-  width: 600,
+  width: 750,
   height: 400,
   themeColor: "multi" as const,
   legendPosition: "right" as const,
@@ -282,9 +282,9 @@ export const chartDemoPie = {
       ],
     },
   ],
-  width: 500,
+  width: 650,
   height: 400,
-  themeColor: "multiOrdered" as const,
+  themeColor: "blue" as const,
   legendPosition: "right" as const,
 };
 

@@ -23,7 +23,9 @@ export default defineConfig({
   optimizeDeps: {
     include: [
       '@patternfly/react-charts/victory',
+      'victory',
       'victory-core',
+      'victory-legend',
       'victory-chart',
       'victory-bar',
       'victory-line',
@@ -32,18 +34,15 @@ export default defineConfig({
   },
   build: {
     commonjsOptions: {
-      include: [/node_modules/],
+      include: [/node_modules/, /victory/],
       transformMixedEsModules: true
     },
     rollupOptions: {
       output: {
         manualChunks: {
-          victory: ['victory']
+          'vendor-charts': ['@patternfly/react-charts/victory', 'victory'],
         }
       }
     }
-  },
-  ssr: {
-    noExternal: ['@patternfly/react-charts', 'victory']
   }
 })

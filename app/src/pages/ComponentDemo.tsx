@@ -1,5 +1,3 @@
-
-import ChartComponent from "@local-lib/components/ChartComponent";
 import DynamicComponents from "@local-lib/components/DynamicComponents";
 import ErrorPlaceholder from "@local-lib/components/ErrorPlaceholder";
 import ImageComponent from "@local-lib/components/ImageComponent";
@@ -13,15 +11,22 @@ import {
   Content,
   ContentVariants,
   Divider,
+  ExpandableSection,
 } from "@patternfly/react-core";
+import { lazy, Suspense, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { getComponentById } from "../config/componentRegistry";
 
+// Lazy load ChartComponent for code-splitting
+const ChartComponent = lazy(
+  () => import("@local-lib/components/ChartComponent")
+);
+
 // Map component IDs to their actual React components
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const componentMap: Record<string, React.ComponentType<any>> = {
-//   chart: ChartComponent,
+  chart: ChartComponent,
   dynamic: DynamicComponents,
   error: ErrorPlaceholder,
   image: ImageComponent,
@@ -33,6 +38,9 @@ const componentMap: Record<string, React.ComponentType<any>> = {
 
 export default function ComponentDemo() {
   const { componentId } = useParams<{ componentId: string }>();
+  const [expandedSections, setExpandedSections] = useState<
+    Record<number, boolean>
+  >({});
 
   if (!componentId) {
     return <div>Component not found</div>;
@@ -72,18 +80,39 @@ export default function ComponentDemo() {
           <Content component={ContentVariants.h3}>{example.title}</Content>
 
           {/* Render the component with its data */}
-          {componentId === "dynamic" ? (
-            <Component config={example.data as Record<string, unknown>} />
-          ) : (
-            <Component {...(example.data as Record<string, unknown>)} />
-          )}
+          <Suspense fallback={<div>Loading component...</div>}>
+            <div
+              style={
+                componentId === "chart"
+                  ? { maxWidth: "900px", overflow: "visible" }
+                  : undefined
+              }
+            >
+              {componentId === "dynamic" ? (
+                <Component config={example.data as Record<string, unknown>} />
+              ) : (
+                <Component {...(example.data as Record<string, unknown>)} />
+              )}
+            </div>
+          </Suspense>
 
-          <Content component={ContentVariants.h4} style={{ marginTop: 16 }}>
-            Props
-          </Content>
-          <CodeBlock>
-            <CodeBlockCode>{JSON.stringify(example.data, null, 2)}</CodeBlockCode>
-          </CodeBlock>
+          <ExpandableSection
+            toggleText="Props"
+            isExpanded={expandedSections[index] || false}
+            onToggle={() =>
+              setExpandedSections((prev) => ({
+                ...prev,
+                [index]: !prev[index],
+              }))
+            }
+            style={{ marginTop: 16 }}
+          >
+            <CodeBlock>
+              <CodeBlockCode>
+                {JSON.stringify(example.data, null, 2)}
+              </CodeBlockCode>
+            </CodeBlock>
+          </ExpandableSection>
         </div>
       ))}
     </div>
