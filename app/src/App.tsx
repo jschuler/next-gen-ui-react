@@ -20,14 +20,8 @@ import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 
 import { getComponentByPath } from "./config/componentRegistry";
 import Sidebar from "./layout/Sidebar";
-import DynamicComponentsPage from "./pages/DynamicComponents";
-import ErrorPlaceholderPage from "./pages/ErrorPlaceholder";
+import ComponentDemo from "./pages/ComponentDemo";
 import Home from "./pages/Home";
-import ImageComponentPage from "./pages/ImageComponent";
-import OneCardWrapperPage from "./pages/OneCardWrapper";
-import SetOfCardsWrapperPage from "./pages/SetOfCardsWrapper";
-import TableWrapperPage from "./pages/TableWrapper";
-import VideoPlayerWrapperPage from "./pages/VideoPlayerWrapper";
 
 function AppContent() {
   const location = useLocation();
@@ -73,7 +67,7 @@ function AppContent() {
                   rel="noopener noreferrer"
                   aria-label="View source on GitHub"
                 >
-                  <GithubIcon size="lg" />
+                  <GithubIcon />
                 </Button>
               </ToolbarItem>
             </ToolbarGroup>
@@ -129,13 +123,7 @@ function AppContent() {
         <div id={mainContainerId} tabIndex={-1}>
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/dynamic" element={<DynamicComponentsPage />} />
-            <Route path="/error" element={<ErrorPlaceholderPage />} />
-            <Route path="/image" element={<ImageComponentPage />} />
-            <Route path="/onecard" element={<OneCardWrapperPage />} />
-            <Route path="/setofcards" element={<SetOfCardsWrapperPage />} />
-            <Route path="/table" element={<TableWrapperPage />} />
-            <Route path="/video" element={<VideoPlayerWrapperPage />} />
+            <Route path="/component/:componentId" element={<ComponentDemo />} />
           </Routes>
         </div>
       </PageSection>

@@ -37,7 +37,7 @@ export const componentRegistry: ComponentConfig[] = [
   {
     id: "dynamic",
     name: "DynamicComponents",
-    path: "/dynamic",
+    path: "/component/dynamic",
     sourceUrl:
       "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/DynamicComponents.tsx",
     componentImportPath: "@local-lib/components/DynamicComponents",
@@ -50,7 +50,7 @@ export const componentRegistry: ComponentConfig[] = [
   {
     id: "error",
     name: "ErrorPlaceholder",
-    path: "/error",
+    path: "/component/error",
     sourceUrl:
       "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/ErrorPlaceholder.tsx",
     componentImportPath: "@local-lib/components/ErrorPlaceholder",
@@ -68,7 +68,7 @@ export const componentRegistry: ComponentConfig[] = [
   {
     id: "image",
     name: "ImageComponent",
-    path: "/image",
+    path: "/component/image",
     sourceUrl:
       "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/ImageComponent.tsx",
     componentImportPath: "@local-lib/components/ImageComponent",
@@ -80,7 +80,7 @@ export const componentRegistry: ComponentConfig[] = [
   {
     id: "onecard",
     name: "OneCardWrapper",
-    path: "/onecard",
+    path: "/component/onecard",
     sourceUrl:
       "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/OneCardWrapper.tsx",
     componentImportPath: "@local-lib/components/OneCardWrapper",
@@ -93,7 +93,7 @@ export const componentRegistry: ComponentConfig[] = [
   {
     id: "setofcards",
     name: "SetOfCardsWrapper",
-    path: "/setofcards",
+    path: "/component/setofcards",
     sourceUrl:
       "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/SetOfCardsWrapper.tsx",
     componentImportPath: "@local-lib/components/SetOfCardsWrapper",
@@ -105,7 +105,7 @@ export const componentRegistry: ComponentConfig[] = [
   {
     id: "table",
     name: "TableWrapper",
-    path: "/table",
+    path: "/component/table",
     sourceUrl:
       "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/TableWrapper.tsx",
     componentImportPath: "@local-lib/components/TableWrapper",
@@ -117,7 +117,7 @@ export const componentRegistry: ComponentConfig[] = [
   {
     id: "video",
     name: "VideoPlayerWrapper",
-    path: "/video",
+    path: "/component/video",
     sourceUrl:
       "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/VideoPlayerWrapper.tsx",
     componentImportPath: "@local-lib/components/VideoPlayerWrapper",

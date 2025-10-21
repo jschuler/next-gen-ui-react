@@ -54,6 +54,8 @@ When you add a component to the registry, it automatically appears in:
 
 ## Adding a New Component Demo
 
+To add a new component to the demo app, follow these **3 simple steps**:
+
 ### Step 1: Add Demo Data
 
 In `src/demo/demoData.ts`, add your demo data:
@@ -75,15 +77,23 @@ export const myNewComponentDemoVariation = {
 };
 ```
 
+**Important:** Always add `as const` to the `component` property.
+
 ### Step 2: Register in Component Registry
 
-In `src/config/componentRegistry.ts`, add an entry to the `componentRegistry` array:
+In `src/config/componentRegistry.ts`:
 
+1. **Import your demo data** at the top:
+```typescript
+import { myNewComponentDemo, myNewComponentDemoVariation } from "../demo/demoData";
+```
+
+2. **Add an entry** to the `componentRegistry` array:
 ```typescript
 {
-  id: "mynewcomponent",           // Unique ID
+  id: "mynewcomponent",           // Unique ID (used in URL and componentMap)
   name: "MyNewComponent",         // Display name
-  path: "/mynewcomponent",        // Route path
+  path: "/component/mynewcomponent", // Route path (must follow /component/:id pattern)
   sourceUrl: "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/MyNewComponent.tsx",
   componentImportPath: "@local-lib/components/MyNewComponent",
   examples: [
@@ -93,73 +103,37 @@ In `src/config/componentRegistry.ts`, add an entry to the `componentRegistry` ar
 }
 ```
 
-### Step 3: Create Component Page
+### Step 3: Map Component in ComponentDemo
 
-Create `src/pages/MyNewComponent.tsx`:
+In `src/pages/ComponentDemo.tsx`:
 
+1. **Import your component** at the top:
 ```typescript
 import MyNewComponent from "@local-lib/components/MyNewComponent";
-import {
-  CodeBlock,
-  CodeBlockCode,
-  Content,
-  ContentVariants,
-  Divider,
-} from "@patternfly/react-core";
-
-import { myNewComponentDemo, myNewComponentDemoVariation } from "../demo/demoData";
-
-export default function MyNewComponentPage() {
-  return (
-    <div>
-      {/* First Example */}
-      <Content component={ContentVariants.h3}>Basic Example</Content>
-      <MyNewComponent {...myNewComponentDemo} />
-      <Content component={ContentVariants.h4} style={{ marginTop: 16 }}>
-        Props
-      </Content>
-      <CodeBlock>
-        <CodeBlockCode>
-          {JSON.stringify(myNewComponentDemo, null, 2)}
-        </CodeBlockCode>
-      </CodeBlock>
-
-      {/* Divider between examples */}
-      <Divider style={{ marginTop: 32, marginBottom: 32 }} />
-
-      {/* Second Example */}
-      <Content component={ContentVariants.h3}>Variation</Content>
-      <MyNewComponent {...myNewComponentDemoVariation} />
-      <Content component={ContentVariants.h4} style={{ marginTop: 16 }}>
-        Props
-      </Content>
-      <CodeBlock>
-        <CodeBlockCode>
-          {JSON.stringify(myNewComponentDemoVariation, null, 2)}
-        </CodeBlockCode>
-      </CodeBlock>
-    </div>
-  );
-}
 ```
 
-### Step 4: Add Route
-
-In `src/App.tsx`, import and add the route:
-
+2. **Add it to the `componentMap`**:
 ```typescript
-// Add import
-import MyNewComponentPage from "./pages/MyNewComponent";
-
-// Add route in the Routes section
-<Route path="/mynewcomponent" element={<MyNewComponentPage />} />
+const componentMap: Record<string, React.ComponentType<Record<string, unknown>>> = {
+  // ... existing components
+  mynewcomponent: MyNewComponent,  // key must match the id from registry
+};
 ```
 
-**That's it!** The component will automatically appear in:
-- Sidebar navigation
-- Home page links
-- Page title header
-- Source code link
+**That's it!** 🎉 The component will now **automatically**:
+- ✅ Appear in the sidebar navigation
+- ✅ Have its own page at `/component/mynewcomponent`
+- ✅ Display all examples with their props
+- ✅ Show page title and "View Source" link
+- ✅ Include dividers between examples
+
+### Architecture Benefits
+
+This design uses a **component registry pattern** that:
+- Eliminates the need to create individual page files
+- Automatically generates navigation and routes
+- Makes it easy to add multiple examples per component
+- Keeps all configuration centralized
 
 ## Project Structure
 
