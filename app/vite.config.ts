@@ -19,5 +19,31 @@ export default defineConfig({
   },
   server: {
     port: 5176
+  },
+  optimizeDeps: {
+    include: [
+      '@patternfly/react-charts/victory',
+      'victory-core',
+      'victory-chart',
+      'victory-bar',
+      'victory-line',
+      'victory-pie'
+    ]
+  },
+  build: {
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true
+    },
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          victory: ['victory']
+        }
+      }
+    }
+  },
+  ssr: {
+    noExternal: ['@patternfly/react-charts', 'victory']
   }
 })

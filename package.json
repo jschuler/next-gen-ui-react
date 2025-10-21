@@ -50,8 +50,14 @@
   },
   "dependencies": {
     "@patternfly/patternfly": "^6.3.1",
+    "@patternfly/react-charts": "^8.4.0",
     "@patternfly/react-core": "^6.3.1",
     "@patternfly/react-table": "^6.2.2",
+    "victory-bar": "^37.3.6",
+    "victory-chart": "^37.3.6",
+    "victory-core": "^37.3.6",
+    "victory-line": "^37.3.6",
+    "victory-pie": "^37.3.6",
     "vite-plugin-dts": "^4.5.3"
   },
   "peerDependenciesMeta": {

@@ -177,3 +177,137 @@ export const dynamicDemoTable = {
   key: "table-demo",
   props: tableDemo,
 };
+
+// Chart component demos
+export const chartDemoBar = {
+  component: "chart" as const,
+  id: "chart-bar-demo",
+  title: "Quarterly Revenue by Product",
+  chartType: "bar" as const,
+  data: [
+    {
+      name: "Product A",
+      data: [
+        { x: "Q1", y: 30 },
+        { x: "Q2", y: 45 },
+        { x: "Q3", y: 60 },
+        { x: "Q4", y: 55 },
+      ],
+    },
+    {
+      name: "Product B",
+      data: [
+        { x: "Q1", y: 25 },
+        { x: "Q2", y: 35 },
+        { x: "Q3", y: 40 },
+        { x: "Q4", y: 50 },
+      ],
+    },
+    {
+      name: "Product C",
+      data: [
+        { x: "Q1", y: 20 },
+        { x: "Q2", y: 30 },
+        { x: "Q3", y: 35 },
+        { x: "Q4", y: 45 },
+      ],
+    },
+  ],
+  width: 600,
+  height: 400,
+  themeColor: "multiOrdered" as const,
+  legendPosition: "bottom" as const,
+};
+
+export const chartDemoLine = {
+  component: "chart" as const,
+  id: "chart-line-demo",
+  title: "Website Traffic Over Time",
+  chartType: "line" as const,
+  data: [
+    {
+      name: "Desktop",
+      data: [
+        { x: "Jan", y: 1200 },
+        { x: "Feb", y: 1500 },
+        { x: "Mar", y: 1800 },
+        { x: "Apr", y: 2100 },
+        { x: "May", y: 2400 },
+        { x: "Jun", y: 2700 },
+      ],
+    },
+    {
+      name: "Mobile",
+      data: [
+        { x: "Jan", y: 800 },
+        { x: "Feb", y: 1100 },
+        { x: "Mar", y: 1400 },
+        { x: "Apr", y: 1700 },
+        { x: "May", y: 2000 },
+        { x: "Jun", y: 2300 },
+      ],
+    },
+    {
+      name: "Tablet",
+      data: [
+        { x: "Jan", y: 400 },
+        { x: "Feb", y: 500 },
+        { x: "Mar", y: 600 },
+        { x: "Apr", y: 700 },
+        { x: "May", y: 800 },
+        { x: "Jun", y: 900 },
+      ],
+    },
+  ],
+  width: 600,
+  height: 400,
+  themeColor: "multi" as const,
+  legendPosition: "right" as const,
+};
+
+export const chartDemoPie = {
+  component: "chart" as const,
+  id: "chart-pie-demo",
+  title: "Market Share by Browser",
+  chartType: "pie" as const,
+  data: [
+    {
+      name: "Browsers",
+      data: [
+        { name: "Chrome", x: "Chrome", y: 65 },
+        { name: "Safari", x: "Safari", y: 19 },
+        { name: "Firefox", x: "Firefox", y: 9 },
+        { name: "Edge", x: "Edge", y: 5 },
+        { name: "Other", x: "Other", y: 2 },
+      ],
+    },
+  ],
+  width: 500,
+  height: 400,
+  themeColor: "multiOrdered" as const,
+  legendPosition: "right" as const,
+};
+
+export const chartDemoDonut = {
+  component: "chart" as const,
+  id: "chart-donut-demo",
+  title: "Storage Usage",
+  chartType: "donut" as const,
+  data: [
+    {
+      name: "Storage",
+      data: [
+        { name: "Documents", x: "Documents", y: 45 },
+        { name: "Photos", x: "Photos", y: 30 },
+        { name: "Videos", x: "Videos", y: 15 },
+        { name: "Music", x: "Music", y: 8 },
+        { name: "Other", x: "Other", y: 2 },
+      ],
+    },
+  ],
+  width: 500,
+  height: 400,
+  themeColor: "multi" as const,
+  legendPosition: "bottom" as const,
+  donutSubTitle: "GB Used",
+};

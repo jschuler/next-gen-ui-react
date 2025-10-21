@@ -1,4 +1,5 @@
 
+import ChartComponent from "@local-lib/components/ChartComponent";
 import DynamicComponents from "@local-lib/components/DynamicComponents";
 import ErrorPlaceholder from "@local-lib/components/ErrorPlaceholder";
 import ImageComponent from "@local-lib/components/ImageComponent";
@@ -20,6 +21,7 @@ import { getComponentById } from "../config/componentRegistry";
 // Map component IDs to their actual React components
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const componentMap: Record<string, React.ComponentType<any>> = {
+//   chart: ChartComponent,
   dynamic: DynamicComponents,
   error: ErrorPlaceholder,
   image: ImageComponent,
