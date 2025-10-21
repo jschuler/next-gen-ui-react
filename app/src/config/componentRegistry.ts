@@ -2,6 +2,10 @@
 // Adding a new component is as simple as adding an entry here!
 
 import {
+  chartDemoBar,
+  chartDemoDonut,
+  chartDemoLine,
+  chartDemoPie,
   dynamicDemo,
   dynamicDemoImage,
   dynamicDemoTable,
@@ -125,6 +129,20 @@ export const componentRegistry: ComponentConfig[] = [
       { title: "YouTube with Poster Image (16:9)", data: videoDemo },
       { title: "Direct Video with Auto Aspect Ratio", data: videoDemoAuto },
       { title: "Classic 4:3 Format", data: videoDemo4x3 },
+    ],
+  },
+  {
+    id: "chart",
+    name: "ChartComponent",
+    path: "/component/chart",
+    sourceUrl:
+      "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/ChartComponent.tsx",
+    componentImportPath: "@local-lib/components/ChartComponent",
+    examples: [
+      { title: "Bar Chart", data: chartDemoBar },
+      { title: "Line Chart", data: chartDemoLine },
+      { title: "Pie Chart", data: chartDemoPie },
+      { title: "Donut Chart", data: chartDemoDonut },
     ],
   },
 ];
