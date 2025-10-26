@@ -6,8 +6,7 @@ import ImageComponent from "../../components/ImageComponent";
 const mockImageData = {
   component: "image" as const,
   id: "test-id",
-  image:
-    "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+  image: "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
   title: "Toy Story Poster",
 };
 
@@ -23,9 +22,7 @@ describe("ImageComponent", () => {
     render(<ImageComponent {...defaultProps} />);
 
     expect(screen.getByText("Toy Story Poster")).toBeInTheDocument();
-    expect(
-      screen.getByRole("img", { name: "Toy Story Poster" })
-    ).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Toy Story Poster" })).toBeInTheDocument();
     expect(screen.getByRole("img")).toHaveAttribute("src", mockImageData.image);
   });
 
@@ -41,8 +38,9 @@ describe("ImageComponent", () => {
   it("applies correct card styling", () => {
     render(<ImageComponent {...defaultProps} />);
 
-    const card = screen.getByRole("img").closest('[data-testid="card"]') || 
-                 screen.getByRole("img").closest('div');
+    const card =
+      screen.getByRole("img").closest('[data-testid="card"]') ||
+      screen.getByRole("img").closest("div");
     expect(card).toBeInTheDocument();
   });
 
@@ -50,13 +48,7 @@ describe("ImageComponent", () => {
     const customId = "custom-test-id";
     const customClassName = "custom-class";
 
-    render(
-      <ImageComponent
-        {...defaultProps}
-        id={customId}
-        className={customClassName}
-      />
-    );
+    render(<ImageComponent {...defaultProps} id={customId} className={customClassName} />);
 
     const card = screen.getByRole("img").closest('[id="custom-test-id"]');
     expect(card).toBeInTheDocument();

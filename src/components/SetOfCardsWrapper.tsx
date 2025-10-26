@@ -55,11 +55,7 @@ const SetOfCardsWrapper = (props: SetOfCardsWrapperProps) => {
       <h2 className="set-of-cards-title">{title}</h2>
       <div className="set-of-cards-grid">
         {cardsData.map((cardData, index) => (
-          <OneCardWrapper
-            key={index}
-            {...cardData}
-            className="set-of-cards-item"
-          />
+          <OneCardWrapper key={index} {...cardData} className="set-of-cards-item" />
         ))}
       </div>
     </div>

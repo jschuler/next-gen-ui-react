@@ -50,24 +50,21 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
   // If no title and no fields, show error
   if (hasNoTitle && hasNoFields) {
     return (
-      <Card id={id} className={`onecard-component-container ${className || ''}`}>
+      <Card id={id} className={`onecard-component-container ${className || ""}`}>
         <CardBody>
-          <ErrorPlaceholder
-            hasError={false}
-            noContentMessage="No content available"
-          />
+          <ErrorPlaceholder hasError={false} noContentMessage="No content available" />
         </CardBody>
       </Card>
     );
   }
 
   return (
-    <Card 
-      id={id} 
-      className={`onecard-component-container ${className || ''}`}
-    >
+    <Card id={id} className={`onecard-component-container ${className || ""}`}>
       <CardBody>
-        <Flex spaceItems={{ default: "spaceItemsLg" }} alignItems={{ default: "alignItemsFlexStart" }}>
+        <Flex
+          spaceItems={{ default: "spaceItemsLg" }}
+          alignItems={{ default: "alignItemsFlexStart" }}
+        >
           {/* Left Column - Image */}
           {image && !hasImageError ? (
             <FlexItem className={`onecard-component-image-container size-${imageSize}`}>
@@ -96,19 +93,16 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
             <Divider component="div" className="onecard-component-divider" />
             <div>
               {hasNoFields ? (
-                <ErrorPlaceholder
-                  hasError={false}
-                  noContentMessage="No data fields available"
-                />
+                <ErrorPlaceholder hasError={false} noContentMessage="No data fields available" />
               ) : (
                 <DescriptionList isAutoFit>
                   {fields?.map((field, idx) => (
                     <DescriptionListGroup key={idx}>
                       <DescriptionListTerm>{field.name}</DescriptionListTerm>
                       <DescriptionListDescription>
-                        {field.data.map((item) =>
-                          item === null ? "N/A" : String(item)
-                        ).join(", ")}
+                        {field.data
+                          .map((item) => (item === null ? "N/A" : String(item)))
+                          .join(", ")}
                       </DescriptionListDescription>
                     </DescriptionListGroup>
                   ))}

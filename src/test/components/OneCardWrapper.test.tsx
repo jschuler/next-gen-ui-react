@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom";
 
-import OneCardWrapper from '../../components/OneCardWrapper';
+import OneCardWrapper from "../../components/OneCardWrapper";
 
 const mockData = {
   component: "one-card",
@@ -9,35 +9,35 @@ const mockData = {
     {
       data: ["Toy Story"],
       data_path: "movie.title",
-      name: "Title"
+      name: "Title",
     },
     {
       data: [1995],
       data_path: "movie.year",
-      name: "Year"
+      name: "Year",
     },
     {
       data: [8.3],
       data_path: "movie.imdbRating",
-      name: "IMDB Rating"
+      name: "IMDB Rating",
     },
     {
       data: ["2022-11-02 00:00:00"],
       data_path: "movie.released",
-      name: "Release Date"
+      name: "Release Date",
     },
     {
       data: ["Jim Varney", "Tim Allen", "Tom Hanks", "Don Rickles"],
       data_path: "actors[*]",
-      name: "Actors"
-    }
+      name: "Actors",
+    },
   ],
   id: "test-id",
   image: "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
-  title: "Toy Story Details"
+  title: "Toy Story Details",
 };
 
-describe('OneCardWrapper', () => {
+describe("OneCardWrapper", () => {
   const defaultProps = {
     title: mockData.title,
     fields: mockData.fields,
@@ -45,169 +45,169 @@ describe('OneCardWrapper', () => {
     id: mockData.id,
   };
 
-  it('renders with required props', () => {
+  it("renders with required props", () => {
     render(<OneCardWrapper title="Test Title" fields={[]} />);
-    
-    expect(screen.getByText('Test Title')).toBeInTheDocument();
+
+    expect(screen.getByText("Test Title")).toBeInTheDocument();
   });
 
-  it('renders with all provided props', () => {
+  it("renders with all provided props", () => {
     render(<OneCardWrapper {...defaultProps} />);
-    
-    expect(screen.getByText('Toy Story Details')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'Toy Story Details' })).toBeInTheDocument();
-    expect(screen.getByRole('img')).toHaveAttribute('src', mockData.image);
+
+    expect(screen.getByText("Toy Story Details")).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: "Toy Story Details" })).toBeInTheDocument();
+    expect(screen.getByRole("img")).toHaveAttribute("src", mockData.image);
   });
 
-  it('renders fields correctly', () => {
+  it("renders fields correctly", () => {
     render(<OneCardWrapper {...defaultProps} />);
-    
+
     // Check field names (terms)
-    expect(screen.getByText('Title')).toBeInTheDocument();
-    expect(screen.getByText('Year')).toBeInTheDocument();
-    expect(screen.getByText('IMDB Rating')).toBeInTheDocument();
-    expect(screen.getByText('Release Date')).toBeInTheDocument();
-    expect(screen.getByText('Actors')).toBeInTheDocument();
-    
+    expect(screen.getByText("Title")).toBeInTheDocument();
+    expect(screen.getByText("Year")).toBeInTheDocument();
+    expect(screen.getByText("IMDB Rating")).toBeInTheDocument();
+    expect(screen.getByText("Release Date")).toBeInTheDocument();
+    expect(screen.getByText("Actors")).toBeInTheDocument();
+
     // Check field values (descriptions)
-    expect(screen.getByText('Toy Story')).toBeInTheDocument();
-    expect(screen.getByText('1995')).toBeInTheDocument();
-    expect(screen.getByText('8.3')).toBeInTheDocument();
-    expect(screen.getByText('2022-11-02 00:00:00')).toBeInTheDocument();
-    expect(screen.getByText('Jim Varney, Tim Allen, Tom Hanks, Don Rickles')).toBeInTheDocument();
+    expect(screen.getByText("Toy Story")).toBeInTheDocument();
+    expect(screen.getByText("1995")).toBeInTheDocument();
+    expect(screen.getByText("8.3")).toBeInTheDocument();
+    expect(screen.getByText("2022-11-02 00:00:00")).toBeInTheDocument();
+    expect(screen.getByText("Jim Varney, Tim Allen, Tom Hanks, Don Rickles")).toBeInTheDocument();
   });
 
-  it('renders without image when image prop is not provided', () => {
+  it("renders without image when image prop is not provided", () => {
     const { image: _image, ...propsWithoutImage } = defaultProps;
     void _image; // Acknowledge unused variable
-    
+
     render(<OneCardWrapper {...propsWithoutImage} />);
-    
-    expect(screen.queryByRole('img')).not.toBeInTheDocument();
-    expect(screen.getByText('Toy Story Details')).toBeInTheDocument();
+
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    expect(screen.getByText("Toy Story Details")).toBeInTheDocument();
   });
 
-  it('renders without image when image prop is null', () => {
+  it("renders without image when image prop is null", () => {
     render(<OneCardWrapper {...defaultProps} image={null} />);
-    
-    expect(screen.queryByRole('img')).not.toBeInTheDocument();
-    expect(screen.getByText('Toy Story Details')).toBeInTheDocument();
+
+    expect(screen.queryByRole("img")).not.toBeInTheDocument();
+    expect(screen.getByText("Toy Story Details")).toBeInTheDocument();
   });
 
-  it('applies correct image size styling', () => {
+  it("applies correct image size styling", () => {
     const { rerender } = render(<OneCardWrapper {...defaultProps} imageSize="sm" />);
-    
-    let imageContainer = screen.getByRole('img').closest('.onecard-component-image-container');
-    expect(imageContainer).toHaveClass('size-sm');
-    
+
+    let imageContainer = screen.getByRole("img").closest(".onecard-component-image-container");
+    expect(imageContainer).toHaveClass("size-sm");
+
     rerender(<OneCardWrapper {...defaultProps} imageSize="md" />);
-    imageContainer = screen.getByRole('img').closest('.onecard-component-image-container');
-    expect(imageContainer).toHaveClass('size-md');
-    
+    imageContainer = screen.getByRole("img").closest(".onecard-component-image-container");
+    expect(imageContainer).toHaveClass("size-md");
+
     rerender(<OneCardWrapper {...defaultProps} imageSize="lg" />);
-    imageContainer = screen.getByRole('img').closest('.onecard-component-image-container');
-    expect(imageContainer).toHaveClass('size-lg');
+    imageContainer = screen.getByRole("img").closest(".onecard-component-image-container");
+    expect(imageContainer).toHaveClass("size-lg");
   });
 
-  it('defaults to medium image size when imageSize is not specified', () => {
+  it("defaults to medium image size when imageSize is not specified", () => {
     render(<OneCardWrapper {...defaultProps} />);
-    
-    const imageContainer = screen.getByRole('img').closest('.onecard-component-image-container');
-    expect(imageContainer).toHaveClass('size-md');
+
+    const imageContainer = screen.getByRole("img").closest(".onecard-component-image-container");
+    expect(imageContainer).toHaveClass("size-md");
   });
 
-  it('applies custom id and className', () => {
-    const customId = 'custom-test-id';
-    const customClassName = 'custom-class';
-    
+  it("applies custom id and className", () => {
+    const customId = "custom-test-id";
+    const customClassName = "custom-class";
+
     render(<OneCardWrapper {...defaultProps} id={customId} className={customClassName} />);
-    
-    const card = screen.getByRole('img').closest('[id="custom-test-id"]');
+
+    const card = screen.getByRole("img").closest('[id="custom-test-id"]');
     expect(card).toBeInTheDocument();
     expect(card).toHaveClass(customClassName);
   });
 
-  it('handles null values in field data', () => {
+  it("handles null values in field data", () => {
     const fieldsWithNull = [
       {
         data: [null, "Valid Value"],
         data_path: "test.path",
-        name: "Test Field"
-      }
+        name: "Test Field",
+      },
     ];
-    
+
     render(<OneCardWrapper title="Test" fields={fieldsWithNull} />);
-    
-    expect(screen.getByText('N/A, Valid Value')).toBeInTheDocument();
+
+    expect(screen.getByText("N/A, Valid Value")).toBeInTheDocument();
   });
 
-  it('handles empty fields array', () => {
+  it("handles empty fields array", () => {
     render(<OneCardWrapper title="Test Title" fields={[]} />);
-    
-    expect(screen.getByText('Test Title')).toBeInTheDocument();
+
+    expect(screen.getByText("Test Title")).toBeInTheDocument();
     // Should not crash and should render the title
   });
 
-  it('handles boolean values in field data', () => {
+  it("handles boolean values in field data", () => {
     const fieldsWithBoolean = [
       {
         data: [true, false],
         data_path: "test.boolean",
-        name: "Boolean Field"
-      }
+        name: "Boolean Field",
+      },
     ];
-    
+
     render(<OneCardWrapper title="Test" fields={fieldsWithBoolean} />);
-    
-    expect(screen.getByText('true, false')).toBeInTheDocument();
+
+    expect(screen.getByText("true, false")).toBeInTheDocument();
   });
 
-  it('handles mixed data types in field data', () => {
+  it("handles mixed data types in field data", () => {
     const fieldsWithMixedTypes = [
       {
         data: ["string", 123, true, null],
         data_path: "test.mixed",
-        name: "Mixed Field"
-      }
+        name: "Mixed Field",
+      },
     ];
-    
+
     render(<OneCardWrapper title="Test" fields={fieldsWithMixedTypes} />);
-    
-    expect(screen.getByText('string, 123, true, N/A')).toBeInTheDocument();
+
+    expect(screen.getByText("string, 123, true, N/A")).toBeInTheDocument();
   });
 
-  it('applies correct card styling', () => {
+  it("applies correct card styling", () => {
     render(<OneCardWrapper {...defaultProps} />);
-    
-    const card = screen.getByRole('img').closest('.onecard-component-container');
-    expect(card).toHaveClass('onecard-component-container');
+
+    const card = screen.getByRole("img").closest(".onecard-component-container");
+    expect(card).toHaveClass("onecard-component-container");
   });
 
-  it('renders image with correct attributes', () => {
+  it("renders image with correct attributes", () => {
     render(<OneCardWrapper {...defaultProps} />);
-    
-    const image = screen.getByRole('img');
-    expect(image).toHaveAttribute('src', mockData.image);
-    expect(image).toHaveAttribute('alt', 'Toy Story Details');
-    expect(image).toHaveClass('onecard-component-img');
+
+    const image = screen.getByRole("img");
+    expect(image).toHaveAttribute("src", mockData.image);
+    expect(image).toHaveAttribute("alt", "Toy Story Details");
+    expect(image).toHaveClass("onecard-component-img");
   });
 
-  it('renders title with correct heading level', () => {
+  it("renders title with correct heading level", () => {
     render(<OneCardWrapper {...defaultProps} />);
-    
-    const title = screen.getByRole('heading', { level: 4 });
-    expect(title).toHaveTextContent('Toy Story Details');
+
+    const title = screen.getByRole("heading", { level: 4 });
+    expect(title).toHaveTextContent("Toy Story Details");
   });
 
-  it('renders description list with correct structure', () => {
+  it("renders description list with correct structure", () => {
     render(<OneCardWrapper {...defaultProps} />);
-    
+
     // Check that description list exists (it's a <dl> element)
-    const dlElement = document.querySelector('dl');
+    const dlElement = document.querySelector("dl");
     expect(dlElement).toBeInTheDocument();
-    
+
     // Check that all field terms are present
-    mockData.fields.forEach(field => {
+    mockData.fields.forEach((field) => {
       expect(screen.getByText(field.name)).toBeInTheDocument();
     });
   });

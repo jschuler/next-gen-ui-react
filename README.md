@@ -9,18 +9,18 @@ This npm package provides a collection of reusable Patternfly React components t
 
 ## Provides:
 
-* Rendering for [Next Gen UI Dynamic Componets](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/dynamic_components/) using React components:
-    - Implemented components: `one-card`, `image`, `table`, `video-player`, `set-of-cards`
-    - `video-player` supports YouTube video URLs and direct video file URLs
-    - `set-of-cards` displays multiple OneCard components in an auto-aligned grid layout
-* Dynamic Component Renderer
-    - `DynamicComponent`
-* Patternfly React Components
-    - `OneCardWrapper`
-    - `ImageComponent`
-    - `TableWrapper`
-    - `VideoPlayerWrapper`
-    - `SetOfCardsWrapper`
+- Rendering for [Next Gen UI Dynamic Componets](https://redhat-ux.github.io/next-gen-ui-agent/guide/data_ui_blocks/dynamic_components/) using React components:
+  - Implemented components: `one-card`, `image`, `table`, `video-player`, `set-of-cards`
+  - `video-player` supports YouTube video URLs and direct video file URLs
+  - `set-of-cards` displays multiple OneCard components in an auto-aligned grid layout
+- Dynamic Component Renderer
+  - `DynamicComponent`
+- Patternfly React Components
+  - `OneCardWrapper`
+  - `ImageComponent`
+  - `TableWrapper`
+  - `VideoPlayerWrapper`
+  - `SetOfCardsWrapper`
 
 ## Installation
 
@@ -92,8 +92,7 @@ import DynamicComponent from "@rhngui/patternfly-react-renderer";
 const imageConfig = {
   component: "image",
   title: "Movie Poster",
-  image:
-    "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+  image: "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
   id: "movie-poster-image",
 };
 

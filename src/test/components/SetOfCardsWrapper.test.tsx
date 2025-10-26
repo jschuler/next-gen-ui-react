@@ -105,9 +105,7 @@ describe("SetOfCardsWrapper", () => {
 
     // Arrays should be joined with commas
     expect(screen.getByText("Tom Hanks, Tim Allen")).toBeInTheDocument();
-    expect(
-      screen.getByText("Albert Brooks, Ellen DeGeneres")
-    ).toBeInTheDocument();
+    expect(screen.getByText("Albert Brooks, Ellen DeGeneres")).toBeInTheDocument();
   });
 
   it("handles null/undefined values", () => {
@@ -151,4 +149,3 @@ describe("SetOfCardsWrapper", () => {
     expect(gridElement).toBeInTheDocument();
   });
 });
-
