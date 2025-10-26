@@ -3,11 +3,17 @@ node_modules
 
 # Build outputs
 dist
+dist-ssr
 build
+coverage
+
+# Package lock
+package-lock.json
 
 # Logs
 *.log
 
-# OS
+# Editor/OS
 .DS_Store
-
+.vscode
+.idea
