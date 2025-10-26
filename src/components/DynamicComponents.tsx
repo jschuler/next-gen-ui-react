@@ -3,16 +3,25 @@
 import "@patternfly/react-core/dist/styles/base-no-reset.css";
 import "../global.css";
 
-import { cloneElement, isValidElement, useState } from "react";
+import { cloneElement, isValidElement, useState, ReactElement, MouseEvent } from "react";
 
 import { componentsMap } from "../constants/componentsMap";
 
+// Type for component configuration
+interface ComponentConfig {
+  component?: string;
+  key?: string;
+  props?: Record<string, unknown>;
+  children?: ComponentConfig[] | ReactElement;
+  [key: string]: unknown;
+}
+
+// Type for custom props values
+type CustomPropValue = unknown | ((...args: unknown[]) => void) | ReactElement;
+
 interface IProps {
-  config: any;
-  customProps?: Record<
-    string,
-    Record<string, any | ((...args: any[]) => void)>
-  >;
+  config: ComponentConfig;
+  customProps?: Record<string, Record<string, CustomPropValue>>;
 }
 
 const DynamicComponent = ({ config, customProps = {} }: IProps) => {
@@ -25,13 +34,13 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
 
   const componentKey = config?.key || config?.component;
 
-  const parseProps = (props?: Record<string, any>) => {
-    const newProps = { ...props };
+  const parseProps = (props?: Record<string, unknown>) => {
+    const newProps: Record<string, unknown> = { ...props };
 
     if (componentKey && customProps[componentKey]) {
       Object.entries(customProps[componentKey]).forEach(([key, value]) => {
         if (typeof value === "function") {
-          newProps[key] = (...args: any[]) =>
+          newProps[key] = (...args: unknown[]) =>
             value(...args, {
               componentKey,
               // config,
@@ -39,7 +48,7 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
             });
         } else if (isValidElement(value)) {
           newProps[key] = cloneElement(value, {
-            onClick: (event: any) =>
+            onClick: (event: MouseEvent) =>
               value.props.onClick?.(event, {
                 componentKey,
                 // config,
@@ -49,7 +58,7 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
         } else if (Array.isArray(value) && value.every(isValidElement)) {
           newProps[key] = value.map((element) =>
             cloneElement(element, {
-              onClick: (event: any) =>
+              onClick: (event: MouseEvent) =>
                 element.props.onClick?.(event, {
                   componentKey,
                   // config,
