@@ -18,7 +18,7 @@ export const oneCardDemo = {
   title: "Server Details",
   id: "onecard-1",
   image: "https://avatars.githubusercontent.com/u/6391110?v=4",
-  imageSize: "sm",
+  imageSize: "md",
   fields: [
     { name: "Hostname", data_path: "host.name", data: ["server-01"] },
     { name: "IP", data_path: "host.ip", data: ["10.0.0.5"] },

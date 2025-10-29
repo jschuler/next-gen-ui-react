@@ -12,235 +12,23 @@
   <!-- Include PatternFly styles from CDN (minified) -->
   <link rel="stylesheet" href="https://unpkg.com/@patternfly/patternfly@6/patternfly.min.css">
   
+  <!-- Include RHNGUI component styles -->
+  <link rel="stylesheet" href="../standalone/rhngui-standalone.css?v=1761706940728">
+  
   <!-- Include the standalone bundle -->
   <!-- Note: Update the ?v= parameter when rebuilding to bust browser cache -->
-  <script src="../standalone/rhngui-standalone.iife.js?v=1761679526337"></script>
+  <script src="../standalone/rhngui-standalone.iife.js?v=1761706940728"></script>
   
-  <style>
-    body {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-    h1 {
-      color: #333;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      margin: 20px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    button {
-      background: #0066cc;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin: 5px;
-      font-size: 14px;
-    }
-    button:hover {
-      background: #0052a3;
-    }
-    code {
-      background: #f0f0f0;
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-    }
-    .code-toggle {
-      margin-top: 16px;
-      background: #f5f5f5;
-      border: 1px solid #d2d2d2;
-      padding: 10px 16px;
-      cursor: pointer;
-      border-radius: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-      color: #151515;
-    }
-    .code-toggle:hover {
-      background: #e7e7e7;
-    }
-    .code-toggle .arrow {
-      transition: transform 0.2s;
-    }
-    .code-toggle.expanded .arrow {
-      transform: rotate(90deg);
-    }
-    .code-content {
-      display: none;
-      margin-top: 8px;
-      background: #f5f5f5;
-      border: 1px solid #d2d2d2;
-      border-radius: 4px;
-      padding: 16px;
-    }
-    .code-content.show {
-      display: block;
-    }
-    .code-content pre {
-      margin: 0;
-      font-size: 13px;
-      overflow-x: auto;
-    }
-  </style>
+  <!-- Include example styles -->
+  <link rel="stylesheet" href="examples.css">
 </head>
 <body>
   <h1>RHNGUI Components - Standalone Bundle Example</h1>
   <p><em>Note: This example is loaded in an iframe within the demo app.</em></p>
   <p>This page demonstrates how to use RHNGUI components in a non-React application using the standalone bundle.</p>
   
-  <div style="background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <h2>📚 Basic Usage</h2>
-    <pre style="background: #f5f5f5; padding: 15px; border-radius: 4px; overflow-x: auto;"><code>&lt;!-- 1. Include React dependencies --&gt;
-&lt;script src="https://unpkg.com/react@18/umd/react.production.min.js"&gt;&lt;/script&gt;
-&lt;script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"&gt;&lt;/script&gt;
-
-&lt;!-- 2. Include PatternFly styles --&gt;
-&lt;link rel="stylesheet" href="https://unpkg.com/@patternfly/patternfly@6/patternfly.min.css"&gt;
-
-&lt;!-- 3. Include RHNGUI standalone bundle --&gt;
-&lt;script src="dist/standalone/rhngui-standalone.iife.js"&gt;&lt;/script&gt;
-
-&lt;!-- 4. Use the API --&gt;
-&lt;div id="my-chart"&gt;&lt;/div&gt;
-&lt;script&gt;
-  const renderer = window.RHNGUIRenderer;
-  
-  const chart = renderer.render('my-chart', {
-    component: 'chart',
-    key: 'chart-1',
-    props: {
-      id: 'sales',
-      title: 'Sales Data',
-      chartType: 'bar',
-      data: [{ name: 'Q1', data: [{ x: 'Jan', y: 1000 }] }],
-      width: 600,
-      height: 400
-    }
-  });
-  
-  // Update later: chart.update({ /* new config */ });
-  // Clean up: chart.unmount();
-&lt;/script&gt;</code></pre>
-    <p style="margin-top: 10px; color: #666; font-size: 14px;">
-      <strong>💡 Key Benefits:</strong> JavaScript API with full control, smaller bundle size, React as peer dependency!
-    </p>
-  </div>
-
-  <div class="container">
-    <h2>📖 API Reference</h2>
-    
-    <!-- render method -->
-    <div style="border-left: 4px solid #0066cc; padding-left: 16px; margin: 24px 0;">
-      <h3 style="margin-top: 0; color: #0066cc; font-family: 'Courier New', monospace;">
-        RHNGUIRenderer.render(containerId, config)
-      </h3>
-      <p style="margin: 8px 0; font-size: 15px;">Renders a single component into a container.</p>
-      
-      <div style="margin: 12px 0;">
-        <strong>Parameters:</strong>
-        <ul style="margin: 8px 0; padding-left: 20px;">
-          <li><code>containerId</code> <em>(string)</em> - DOM element ID where component will be mounted</li>
-          <li><code>config</code> <em>(object)</em> - Component configuration:
-            <ul style="margin-top: 4px;">
-              <li><code>component</code> - Component type</li>
-              <li><code>key</code> - Unique identifier</li>
-              <li><code>props</code> - Component-specific properties</li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-      
-      <div style="margin: 12px 0;">
-        <strong>Returns:</strong> <code>{ update(config), unmount() }</code>
-      </div>
-      
-      <div style="margin: 12px 0;">
-        <strong>Example:</strong>
-        <pre style="background: #f5f5f5; padding: 12px; border-radius: 4px; margin-top: 8px; overflow-x: auto;"><code>const instance = renderer.render('my-container', {
-  component: 'chart',
-  key: 'chart-1',
-  props: {
-    id: 'sales',
-    title: 'Sales Data',
-    chartType: 'bar',
-    data: [{ name: 'Q1', data: [...] }]
-  }
-});
-
-// Update the component
-instance.update({ props: { title: 'Updated Title' } });
-
-// Remove the component
-instance.unmount();</code></pre>
-      </div>
-    </div>
-
-    <!-- renderMultiple method -->
-    <div style="border-left: 4px solid #0066cc; padding-left: 16px; margin: 24px 0;">
-      <h3 style="margin-top: 0; color: #0066cc; font-family: 'Courier New', monospace;">
-        RHNGUIRenderer.renderMultiple(containerId, configs[])
-      </h3>
-      <p style="margin: 8px 0; font-size: 15px;">Renders multiple components into a single container.</p>
-      
-      <div style="margin: 12px 0;">
-        <strong>Parameters:</strong>
-        <ul style="margin: 8px 0; padding-left: 20px;">
-          <li><code>containerId</code> <em>(string)</em> - DOM element ID</li>
-          <li><code>configs</code> <em>(array)</em> - Array of configuration objects</li>
-        </ul>
-      </div>
-      
-      <div style="margin: 12px 0;">
-        <strong>Returns:</strong> <code>{ unmountAll() }</code>
-      </div>
-    </div>
-
-    <!-- unmount method -->
-    <div style="border-left: 4px solid #0066cc; padding-left: 16px; margin: 24px 0;">
-      <h3 style="margin-top: 0; color: #0066cc; font-family: 'Courier New', monospace;">
-        RHNGUIRenderer.unmount(containerId)
-      </h3>
-      <p style="margin: 8px 0; font-size: 15px;">Unmounts a specific component by container ID.</p>
-      
-      <div style="margin: 12px 0;">
-        <strong>Parameters:</strong>
-        <ul style="margin: 8px 0; padding-left: 20px;">
-          <li><code>containerId</code> <em>(string)</em> - DOM element ID to unmount</li>
-        </ul>
-      </div>
-    </div>
-
-    <!-- unmountAll method -->
-    <div style="border-left: 4px solid #0066cc; padding-left: 16px; margin: 24px 0;">
-      <h3 style="margin-top: 0; color: #0066cc; font-family: 'Courier New', monospace;">
-        RHNGUIRenderer.unmountAll()
-      </h3>
-      <p style="margin: 8px 0; font-size: 15px;">Unmounts all components managed by the renderer.</p>
-    </div>
-
-    <!-- Available components -->
-    <div style="background: #f0f7ff; border: 1px solid #c7e0f4; border-radius: 4px; padding: 16px; margin-top: 24px;">
-      <h3 style="margin-top: 0; color: #002952;">Available Components</h3>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-        <div><code style="background: white; padding: 4px 8px; border-radius: 3px; display: inline-block;">chart</code></div>
-        <div><code style="background: white; padding: 4px 8px; border-radius: 3px; display: inline-block;">table</code></div>
-        <div><code style="background: white; padding: 4px 8px; border-radius: 3px; display: inline-block;">image</code></div>
-        <div><code style="background: white; padding: 4px 8px; border-radius: 3px; display: inline-block;">one-card</code></div>
-        <div><code style="background: white; padding: 4px 8px; border-radius: 3px; display: inline-block;">set-of-cards</code></div>
-        <div><code style="background: white; padding: 4px 8px; border-radius: 3px; display: inline-block;">video-player</code></div>
-      </div>
-    </div>
-  </div>
+  <!-- Documentation will be injected here -->
+  <div id="docs-container"></div>
   
   <div style="margin: 20px 0;">
     <button onclick="updateChart()">Update Chart to Line</button>
@@ -309,6 +97,13 @@ instance.unmount();</code></pre>
       <pre><code id="code-multi-content"></code></pre>
     </div>
   </div>
+
+  <!-- Load documentation -->
+  <script type="module">
+    import { loadStandaloneDocs } from './standalone-docs.js';
+    // Load documentation as soon as possible
+    loadStandaloneDocs('docs-container');
+  </script>
 
   <script>
     // Access the global renderer
@@ -388,7 +183,7 @@ instance.unmount();</code></pre>
       props: {
         id: 'user-card',
         title: 'Server Information',
-        image: 'https://www.patternfly.org/images/f18506f4.svg',
+        image: 'https://avatars.githubusercontent.com/u/6391110?v=4',
         imageSize: 'md',
         fields: [
           { name: 'Hostname', data_path: 'server.name', data: ['server-01.example.com'] },

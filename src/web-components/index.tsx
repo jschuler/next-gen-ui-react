@@ -2,6 +2,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 
 import DynamicComponent from "../components/DynamicComponents";
+import "../global.css";
 
 interface ComponentConfig {
   component: string;

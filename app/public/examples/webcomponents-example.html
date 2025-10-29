@@ -8,86 +8,15 @@
   <!-- Include PatternFly styles from CDN (minified) -->
   <link rel="stylesheet" href="https://unpkg.com/@patternfly/patternfly@6/patternfly.min.css">
   
+  <!-- Include RHNGUI component styles -->
+  <link rel="stylesheet" href="../webcomponents/rhngui-webcomponents.css?v=1761706940728">
+  
   <!-- Include the web components bundle -->
   <!-- Note: Update the ?v= parameter when rebuilding to bust browser cache -->
-  <script type="module" src="../webcomponents/rhngui-webcomponents.js?v=1761679526337"></script>
+  <script type="module" src="../webcomponents/rhngui-webcomponents.js?v=1761706940728"></script>
   
-  <style>
-    body {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-      background: #f5f5f5;
-    }
-    h1 {
-      color: #333;
-    }
-    .container {
-      background: white;
-      padding: 20px;
-      margin: 20px 0;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    button {
-      background: #0066cc;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      cursor: pointer;
-      margin: 5px;
-      font-size: 14px;
-    }
-    button:hover {
-      background: #0052a3;
-    }
-    code {
-      background: #f0f0f0;
-      padding: 2px 6px;
-      border-radius: 3px;
-      font-family: 'Courier New', monospace;
-      font-size: 13px;
-    }
-    .code-toggle {
-      margin-top: 16px;
-      background: #f5f5f5;
-      border: 1px solid #d2d2d2;
-      padding: 10px 16px;
-      cursor: pointer;
-      border-radius: 4px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-weight: 600;
-      color: #151515;
-    }
-    .code-toggle:hover {
-      background: #e7e7e7;
-    }
-    .code-toggle .arrow {
-      transition: transform 0.2s;
-    }
-    .code-toggle.expanded .arrow {
-      transform: rotate(90deg);
-    }
-    .code-content {
-      display: none;
-      margin-top: 8px;
-      background: #f5f5f5;
-      border: 1px solid #d2d2d2;
-      border-radius: 4px;
-      padding: 16px;
-    }
-    .code-content.show {
-      display: block;
-    }
-    .code-content pre {
-      margin: 0;
-      font-size: 13px;
-      overflow-x: auto;
-    }
-  </style>
+  <!-- Include example styles -->
+  <link rel="stylesheet" href="examples.css">
 </head>
 <body>
   <h1>RHNGUI Components - Web Components Example</h1>
@@ -95,64 +24,8 @@
   <p>This page demonstrates how to use RHNGUI components as native Web Components (Custom Elements) in any HTML page.</p>
   <p>No JavaScript framework required! Just use <code>&lt;rhngui-*&gt;</code> tags directly in your HTML.</p>
   
-  <div style="background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <h2>📚 Basic Usage</h2>
-    <pre style="background: #f5f5f5; padding: 15px; border-radius: 4px; overflow-x: auto;"><code>&lt;!-- 1. Include PatternFly styles --&gt;
-&lt;link rel="stylesheet" href="https://unpkg.com/@patternfly/patternfly@6/patternfly.min.css"&gt;
-
-&lt;!-- 2. Include RHNGUI web components bundle --&gt;
-&lt;script type="module" src="dist/webcomponents/rhngui-webcomponents.js"&gt;&lt;/script&gt;
-
-&lt;!-- 3. Use as regular HTML tags --&gt;
-&lt;rhngui-chart
-  id="sales"
-  title="Sales Data"
-  chart-type="bar"
-  width="600"
-  height="400"
-  data='[{"name":"Q1","data":[{"x":"Jan","y":1000}]}]'
-&gt;&lt;/rhngui-chart&gt;
-
-&lt;!-- 4. Update with JavaScript (optional) --&gt;
-&lt;script&gt;
-  const chart = document.querySelector('rhngui-chart');
-  chart.setAttribute('chart-type', 'line');
-&lt;/script&gt;</code></pre>
-    <p style="margin-top: 10px; color: #666; font-size: 14px;">
-      <strong>💡 Key Benefits:</strong> No React required, no build step, works in any HTML page!
-    </p>
-  </div>
-
-  <div style="background: white; padding: 20px; margin: 20px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    <h2>📖 Available Components</h2>
-    <table style="width: 100%; border-collapse: collapse;">
-      <thead>
-        <tr style="background: #f5f5f5; text-align: left;">
-          <th style="padding: 10px; border: 1px solid #ddd;">Element</th>
-          <th style="padding: 10px; border: 1px solid #ddd;">Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ddd;"><code>&lt;rhngui-chart&gt;</code></td>
-          <td style="padding: 10px; border: 1px solid #ddd;">Bar, line, pie, and donut charts</td>
-        </tr>
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ddd;"><code>&lt;rhngui-table&gt;</code></td>
-          <td style="padding: 10px; border: 1px solid #ddd;">Data tables with PatternFly styling</td>
-        </tr>
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ddd;"><code>&lt;rhngui-image&gt;</code></td>
-          <td style="padding: 10px; border: 1px solid #ddd;">Image display with optional title</td>
-        </tr>
-        <tr>
-          <td style="padding: 10px; border: 1px solid #ddd;"><code>&lt;rhngui-card&gt;</code></td>
-          <td style="padding: 10px; border: 1px solid #ddd;">Information cards with fields</td>
-        </tr>
-      </tbody>
-    </table>
-    <p style="margin-top: 15px;"><strong>💡 Tip:</strong> All elements support standard DOM APIs like <code>getAttribute()</code>, <code>setAttribute()</code>, and <code>remove()</code>.</p>
-  </div>
+  <!-- Documentation will be injected here -->
+  <div id="docs-container"></div>
   
   <div style="margin: 20px 0;">
     <button onclick="updateChart()">Update Chart to Line</button>
@@ -246,7 +119,7 @@
     <rhngui-card
       id="server-card"
       title="Server Information"
-      image="https://www.patternfly.org/images/f18506f4.svg"
+      image="https://avatars.githubusercontent.com/u/6391110?v=4"
       image-size="md"
       fields='[
         {"name": "Hostname", "data_path": "server.name", "data": ["server-01.example.com"]},
@@ -280,6 +153,13 @@
         {"name": "Orders Today", "data_path": "stats.orders", "data": ["89"]}
       ]'
     ></rhngui-card>
+    <div class="code-toggle" onclick="toggleCode('code-multi')">
+      <span>HTML Markup</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="code-content" id="code-multi">
+      <pre><code id="code-multi-content"></code></pre>
+    </div>
   </div>
 
   <div class="container">
@@ -313,7 +193,21 @@
         }
       ]'
     ></rhngui-chart>
+    <div class="code-toggle" onclick="toggleCode('code-large')">
+      <span>HTML Markup</span>
+      <span class="arrow">▶</span>
+    </div>
+    <div class="code-content" id="code-large">
+      <pre><code id="code-large-content"></code></pre>
+    </div>
   </div>
+
+  <!-- Load documentation -->
+  <script type="module">
+    import { loadWebComponentsDocs } from './webcomponents-docs.js';
+    // Load documentation as soon as possible
+    loadWebComponentsDocs('docs-container');
+  </script>
 
   <script>
     // Toggle code visibility
@@ -373,6 +267,56 @@
     {"name": "Uptime", "data_path": "server.uptime", "data": ["45 days"]}
   ]'
 ></rhngui-card>`;
+
+      // Multiple components HTML
+      document.getElementById('code-multi-content').textContent = 
+`<rhngui-image
+  id="small-logo"
+  image="https://www.patternfly.org/images/f18506f4.svg"
+  title="Small Logo"
+></rhngui-image>
+
+<rhngui-card
+  id="stats-card"
+  title="Quick Stats"
+  fields='[
+    {"name": "Active Users", "data_path": "stats.users", "data": ["1,234"]},
+    {"name": "Total Revenue", "data_path": "stats.revenue", "data": ["$45,678"]},
+    {"name": "Orders Today", "data_path": "stats.orders", "data": ["89"]}
+  ]'
+></rhngui-card>`;
+
+      // Large numbers chart HTML
+      document.getElementById('code-large-content').textContent = 
+`<rhngui-chart
+  id="large-numbers-chart"
+  title="Global User Growth"
+  chart-type="line"
+  width="800"
+  height="400"
+  theme-color="blue"
+  legend-position="right"
+  data='[
+    {
+      "name": "Platform A",
+      "data": [
+        {"x": 2020, "y": 850000000},
+        {"x": 2021, "y": 1200000000},
+        {"x": 2022, "y": 1750000000},
+        {"x": 2023, "y": 2300000000}
+      ]
+    },
+    {
+      "name": "Platform B",
+      "data": [
+        {"x": 2020, "y": 450000000},
+        {"x": 2021, "y": 675000000},
+        {"x": 2022, "y": 925000000},
+        {"x": 2023, "y": 1250000000}
+      ]
+    }
+  ]'
+></rhngui-chart>`;
     }
 
     // Initialize code displays
