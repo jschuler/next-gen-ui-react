@@ -8,6 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default defineConfig({
   plugins: [react()],
+  publicDir: false, // Don't copy public folder for library builds
   define: {
     "process.env": {},
     "import.meta.env.MODE": '"production"',
@@ -16,6 +17,7 @@ export default defineConfig({
   },
   build: {
     outDir: path.resolve(__dirname, "../dist/webcomponents"),
+    emptyOutDir: true, // Clear output directory before building
     minify: "terser", // Better minification
     cssMinify: true,
     terserOptions: {
