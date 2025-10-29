@@ -17,8 +17,8 @@ export const imageDemoLarge = {
 export const oneCardDemo = {
   title: "Server Details",
   id: "onecard-1",
-  image: "https://www.patternfly.org/images/f18506f4.svg",
-  imageSize: "md",
+  image: "https://avatars.githubusercontent.com/u/6391110?v=4",
+  imageSize: "sm",
   fields: [
     { name: "Hostname", data_path: "host.name", data: ["server-01"] },
     { name: "IP", data_path: "host.ip", data: ["10.0.0.5"] },
@@ -40,7 +40,7 @@ export const oneCardDemoNoImage = {
 export const oneCardDemoSmallImage = {
   title: "User Profile",
   id: "onecard-3",
-  image: "https://www.patternfly.org/images/f18506f4.svg",
+  image: "https://avatars.githubusercontent.com/u/6391110?v=4",
   imageSize: "sm",
   fields: [
     { name: "Username", data_path: "user.name", data: ["admin"] },
@@ -136,7 +136,7 @@ export const videoDemo = {
   id: "video-1",
   title: "YouTube Video with Poster",
   video: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-  video_img: "https://www.patternfly.org/images/f18506f4.svg",
+  video_img: "https://avatars.githubusercontent.com/u/6391110?v=4",
   autoPlay: false,
   controls: true,
   aspectRatio: "16:9" as const,
@@ -310,4 +310,356 @@ export const chartDemoDonut = {
   themeColor: "multi" as const,
   legendPosition: "bottom" as const,
   donutSubTitle: "GB Used",
+};
+
+// Chart demo with large numbers
+export const chartDemoBarLargeNumbers = {
+  component: "chart" as const,
+  id: "chart-bar-large-demo",
+  title: "Annual Revenue by Region (in USD)",
+  chartType: "bar" as const,
+  data: [
+    {
+      name: "North America",
+      data: [
+        { x: 2020, y: 125000000 },
+        { x: 2021, y: 145000000 },
+        { x: 2022, y: 178000000 },
+        { x: 2023, y: 205000000 },
+        { x: 2024, y: 240000000 },
+      ],
+    },
+    {
+      name: "Europe",
+      data: [
+        { x: 2020, y: 98000000 },
+        { x: 2021, y: 112000000 },
+        { x: 2022, y: 135000000 },
+        { x: 2023, y: 158000000 },
+        { x: 2024, y: 185000000 },
+      ],
+    },
+    {
+      name: "Asia Pacific",
+      data: [
+        { x: 2020, y: 87000000 },
+        { x: 2021, y: 105000000 },
+        { x: 2022, y: 142000000 },
+        { x: 2023, y: 189000000 },
+        { x: 2024, y: 256000000 },
+      ],
+    },
+  ],
+  width: 750,
+  height: 450,
+  themeColor: "multi" as const,
+  legendPosition: "bottom" as const,
+};
+
+export const chartDemoLineLargeNumbers = {
+  component: "chart" as const,
+  id: "chart-line-large-demo",
+  title: "Global User Growth (Total Active Users)",
+  chartType: "line" as const,
+  data: [
+    {
+      name: "Platform A",
+      data: [
+        { x: 2018, y: 850000000 },
+        { x: 2019, y: 1200000000 },
+        { x: 2020, y: 1750000000 },
+        { x: 2021, y: 2300000000 },
+        { x: 2022, y: 2850000000 },
+        { x: 2023, y: 3400000000 },
+      ],
+    },
+    {
+      name: "Platform B",
+      data: [
+        { x: 2018, y: 450000000 },
+        { x: 2019, y: 675000000 },
+        { x: 2020, y: 925000000 },
+        { x: 2021, y: 1250000000 },
+        { x: 2022, y: 1620000000 },
+        { x: 2023, y: 2100000000 },
+      ],
+    },
+    {
+      name: "Platform C",
+      data: [
+        { x: 2018, y: 125000000 },
+        { x: 2019, y: 280000000 },
+        { x: 2020, y: 525000000 },
+        { x: 2021, y: 890000000 },
+        { x: 2022, y: 1350000000 },
+        { x: 2023, y: 1900000000 },
+      ],
+    },
+  ],
+  width: 800,
+  height: 450,
+  themeColor: "multi" as const,
+  legendPosition: "right" as const,
+};
+
+export const chartDemoBarScaled = {
+  component: "chart" as const,
+  id: "chart-bar-scaled-demo",
+  title: "Quarterly Revenue (Scaled to 70%)",
+  chartType: "bar" as const,
+  data: [
+    {
+      name: "Product A",
+      data: [
+        { x: "Q1", y: 30 },
+        { x: "Q2", y: 45 },
+        { x: "Q3", y: 60 },
+        { x: "Q4", y: 55 },
+      ],
+    },
+    {
+      name: "Product B",
+      data: [
+        { x: "Q1", y: 25 },
+        { x: "Q2", y: 35 },
+        { x: "Q3", y: 40 },
+        { x: "Q4", y: 50 },
+      ],
+    },
+  ],
+  width: 600,
+  height: 400,
+  themeColor: "blue" as const,
+  legendPosition: "bottom" as const,
+  scale: 0.7,
+};
+
+// Additional DynamicComponent examples
+export const setOfCardsDemoWithImages = {
+  component: "set-of-cards" as const,
+  id: "setof-3",
+  title: "Team Members",
+  fields: [
+    {
+      name: "Name",
+      data_path: "team.name",
+      data: ["Alice Johnson", "Bob Smith", "Carol Williams", "David Brown"],
+    },
+    {
+      name: "Role",
+      data_path: "team.role",
+      data: [
+        "Lead Developer",
+        "DevOps Engineer",
+        "UI/UX Designer",
+        "Product Manager",
+      ],
+    },
+    {
+      name: "Email",
+      data_path: "team.email",
+      data: [
+        "alice@company.com",
+        "bob@company.com",
+        "carol@company.com",
+        "david@company.com",
+      ],
+    },
+    {
+      name: "Years",
+      data_path: "team.years",
+      data: [5, 3, 4, 7],
+    },
+  ],
+};
+
+export const tableDemoServerMetrics = {
+  component: "table" as const,
+  id: "table-3",
+  title: "Server Performance Metrics",
+  fields: [
+    {
+      name: "Server",
+      data_path: "server.name",
+      data: ["web-01", "web-02", "db-01", "cache-01", "queue-01"],
+    },
+    {
+      name: "CPU Usage",
+      data_path: "server.cpu",
+      data: ["45%", "67%", "89%", "23%", "34%"],
+    },
+    {
+      name: "Memory Usage",
+      data_path: "server.memory",
+      data: ["3.2 GB", "5.8 GB", "12.4 GB", "1.5 GB", "2.1 GB"],
+    },
+    {
+      name: "Disk I/O",
+      data_path: "server.disk_io",
+      data: ["120 MB/s", "85 MB/s", "450 MB/s", "35 MB/s", "78 MB/s"],
+    },
+    {
+      name: "Status",
+      data_path: "server.status",
+      data: ["healthy", "healthy", "warning", "healthy", "healthy"],
+    },
+  ],
+};
+
+export const oneCardDemoAPIEndpoint = {
+  component: "one-card" as const,
+  title: "API Endpoint Status",
+  id: "onecard-4",
+  fields: [
+    { name: "Endpoint", data_path: "api.endpoint", data: ["/api/v1/users"] },
+    { name: "Method", data_path: "api.method", data: ["GET"] },
+    { name: "Response Time", data_path: "api.response_time", data: ["125ms"] },
+    { name: "Success Rate", data_path: "api.success_rate", data: ["99.8%"] },
+    { name: "Requests/min", data_path: "api.requests", data: [1250] },
+  ],
+};
+
+export const chartDemoBarStacked = {
+  component: "chart" as const,
+  id: "chart-bar-stacked-demo",
+  title: "Monthly Sales by Category",
+  chartType: "bar" as const,
+  data: [
+    {
+      name: "Electronics",
+      data: [
+        { x: "Jan", y: 45000 },
+        { x: "Feb", y: 52000 },
+        { x: "Mar", y: 48000 },
+        { x: "Apr", y: 61000 },
+        { x: "May", y: 58000 },
+        { x: "Jun", y: 67000 },
+      ],
+    },
+    {
+      name: "Clothing",
+      data: [
+        { x: "Jan", y: 28000 },
+        { x: "Feb", y: 31000 },
+        { x: "Mar", y: 35000 },
+        { x: "Apr", y: 29000 },
+        { x: "May", y: 42000 },
+        { x: "Jun", y: 38000 },
+      ],
+    },
+    {
+      name: "Home & Garden",
+      data: [
+        { x: "Jan", y: 18000 },
+        { x: "Feb", y: 22000 },
+        { x: "Mar", y: 25000 },
+        { x: "Apr", y: 28000 },
+        { x: "May", y: 31000 },
+        { x: "Jun", y: 35000 },
+      ],
+    },
+  ],
+  width: 700,
+  height: 400,
+  themeColor: "multi" as const,
+  legendPosition: "right" as const,
+};
+
+export const chartDemoLinePerformance = {
+  component: "chart" as const,
+  id: "chart-line-performance-demo",
+  title: "Application Performance (Response Time)",
+  chartType: "line" as const,
+  data: [
+    {
+      name: "API Server",
+      data: [
+        { x: "00:00", y: 125 },
+        { x: "04:00", y: 98 },
+        { x: "08:00", y: 245 },
+        { x: "12:00", y: 389 },
+        { x: "16:00", y: 278 },
+        { x: "20:00", y: 156 },
+      ],
+    },
+    {
+      name: "Database",
+      data: [
+        { x: "00:00", y: 45 },
+        { x: "04:00", y: 38 },
+        { x: "08:00", y: 112 },
+        { x: "12:00", y: 198 },
+        { x: "16:00", y: 145 },
+        { x: "20:00", y: 67 },
+      ],
+    },
+  ],
+  width: 750,
+  height: 350,
+  themeColor: "green" as const,
+  legendPosition: "bottom" as const,
+};
+
+export const chartDemoPieServerDistribution = {
+  component: "chart" as const,
+  id: "chart-pie-server-demo",
+  title: "Server Distribution by Region",
+  chartType: "pie" as const,
+  data: [
+    {
+      name: "Regions",
+      data: [
+        { name: "US East", x: "US East", y: 45 },
+        { name: "US West", x: "US West", y: 30 },
+        { name: "EU Central", x: "EU Central", y: 15 },
+        { name: "Asia Pacific", x: "Asia Pacific", y: 10 },
+      ],
+    },
+  ],
+  width: 550,
+  height: 400,
+  themeColor: "purple" as const,
+  legendPosition: "right" as const,
+};
+
+export const chartDemoDonutCostBreakdown = {
+  component: "chart" as const,
+  id: "chart-donut-cost-demo",
+  title: "Monthly Cloud Cost Breakdown",
+  chartType: "donut" as const,
+  data: [
+    {
+      name: "Cost",
+      data: [
+        { name: "Compute", x: "Compute", y: 12500 },
+        { name: "Storage", x: "Storage", y: 4800 },
+        { name: "Networking", x: "Networking", y: 2100 },
+        { name: "Database", x: "Database", y: 8900 },
+        { name: "Other", x: "Other", y: 1700 },
+      ],
+    },
+  ],
+  width: 600,
+  height: 400,
+  themeColor: "orange" as const,
+  legendPosition: "bottom" as const,
+  donutSubTitle: "USD",
+};
+
+export const imageLogoGrid = {
+  component: "image" as const,
+  id: "demo-image-logos",
+  image:
+    "https://www.redhat.com/cms/managed-files/Logo-Red_Hat-A-Reverse-RGB.svg",
+  title: "Red Hat Logo",
+};
+
+export const tableDemoEmpty = {
+  component: "table" as const,
+  id: "table-empty",
+  title: "No Data Available",
+  fields: [
+    { name: "Column 1", data_path: "data.col1", data: [] },
+    { name: "Column 2", data_path: "data.col2", data: [] },
+  ],
 };

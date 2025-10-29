@@ -12,6 +12,10 @@ dist
 dist-ssr
 *.local
 
+# Copied bundles for dev mode (from app/dist to app/public)
+app/public/standalone/
+app/public/webcomponents/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

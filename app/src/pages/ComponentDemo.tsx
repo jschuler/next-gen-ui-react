@@ -97,7 +97,7 @@ export default function ComponentDemo() {
           </Suspense>
 
           <ExpandableSection
-            toggleText="Props"
+            toggleText="Configuration"
             isExpanded={expandedSections[index] || false}
             onToggle={() =>
               setExpandedSections((prev) => ({
