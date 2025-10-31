@@ -10,7 +10,12 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+dist-netlify
 *.local
+
+# Copied bundles for dev mode (from app/dist to app/public)
+app/public/standalone/
+app/public/webcomponents/
 
 # Editor directories and files
 .vscode/*

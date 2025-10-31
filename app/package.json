@@ -4,35 +4,30 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run build:standalone && npm run build:webcomponents && npm run copy-bundles && vite",
+    "copy-bundles": "cp -r dist/standalone public/ && cp -r dist/webcomponents public/",
     "build": "vite build",
-    "build:netlify": "VITE_BASE_PATH=/ vite build",
+    "build:netlify": "NETLIFY_BUILD=1 VITE_BASE_PATH=/ npm run build:all",
+    "build:standalone": "vite build --config configs/vite.config.standalone.ts && node scripts/update-cache-version.js",
+    "build:webcomponents": "vite build --config configs/vite.config.webcomponents.ts && node scripts/update-cache-version.js",
+    "build:all": "npm run build && npm run build:standalone && npm run build:webcomponents",
     "preview": "vite preview",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,md}\"",
-    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,md}\""
+    "lint": "cd .. && npx eslint app/",
+    "lint:fix": "cd .. && npx eslint app/ --fix",
+    "format": "cd .. && npx prettier --write \"app/**/*.{ts,tsx,js,jsx,json,css,md}\"",
+    "format:check": "cd .. && npx prettier --check \"app/**/*.{ts,tsx,js,jsx,json,css,md}\""
   },
   "dependencies": {
+    "@patternfly/react-core": "^6.4.0",
+    "@patternfly/react-icons": "^6.4.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-router-dom": "^6.16.0",
-    "@patternfly/react-core": "^6.3.1",
-    "@patternfly/react-icons": "^6.3.1",
-    "@patternfly/patternfly": "^6.3.1"
+    "react-router-dom": "^6.16.0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.32.0",
+    "@types/node": "^24.9.2",
     "@vitejs/plugin-react": "^4.7.0",
-    "eslint": "^9.32.0",
-    "eslint-config-prettier": "^9.1.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-react-hooks": "^5.2.0",
-    "eslint-plugin-react-refresh": "^0.4.20",
-    "globals": "^16.3.0",
-    "prettier": "^3.4.2",
     "typescript": "~5.8.3",
-    "typescript-eslint": "^8.39.0",
     "vite": "^7.1.0"
   }
 }
