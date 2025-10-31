@@ -4,6 +4,10 @@
 import {
   chartDemoBar,
   chartDemoBarLargeNumbers,
+  chartDemoBarLongLabelsVertical,
+  chartDemoBarLongTitlesHorizontal,
+  chartDemoBarMoviesHorizontal,
+  chartDemoBarResponsive,
   chartDemoBarScaled,
   chartDemoBarStacked,
   chartDemoDonut,
@@ -13,6 +17,7 @@ import {
   chartDemoLineLargeNumbers,
   chartDemoPie,
   chartDemoPieServerDistribution,
+  chartMovieROISimple,
   dynamicDemo,
   dynamicDemoImage,
   dynamicDemoTable,
@@ -162,6 +167,22 @@ export const componentRegistry: ComponentConfig[] = [
     examples: [
       { title: "Bar Chart - Quarterly Revenue", data: chartDemoBar },
       { title: "Bar Chart - Large Numbers", data: chartDemoBarLargeNumbers },
+      {
+        title: "Bar Chart - Long Labels (Auto-Rotated)",
+        data: chartDemoBarLongLabelsVertical,
+      },
+      {
+        title: "Bar Chart - Responsive (No Fixed Width)",
+        data: chartDemoBarResponsive,
+      },
+      {
+        title: "Bar Chart - Movie Box Office (Horizontal)",
+        data: chartDemoBarMoviesHorizontal,
+      },
+      {
+        title: "Bar Chart - Long Movie Titles (Horizontal)",
+        data: chartDemoBarLongTitlesHorizontal,
+      },
       { title: "Bar Chart - Scaled (70%)", data: chartDemoBarScaled },
       { title: "Bar Chart - Stacked Sales", data: chartDemoBarStacked },
       { title: "Line Chart - Website Traffic", data: chartDemoLine },
@@ -176,6 +197,10 @@ export const componentRegistry: ComponentConfig[] = [
       {
         title: "Donut Chart - Cost Breakdown",
         data: chartDemoDonutCostBreakdown,
+      },
+      {
+        title: "Mirrored Bar Chart - Movie ROI vs Budget",
+        data: chartMovieROISimple,
       },
     ],
   },

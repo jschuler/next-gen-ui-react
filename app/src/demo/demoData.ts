@@ -213,8 +213,6 @@ export const chartDemoBar = {
       ],
     },
   ],
-  width: 600,
-  height: 400,
   themeColor: "multi" as const,
   legendPosition: "bottom" as const,
 };
@@ -646,6 +644,110 @@ export const chartDemoDonutCostBreakdown = {
   donutSubTitle: "USD",
 };
 
+export const chartDemoBarMoviesHorizontal = {
+  component: "chart" as const,
+  id: "chart-bar-movies-horizontal-demo",
+  title: "Box Office Revenue by Movie (Horizontal)",
+  chartType: "bar" as const,
+  data: [
+    {
+      name: "Domestic Revenue (USD)",
+      data: [
+        { x: "Toy Story (1995)", y: 373554033 },
+        { x: "The Shawshank Redemption (1994)", y: 29140617 },
+        { x: "The Dark Knight (2008)", y: 533316061 },
+        { x: "Inception (2010)", y: 292576195 },
+        { x: "The Matrix (1999)", y: 171479930 },
+        { x: "Interstellar (2014)", y: 188341469 },
+      ],
+    },
+  ],
+  width: 1000,
+  height: 450,
+  themeColor: "blue" as const,
+  legendPosition: "right" as const,
+  horizontal: true,
+  yAxisLabelAngle: 0,
+};
+
+export const chartDemoBarLongTitlesHorizontal = {
+  component: "chart" as const,
+  id: "chart-bar-long-titles-horizontal",
+  title: "Top Revenue by Movie Title",
+  chartType: "bar" as const,
+  data: [
+    {
+      name: "Revenue (Millions)",
+      data: [
+        { x: "The Shawshank Redemption", y: 58.3 },
+        { x: "The Lord of the Rings: The Return of the King", y: 1119.9 },
+        { x: "Pirates of the Caribbean: Dead Man's Chest", y: 1066.2 },
+        { x: "Harry Potter and the Deathly Hallows – Part 2", y: 1342.0 },
+        { x: "The Dark Knight Rises", y: 1081.0 },
+      ],
+    },
+  ],
+  width: 600,
+  height: 400,
+  themeColor: "green" as const,
+  legendPosition: "bottom" as const,
+  horizontal: true,
+};
+
+export const chartDemoBarLongLabelsVertical = {
+  component: "chart" as const,
+  id: "chart-bar-long-labels-vertical",
+  title: "Product Performance by Category",
+  chartType: "bar" as const,
+  data: [
+    {
+      name: "Sales (USD)",
+      data: [
+        { x: "Enterprise Software Solutions", y: 245000 },
+        { x: "Cloud Infrastructure Services", y: 189000 },
+        { x: "Data Analytics Platform", y: 312000 },
+        { x: "Cybersecurity Solutions", y: 156000 },
+        { x: "Mobile Application Development", y: 98000 },
+      ],
+    },
+  ],
+  width: 600,
+  height: 400,
+  themeColor: "purple" as const,
+  legendPosition: "bottom" as const,
+};
+
+export const chartDemoBarResponsive = {
+  component: "chart" as const,
+  id: "chart-bar-responsive",
+  title: "Responsive Bar Chart (No Fixed Width)",
+  chartType: "bar" as const,
+  data: [
+    {
+      name: "Revenue",
+      data: [
+        { x: "Q1 2024", y: 12500 },
+        { x: "Q2 2024", y: 15800 },
+        { x: "Q3 2024", y: 18200 },
+        { x: "Q4 2024", y: 21000 },
+      ],
+    },
+    {
+      name: "Expenses",
+      data: [
+        { x: "Q1 2024", y: 8500 },
+        { x: "Q2 2024", y: 9200 },
+        { x: "Q3 2024", y: 10100 },
+        { x: "Q4 2024", y: 11500 },
+      ],
+    },
+  ],
+  // No width specified - will be responsive to parent container
+  height: 350,
+  themeColor: "cyan" as const,
+  legendPosition: "bottom" as const,
+};
+
 export const imageLogoGrid = {
   component: "image" as const,
   id: "demo-image-logos",
@@ -662,4 +764,92 @@ export const tableDemoEmpty = {
     { name: "Column 1", data_path: "data.col1", data: [] },
     { name: "Column 2", data_path: "data.col2", data: [] },
   ],
+};
+
+// Mirrored Bar Chart Example (Simplified API)
+export const chartMovieROISimple = {
+  component: "chart" as const,
+  id: "chart-movie-roi-simple",
+  title: "Movie ROI vs Budget Comparison",
+  chartType: "mirrored-bar" as const,
+  data: [
+    {
+      name: "ROI",
+      data: [
+        { x: "Toy Story", y: 11.45 },
+        { x: "Shawshank Redemption", y: 1.35 },
+        { x: "The Dark Knight", y: 4.43 },
+        { x: "Inception", y: 4.23 },
+        { x: "The Matrix", y: 6.36 },
+        { x: "Interstellar", y: 3.11 },
+      ],
+    },
+    {
+      name: "Budget",
+      data: [
+        { x: "Toy Story", y: 30000000 },
+        { x: "Shawshank Redemption", y: 25000000 },
+        { x: "The Dark Knight", y: 185000000 },
+        { x: "Inception", y: 160000000 },
+        { x: "The Matrix", y: 63000000 },
+        { x: "Interstellar", y: 165000000 },
+      ],
+    },
+  ],
+  width: 300,
+  height: 350,
+  themeColor: "multi" as const,
+  legendPosition: "bottom" as const,
+};
+
+// Mirrored Chart Examples
+// Top chart for ROI (positive values)
+export const chartMovieROI = {
+  component: "chart" as const,
+  id: "chart-movie-roi",
+  title: "Return on Investment (ROI Multiplier)",
+  chartType: "bar" as const,
+  data: [
+    {
+      name: "ROI",
+      data: [
+        { x: "Toy Story", y: 11.45 },
+        { x: "Shawshank Redemption", y: 1.35 },
+        { x: "The Dark Knight", y: 4.43 },
+        { x: "Inception", y: 4.23 },
+        { x: "The Matrix", y: 6.36 },
+        { x: "Interstellar", y: 3.11 },
+      ],
+    },
+  ],
+  width: 700,
+  height: 250,
+  themeColor: "green" as const,
+  legendPosition: "right" as const,
+};
+
+// Bottom chart for Budget (negative values with absolute display)
+export const chartMovieBudget = {
+  component: "chart" as const,
+  id: "chart-movie-budget",
+  title: "Production Budget (USD)",
+  chartType: "bar" as const,
+  data: [
+    {
+      name: "Budget",
+      data: [
+        { x: "Toy Story", y: -30000000 },
+        { x: "Shawshank Redemption", y: -25000000 },
+        { x: "The Dark Knight", y: -185000000 },
+        { x: "Inception", y: -160000000 },
+        { x: "The Matrix", y: -63000000 },
+        { x: "Interstellar", y: -165000000 },
+      ],
+    },
+  ],
+  width: 700,
+  height: 250,
+  themeColor: "blue" as const,
+  legendPosition: "right" as const,
+  showAbsoluteValues: true,
 };

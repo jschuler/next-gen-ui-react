@@ -35,6 +35,7 @@ export default defineConfig({
     ],
   },
   build: {
+    outDir: process.env.NETLIFY_BUILD ? "dist-netlify" : "dist",
     commonjsOptions: {
       include: [/node_modules/, /victory/],
       transformMixedEsModules: true,

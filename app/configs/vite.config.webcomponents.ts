@@ -16,7 +16,12 @@ export default defineConfig({
     "import.meta.env.PROD": "true",
   },
   build: {
-    outDir: path.resolve(__dirname, "../dist/webcomponents"),
+    outDir: path.resolve(
+      __dirname,
+      process.env.NETLIFY_BUILD
+        ? "../dist-netlify/webcomponents"
+        : "../dist/webcomponents"
+    ),
     emptyOutDir: true, // Clear output directory before building
     minify: "terser", // Better minification
     cssMinify: true,

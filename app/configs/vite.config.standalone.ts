@@ -16,7 +16,12 @@ export default defineConfig({
     "import.meta.env.PROD": "true",
   },
   build: {
-    outDir: path.resolve(__dirname, "../dist/standalone"),
+    outDir: path.resolve(
+      __dirname,
+      process.env.NETLIFY_BUILD
+        ? "../dist-netlify/standalone"
+        : "../dist/standalone"
+    ),
     emptyOutDir: true, // Clear output directory before building
     minify: "terser", // Better minification than esbuild
     cssMinify: true,
