@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 
 import TableWrapper from "../../components/TableWrapper";
 
@@ -237,5 +237,263 @@ describe("TableWrapper Component", () => {
     expect(screen.getByText("test string")).toBeInTheDocument();
     expect(screen.getByText("123")).toBeInTheDocument();
     expect(screen.getByText("true")).toBeInTheDocument();
+  });
+
+  // ========== onRowClick Feature Tests ==========
+
+  describe("onRowClick functionality", () => {
+    const mockOnRowClick = vitest.fn();
+
+    beforeEach(() => {
+      mockOnRowClick.mockClear();
+    });
+
+    it("should call onRowClick handler when row is clicked", () => {
+      render(<TableWrapper {...mockFieldsData} onRowClick={mockOnRowClick} />);
+
+      const firstRow = screen.getByTestId("row-0");
+      fireEvent.click(firstRow);
+
+      expect(mockOnRowClick).toHaveBeenCalledTimes(1);
+      expect(mockOnRowClick).toHaveBeenCalledWith({
+        Title: "Toy Story",
+        Year: "1995",
+        Runtime: "81",
+        "IMDB Rating": "8.3",
+        Revenue: "373554033",
+        Countries: "USA",
+      });
+    });
+
+    it("should call onRowClick with correct data for each row", () => {
+      const multiRowData = {
+        ...mockFieldsData,
+        fields: [
+          {
+            name: "Name",
+            data_path: "user.name",
+            data: ["Alice", "Bob", "Charlie"],
+          },
+          {
+            name: "Age",
+            data_path: "user.age",
+            data: [25, 30, 35],
+          },
+        ],
+      };
+
+      render(<TableWrapper {...multiRowData} onRowClick={mockOnRowClick} />);
+
+      // Click second row
+      const secondRow = screen.getByTestId("row-1");
+      fireEvent.click(secondRow);
+
+      expect(mockOnRowClick).toHaveBeenCalledWith({
+        Name: "Bob",
+        Age: "30",
+      });
+    });
+
+    it("should apply pointer cursor style when onRowClick is provided", () => {
+      render(<TableWrapper {...mockFieldsData} onRowClick={mockOnRowClick} />);
+
+      const firstRow = screen.getByTestId("row-0");
+      expect(firstRow).toHaveStyle({ cursor: "pointer" });
+    });
+
+    it("should not apply pointer cursor style when onRowClick is not provided", () => {
+      render(<TableWrapper {...mockFieldsData} />);
+
+      const firstRow = screen.getByTestId("row-0");
+      expect(firstRow).not.toHaveStyle({ cursor: "pointer" });
+    });
+
+    it("should make rows hoverable when onRowClick is provided", () => {
+      const { container } = render(
+        <TableWrapper {...mockFieldsData} onRowClick={mockOnRowClick} />
+      );
+
+      const firstRow = container.querySelector('[data-testid="row-0"]');
+      // Check that isHoverable prop is applied (PatternFly adds hover class)
+      expect(firstRow).toBeInTheDocument();
+    });
+
+    it("should handle multiple row clicks", () => {
+      const multiRowData = {
+        ...mockFieldsData,
+        fields: [
+          {
+            name: "Item",
+            data_path: "item",
+            data: ["A", "B", "C"],
+          },
+        ],
+      };
+
+      render(<TableWrapper {...multiRowData} onRowClick={mockOnRowClick} />);
+
+      fireEvent.click(screen.getByTestId("row-0"));
+      fireEvent.click(screen.getByTestId("row-1"));
+      fireEvent.click(screen.getByTestId("row-2"));
+
+      expect(mockOnRowClick).toHaveBeenCalledTimes(3);
+      expect(mockOnRowClick).toHaveBeenNthCalledWith(1, { Item: "A" });
+      expect(mockOnRowClick).toHaveBeenNthCalledWith(2, { Item: "B" });
+      expect(mockOnRowClick).toHaveBeenNthCalledWith(3, { Item: "C" });
+    });
+
+    it("should handle row click with array data", () => {
+      const fieldsWithArray = {
+        ...mockFieldsData,
+        fields: [
+          {
+            name: "Name",
+            data_path: "name",
+            data: ["Test"],
+          },
+          {
+            name: "Tags",
+            data_path: "tags",
+            data: [["tag1", "tag2", "tag3"]],
+          },
+        ],
+      };
+
+      render(<TableWrapper {...fieldsWithArray} onRowClick={mockOnRowClick} />);
+
+      fireEvent.click(screen.getByTestId("row-0"));
+
+      expect(mockOnRowClick).toHaveBeenCalledWith({
+        Name: "Test",
+        Tags: "tag1, tag2, tag3", // Array should be joined
+      });
+    });
+
+    it("should handle row click with null values", () => {
+      const fieldsWithNull = {
+        ...mockFieldsData,
+        fields: [
+          {
+            name: "Field1",
+            data_path: "field1",
+            data: ["value1"],
+          },
+          {
+            name: "Field2",
+            data_path: "field2",
+            data: [null],
+          },
+        ],
+      };
+
+      render(<TableWrapper {...fieldsWithNull} onRowClick={mockOnRowClick} />);
+
+      fireEvent.click(screen.getByTestId("row-0"));
+
+      expect(mockOnRowClick).toHaveBeenCalledWith({
+        Field1: "value1",
+        Field2: "", // null should become empty string
+      });
+    });
+
+    it("should not break when onRowClick is undefined", () => {
+      render(<TableWrapper {...mockFieldsData} />);
+
+      const firstRow = screen.getByTestId("row-0");
+
+      // Should not throw error when clicking without handler
+      expect(() => fireEvent.click(firstRow)).not.toThrow();
+    });
+
+    it("should work with single row tables", () => {
+      render(<TableWrapper {...mockFieldsData} onRowClick={mockOnRowClick} />);
+
+      const row = screen.getByTestId("row-0");
+      fireEvent.click(row);
+
+      expect(mockOnRowClick).toHaveBeenCalledTimes(1);
+    });
+
+    it("should work with large tables (100+ rows)", () => {
+      const largeData = {
+        ...mockFieldsData,
+        fields: [
+          {
+            name: "ID",
+            data_path: "id",
+            data: Array.from({ length: 150 }, (_, i) => i + 1),
+          },
+          {
+            name: "Value",
+            data_path: "value",
+            data: Array.from({ length: 150 }, (_, i) => `value-${i + 1}`),
+          },
+        ],
+      };
+
+      render(<TableWrapper {...largeData} onRowClick={mockOnRowClick} />);
+
+      // Click a row in the middle
+      fireEvent.click(screen.getByTestId("row-75"));
+
+      expect(mockOnRowClick).toHaveBeenCalledWith({
+        ID: "76",
+        Value: "value-76",
+      });
+    });
+
+    it("should maintain backward compatibility with tables without onRowClick", () => {
+      const { container } = render(<TableWrapper {...mockFieldsData} />);
+
+      const rows = container.querySelectorAll('[data-testid^="row-"]');
+      expect(rows.length).toBeGreaterThan(0);
+
+      // Should render normally without onRowClick
+      expect(screen.getByText("Toy Story")).toBeInTheDocument();
+    });
+
+    it("should pass all row data fields to click handler", () => {
+      const complexData = {
+        ...mockFieldsData,
+        fields: [
+          { name: "Name", data_path: "name", data: ["Test"] },
+          { name: "Age", data_path: "age", data: [25] },
+          { name: "City", data_path: "city", data: ["NYC"] },
+          { name: "Active", data_path: "active", data: [true] },
+          { name: "Score", data_path: "score", data: [95.5] },
+        ],
+      };
+
+      render(<TableWrapper {...complexData} onRowClick={mockOnRowClick} />);
+
+      fireEvent.click(screen.getByTestId("row-0"));
+
+      expect(mockOnRowClick).toHaveBeenCalledWith({
+        Name: "Test",
+        Age: "25",
+        City: "NYC",
+        Active: "true",
+        Score: "95.5",
+      });
+    });
+
+    it("should have data-testid on all rows", () => {
+      const multiRowData = {
+        ...mockFieldsData,
+        fields: [
+          {
+            name: "Item",
+            data_path: "item",
+            data: ["A", "B", "C", "D", "E"],
+          },
+        ],
+      };
+
+      render(<TableWrapper {...multiRowData} onRowClick={mockOnRowClick} />);
+
+      for (let i = 0; i < 5; i++) {
+        expect(screen.getByTestId(`row-${i}`)).toBeInTheDocument();
+      }
+    });
   });
 });
