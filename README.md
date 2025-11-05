@@ -92,7 +92,8 @@ import DynamicComponent from "@rhngui/patternfly-react-renderer";
 const imageConfig = {
   component: "image",
   title: "Movie Poster",
-  image: "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+  image:
+    "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
   id: "movie-poster-image",
 };
 

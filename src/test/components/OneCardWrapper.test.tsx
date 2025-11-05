@@ -33,7 +33,8 @@ const mockData = {
     },
   ],
   id: "test-id",
-  image: "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+  image:
+    "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
   title: "Toy Story Details",
 };
 
@@ -55,7 +56,9 @@ describe("OneCardWrapper", () => {
     render(<OneCardWrapper {...defaultProps} />);
 
     expect(screen.getByText("Toy Story Details")).toBeInTheDocument();
-    expect(screen.getByRole("img", { name: "Toy Story Details" })).toBeInTheDocument();
+    expect(
+      screen.getByRole("img", { name: "Toy Story Details" })
+    ).toBeInTheDocument();
     expect(screen.getByRole("img")).toHaveAttribute("src", mockData.image);
   });
 
@@ -74,7 +77,9 @@ describe("OneCardWrapper", () => {
     expect(screen.getByText("1995")).toBeInTheDocument();
     expect(screen.getByText("8.3")).toBeInTheDocument();
     expect(screen.getByText("2022-11-02 00:00:00")).toBeInTheDocument();
-    expect(screen.getByText("Jim Varney, Tim Allen, Tom Hanks, Don Rickles")).toBeInTheDocument();
+    expect(
+      screen.getByText("Jim Varney, Tim Allen, Tom Hanks, Don Rickles")
+    ).toBeInTheDocument();
   });
 
   it("renders without image when image prop is not provided", () => {
@@ -95,24 +100,34 @@ describe("OneCardWrapper", () => {
   });
 
   it("applies correct image size styling", () => {
-    const { rerender } = render(<OneCardWrapper {...defaultProps} imageSize="sm" />);
+    const { rerender } = render(
+      <OneCardWrapper {...defaultProps} imageSize="sm" />
+    );
 
-    let imageContainer = screen.getByRole("img").closest(".onecard-component-image-container");
+    let imageContainer = screen
+      .getByRole("img")
+      .closest(".onecard-component-image-container");
     expect(imageContainer).toHaveClass("size-sm");
 
     rerender(<OneCardWrapper {...defaultProps} imageSize="md" />);
-    imageContainer = screen.getByRole("img").closest(".onecard-component-image-container");
+    imageContainer = screen
+      .getByRole("img")
+      .closest(".onecard-component-image-container");
     expect(imageContainer).toHaveClass("size-md");
 
     rerender(<OneCardWrapper {...defaultProps} imageSize="lg" />);
-    imageContainer = screen.getByRole("img").closest(".onecard-component-image-container");
+    imageContainer = screen
+      .getByRole("img")
+      .closest(".onecard-component-image-container");
     expect(imageContainer).toHaveClass("size-lg");
   });
 
   it("defaults to medium image size when imageSize is not specified", () => {
     render(<OneCardWrapper {...defaultProps} />);
 
-    const imageContainer = screen.getByRole("img").closest(".onecard-component-image-container");
+    const imageContainer = screen
+      .getByRole("img")
+      .closest(".onecard-component-image-container");
     expect(imageContainer).toHaveClass("size-md");
   });
 
@@ -120,7 +135,13 @@ describe("OneCardWrapper", () => {
     const customId = "custom-test-id";
     const customClassName = "custom-class";
 
-    render(<OneCardWrapper {...defaultProps} id={customId} className={customClassName} />);
+    render(
+      <OneCardWrapper
+        {...defaultProps}
+        id={customId}
+        className={customClassName}
+      />
+    );
 
     const card = screen.getByRole("img").closest('[id="custom-test-id"]');
     expect(card).toBeInTheDocument();
@@ -179,7 +200,9 @@ describe("OneCardWrapper", () => {
   it("applies correct card styling", () => {
     render(<OneCardWrapper {...defaultProps} />);
 
-    const card = screen.getByRole("img").closest(".onecard-component-container");
+    const card = screen
+      .getByRole("img")
+      .closest(".onecard-component-container");
     expect(card).toHaveClass("onecard-component-container");
   });
 

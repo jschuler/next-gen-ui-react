@@ -11,7 +11,12 @@ interface ImageComponentProps {
   className?: string;
 }
 
-const ImageComponent: React.FC<ImageComponentProps> = ({ id, image, title, className }) => {
+const ImageComponent: React.FC<ImageComponentProps> = ({
+  id,
+  image,
+  title,
+  className,
+}) => {
   const [hasImageError, setHasImageError] = useState(false);
 
   const handleImageError = () => {
@@ -25,7 +30,12 @@ const ImageComponent: React.FC<ImageComponentProps> = ({ id, image, title, class
       </CardHeader>
       <CardBody>
         {image && !hasImageError ? (
-          <img src={image} alt={title} className="image-component-img" onError={handleImageError} />
+          <img
+            src={image}
+            alt={title}
+            className="image-component-img"
+            onError={handleImageError}
+          />
         ) : (
           <ErrorPlaceholder
             hasError={hasImageError}

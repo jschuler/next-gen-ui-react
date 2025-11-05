@@ -137,7 +137,13 @@ describe("TableWrapper Component", () => {
     const customId = "custom-table-id";
     const customClassName = "custom-table-class";
 
-    render(<TableWrapper {...mockFieldsData} id={customId} className={customClassName} />);
+    render(
+      <TableWrapper
+        {...mockFieldsData}
+        id={customId}
+        className={customClassName}
+      />
+    );
 
     // Find the Card wrapper that contains the table by looking for the element with the custom id
     const cardElement = document.getElementById(customId);

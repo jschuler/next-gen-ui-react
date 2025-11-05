@@ -16,7 +16,11 @@ const ErrorPlaceholder: React.FC<ErrorPlaceholderProps> = ({
   const message = hasError ? errorMessage : noContentMessage;
   const errorClass = hasError ? "error-state" : "";
 
-  return <div className={`error-placeholder ${errorClass} ${className}`}>{message}</div>;
+  return (
+    <div className={`error-placeholder ${errorClass} ${className}`}>
+      {message}
+    </div>
+  );
 };
 
 export default ErrorPlaceholder;

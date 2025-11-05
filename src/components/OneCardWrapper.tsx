@@ -50,9 +50,15 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
   // If no title and no fields, show error
   if (hasNoTitle && hasNoFields) {
     return (
-      <Card id={id} className={`onecard-component-container ${className || ""}`}>
+      <Card
+        id={id}
+        className={`onecard-component-container ${className || ""}`}
+      >
         <CardBody>
-          <ErrorPlaceholder hasError={false} noContentMessage="No content available" />
+          <ErrorPlaceholder
+            hasError={false}
+            noContentMessage="No content available"
+          />
         </CardBody>
       </Card>
     );
@@ -67,7 +73,9 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
         >
           {/* Left Column - Image */}
           {image && !hasImageError ? (
-            <FlexItem className={`onecard-component-image-container size-${imageSize}`}>
+            <FlexItem
+              className={`onecard-component-image-container size-${imageSize}`}
+            >
               <img
                 src={image}
                 alt={title}
@@ -76,7 +84,9 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
               />
             </FlexItem>
           ) : image && hasImageError ? (
-            <FlexItem className={`onecard-component-image-container size-${imageSize}`}>
+            <FlexItem
+              className={`onecard-component-image-container size-${imageSize}`}
+            >
               <ErrorPlaceholder
                 hasError={true}
                 errorMessage="Image failed to load"
@@ -87,13 +97,20 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
 
           {/* Right Column - Title + Fields */}
           <FlexItem grow={{ default: "grow" }}>
-            <Title headingLevel="h4" size="lg" className="onecard-component-title">
+            <Title
+              headingLevel="h4"
+              size="lg"
+              className="onecard-component-title"
+            >
               {title}
             </Title>
             <Divider component="div" className="onecard-component-divider" />
             <div>
               {hasNoFields ? (
-                <ErrorPlaceholder hasError={false} noContentMessage="No data fields available" />
+                <ErrorPlaceholder
+                  hasError={false}
+                  noContentMessage="No data fields available"
+                />
               ) : (
                 <DescriptionList isAutoFit>
                   {fields?.map((field, idx) => (

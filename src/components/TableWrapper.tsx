@@ -1,5 +1,13 @@
 import { Card, CardBody } from "@patternfly/react-core";
-import { Table, Thead, Tr, Th, Tbody, Td, Caption } from "@patternfly/react-table";
+import {
+  Table,
+  Thead,
+  Tr,
+  Th,
+  Tbody,
+  Td,
+  Caption,
+} from "@patternfly/react-table";
 
 import ErrorPlaceholder from "./ErrorPlaceholder";
 
@@ -66,7 +74,10 @@ const TableWrapper = (props: TableWrapperProps) => {
     return (
       <Card id={id} className={className}>
         <CardBody>
-          <ErrorPlaceholder hasError={false} noContentMessage="No content available" />
+          <ErrorPlaceholder
+            hasError={false}
+            noContentMessage="No content available"
+          />
         </CardBody>
       </Card>
     );
@@ -76,7 +87,10 @@ const TableWrapper = (props: TableWrapperProps) => {
     <Card id={id} className={className}>
       <CardBody>
         {hasNoData ? (
-          <ErrorPlaceholder hasError={false} noContentMessage="No data available" />
+          <ErrorPlaceholder
+            hasError={false}
+            noContentMessage="No data available"
+          />
         ) : (
           <Table variant="compact" borders>
             <Caption>{title}</Caption>

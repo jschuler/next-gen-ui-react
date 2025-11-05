@@ -7,7 +7,8 @@ const mockVideoData = {
   id: "test-video",
   title: "Toy Story Trailer",
   video: "https://www.youtube.com/watch?v=v-PjgYDrg70",
-  video_img: "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+  video_img:
+    "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
 };
 
 describe("VideoPlayerWrapper", () => {
@@ -36,7 +37,10 @@ describe("VideoPlayerWrapper", () => {
 
     const iframe = screen.getByTitle("Toy Story Trailer");
     expect(iframe).toBeInTheDocument();
-    expect(iframe).toHaveAttribute("src", expect.stringContaining("youtube.com/embed"));
+    expect(iframe).toHaveAttribute(
+      "src",
+      expect.stringContaining("youtube.com/embed")
+    );
     expect(iframe).toHaveAttribute("allowFullScreen");
   });
 
@@ -44,7 +48,9 @@ describe("VideoPlayerWrapper", () => {
     render(<VideoPlayerWrapper {...defaultProps} />);
 
     const iframe = screen.getByTitle("Toy Story Trailer");
-    expect(iframe.getAttribute("src")).toContain("https://www.youtube.com/embed/v-PjgYDrg70?rel=0");
+    expect(iframe.getAttribute("src")).toContain(
+      "https://www.youtube.com/embed/v-PjgYDrg70?rel=0"
+    );
   });
 
   it("renders YouTube video with autoplay when autoPlay is true", () => {
@@ -118,7 +124,9 @@ describe("VideoPlayerWrapper", () => {
 
     render(<VideoPlayerWrapper {...customProps} />);
 
-    const card = screen.getByTitle("Toy Story Trailer").closest('[id="custom-video-id"]');
+    const card = screen
+      .getByTitle("Toy Story Trailer")
+      .closest('[id="custom-video-id"]');
     expect(card).toBeInTheDocument();
     expect(card).toHaveClass("custom-video-class");
   });
@@ -127,7 +135,9 @@ describe("VideoPlayerWrapper", () => {
     render(<VideoPlayerWrapper {...defaultProps} />);
 
     // Find the card element
-    const card = screen.getByRole("heading", { level: 4 }).closest(".pf-v6-c-card");
+    const card = screen
+      .getByRole("heading", { level: 4 })
+      .closest(".pf-v6-c-card");
     expect(card).toBeInTheDocument();
   });
 
@@ -147,7 +157,9 @@ describe("VideoPlayerWrapper", () => {
     render(<VideoPlayerWrapper {...shortUrlProps} />);
 
     const iframe = screen.getByTitle("Toy Story Trailer");
-    expect(iframe.getAttribute("src")).toContain("https://www.youtube.com/embed/v-PjgYDrg70");
+    expect(iframe.getAttribute("src")).toContain(
+      "https://www.youtube.com/embed/v-PjgYDrg70"
+    );
   });
 
   it("renders video element without controls when controls is false", () => {
@@ -167,9 +179,18 @@ describe("VideoPlayerWrapper", () => {
     render(<VideoPlayerWrapper {...defaultProps} />);
 
     const iframe = screen.getByTitle("Toy Story Trailer");
-    expect(iframe).toHaveAttribute("allow", expect.stringContaining("autoplay"));
-    expect(iframe).toHaveAttribute("allow", expect.stringContaining("encrypted-media"));
-    expect(iframe).toHaveAttribute("referrerPolicy", "strict-origin-when-cross-origin");
+    expect(iframe).toHaveAttribute(
+      "allow",
+      expect.stringContaining("autoplay")
+    );
+    expect(iframe).toHaveAttribute(
+      "allow",
+      expect.stringContaining("encrypted-media")
+    );
+    expect(iframe).toHaveAttribute(
+      "referrerPolicy",
+      "strict-origin-when-cross-origin"
+    );
   });
 
   it("applies responsive styling to YouTube iframe container", () => {

@@ -3,7 +3,13 @@
 import "@patternfly/react-core/dist/styles/base-no-reset.css";
 import "../global.css";
 
-import { cloneElement, isValidElement, useState, ReactElement, MouseEvent } from "react";
+import {
+  cloneElement,
+  isValidElement,
+  useState,
+  ReactElement,
+  MouseEvent,
+} from "react";
 
 import { componentsMap } from "../constants/componentsMap";
 
