@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Next Gen UI - Demo</title>
+
+    <!-- GitHub Pages SPA redirect script -->
+    <!-- This script stores the current path and redirects to index.html -->
+    <script>
+      // Store the path in sessionStorage to restore it after redirect
+      sessionStorage.setItem('redirect', location.pathname + location.search + location.hash);
+      // Redirect to the base path (handles GitHub Pages subdirectory)
+      var baseUrl = '/next-gen-ui-react/';
+      location.replace(baseUrl);
+    </script>
+  </head>
+  <body>
+    <!-- This will only show briefly before redirect -->
+    <div style="font-family: sans-serif; text-align: center; padding: 50px;">
+      <h1>Redirecting...</h1>
+    </div>
+  </body>
+</html>
+
