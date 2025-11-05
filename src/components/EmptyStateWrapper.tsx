@@ -42,10 +42,10 @@ const EmptyStateWrapper: React.FC<EmptyStateProps> = ({
     icon && iconMap[icon] ? iconMap[icon] : defaultIcons[variant];
 
   const variantColors: Record<string, string> = {
-    info: "var(--pf-v6-global--info-color--100)",
-    success: "var(--pf-v6-global--success-color--100)",
-    warning: "var(--pf-v6-global--warning-color--100)",
-    error: "var(--pf-v6-global--danger-color--100)",
+    info: "var(--pf-t--global--color--status--info--default)",
+    success: "var(--pf-t--global--color--status--success--default)",
+    warning: "var(--pf-t--global--color--status--warning--default)",
+    error: "var(--pf-t--global--color--status--danger--default)",
   };
 
   return (
