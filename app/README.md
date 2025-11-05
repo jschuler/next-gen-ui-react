@@ -41,12 +41,14 @@ The demo app uses a **component registry pattern** to make it easy to add and ma
 ### How It Works
 
 The component registry (`componentRegistry.ts`) is the single source of truth for:
+
 - Component names and paths
 - GitHub source code links
 - Demo examples and data
 - Navigation structure
 
 When you add a component to the registry, it automatically appears in:
+
 - ✅ Sidebar navigation
 - ✅ Home page links
 - ✅ Page titles
@@ -84,11 +86,16 @@ export const myNewComponentDemoVariation = {
 In `src/config/componentRegistry.ts`:
 
 1. **Import your demo data** at the top:
+
 ```typescript
-import { myNewComponentDemo, myNewComponentDemoVariation } from "../demo/demoData";
+import {
+  myNewComponentDemo,
+  myNewComponentDemoVariation,
+} from "../demo/demoData";
 ```
 
 2. **Add an entry** to the `componentRegistry` array:
+
 ```typescript
 {
   id: "mynewcomponent",           // Unique ID (used in URL and componentMap)
@@ -108,19 +115,25 @@ import { myNewComponentDemo, myNewComponentDemoVariation } from "../demo/demoDat
 In `src/pages/ComponentDemo.tsx`:
 
 1. **Import your component** at the top:
+
 ```typescript
 import MyNewComponent from "@local-lib/components/MyNewComponent";
 ```
 
 2. **Add it to the `componentMap`**:
+
 ```typescript
-const componentMap: Record<string, React.ComponentType<Record<string, unknown>>> = {
+const componentMap: Record<
+  string,
+  React.ComponentType<Record<string, unknown>>
+> = {
   // ... existing components
-  mynewcomponent: MyNewComponent,  // key must match the id from registry
+  mynewcomponent: MyNewComponent, // key must match the id from registry
 };
 ```
 
 **That's it!** 🎉 The component will now **automatically**:
+
 - ✅ Appear in the sidebar navigation
 - ✅ Have its own page at `/component/mynewcomponent`
 - ✅ Display all examples with their props
@@ -130,6 +143,7 @@ const componentMap: Record<string, React.ComponentType<Record<string, unknown>>>
 ### Architecture Benefits
 
 This design uses a **component registry pattern** that:
+
 - Eliminates the need to create individual page files
 - Automatically generates navigation and routes
 - Makes it easy to add multiple examples per component
@@ -179,10 +193,12 @@ The demo app can be deployed to multiple platforms.
 The demo app is automatically deployed to GitHub Pages via GitHub Actions.
 
 **Deployment happens automatically when:**
+
 - Code is pushed to the `main` branch
 - The workflow can also be triggered manually from the Actions tab
 
 **Manual Deployment:**
+
 1. Go to the repository's **Actions** tab on GitHub
 2. Select the **Deploy Demo App to GitHub Pages** workflow
 3. Click **Run workflow**
@@ -190,6 +206,7 @@ The demo app is automatically deployed to GitHub Pages via GitHub Actions.
 **How It Works:**
 
 The deployment workflow (`.github/workflows/deploy-demo.yml`):
+
 1. Builds the library (`npm run build` in root)
 2. Installs app dependencies
 3. Builds the demo app with production settings
@@ -198,6 +215,7 @@ The deployment workflow (`.github/workflows/deploy-demo.yml`):
 **GitHub Pages Settings:**
 
 To enable GitHub Pages for the first time:
+
 1. Go to repository **Settings** → **Pages**
 2. Under **Source**, select **GitHub Actions**
 3. The app will be available at `https://redhat-ux.github.io/next-gen-ui-react/`
@@ -207,12 +225,14 @@ To enable GitHub Pages for the first time:
 For one-time or manual deployments to Netlify, Vercel, or similar platforms:
 
 **Build for Netlify/Vercel:**
+
 ```bash
 cd app
 npm run build:netlify
 ```
 
 **Deploy the `dist` folder:**
+
 - **Netlify Drop:** Drag `app/dist` to https://app.netlify.com/drop
 - **Vercel CLI:** Run `npx vercel dist --prod` from the `app` directory
 
@@ -221,11 +241,13 @@ npm run build:netlify
 ## Linting and Formatting
 
 This project uses:
+
 - **ESLint** for code quality and catching bugs
 - **Prettier** for code formatting
 - Import ordering rules for consistent imports
 
 All code is automatically checked and formatted. The linter enforces:
+
 - TypeScript best practices
 - React hooks rules
 - Import ordering (external → internal → relative)

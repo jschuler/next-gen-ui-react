@@ -1,3 +1,4 @@
+import ChartComponent from "../components/ChartComponent";
 import EmptyStateWrapper from "../components/EmptyStateWrapper";
 import ImageComponent from "../components/ImageComponent";
 import OneCardWrapper from "../components/OneCardWrapper";
@@ -12,4 +13,5 @@ export const componentsMap = {
   "video-player": VideoPlayerWrapper,
   "set-of-cards": SetOfCardsWrapper,
   "empty-state": EmptyStateWrapper,
+  chart: ChartComponent,
 };

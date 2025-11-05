@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // Import minimal PatternFly CSS (no-reset version is smaller)
 import "@patternfly/react-core/dist/styles/base-no-reset.css";
 import "../global.css";
@@ -5,7 +6,6 @@ import "../global.css";
 import { cloneElement, isValidElement, useState } from "react";
 
 import { componentsMap } from "../constants/componentsMap";
-
 
 interface IProps {
   config: any;
@@ -84,20 +84,25 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
   };
 
   // Check if component exists in componentsMap
-  const Component = componentsMap[config?.component];
-  
+  const Component =
+    componentsMap[config?.component as keyof typeof componentsMap];
+
   if (!Component) {
     // Return null for unknown components instead of throwing an error
-    console.warn(`Component "${config?.component}" is not available in the React package. Available components: ${Object.keys(componentsMap).join(', ')}`);
+    console.warn(
+      `Component "${config?.component}" is not available in the React package. Available components: ${Object.keys(componentsMap).join(", ")}`
+    );
     return null;
   }
-  
+
   const newProps = parseProps(config?.props || config);
 
+  const ComponentToRender = Component as React.ComponentType<any>;
+
   return (
-    <Component {...newProps}>
+    <ComponentToRender {...newProps}>
       {Array.isArray(config?.children)
-        ? config?.children.map((child, index) => (
+        ? config?.children.map((child: any, index: number) => (
             <DynamicComponent
               config={child}
               key={(child.key || child.component || index) + index}
@@ -105,7 +110,7 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
             />
           ))
         : config?.children}
-    </Component>
+    </ComponentToRender>
   );
 };
 

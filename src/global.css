@@ -36,14 +36,17 @@
 
 .onecard-component-image-container.size-sm {
   flex-basis: 15%;
+  max-width: 80px;
 }
 
 .onecard-component-image-container.size-md {
   flex-basis: 20%;
+  max-width: 100px;
 }
 
 .onecard-component-image-container.size-lg {
   flex-basis: 25%;
+  max-width: 120px;
 }
 
 .onecard-component-title {

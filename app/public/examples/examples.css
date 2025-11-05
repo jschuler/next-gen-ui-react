@@ -1,0 +1,223 @@
+/* Common styles for standalone and webcomponents examples */
+
+body {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f5f5f5;
+}
+
+h1 {
+  color: #333;
+}
+
+.container {
+  background: white;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.docs-section {
+  background: white;
+  padding: 20px;
+  margin: 20px 0;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button {
+  background: #0066cc;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  margin: 5px;
+  font-size: 14px;
+}
+
+button:hover {
+  background: #0052a3;
+}
+
+code {
+  background: #f0f0f0;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-family: "Courier New", monospace;
+  font-size: 13px;
+}
+
+/* Code toggle sections */
+.code-toggle {
+  margin-top: 16px;
+  background: #f5f5f5;
+  border: 1px solid #d2d2d2;
+  padding: 10px 16px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 600;
+  color: #151515;
+}
+
+.code-toggle:hover {
+  background: #e7e7e7;
+}
+
+.code-toggle .arrow {
+  transition: transform 0.2s;
+}
+
+.code-toggle.expanded .arrow {
+  transform: rotate(90deg);
+}
+
+.code-content {
+  display: none;
+  margin-top: 8px;
+  background: #f5f5f5;
+  border: 1px solid #d2d2d2;
+  border-radius: 4px;
+  padding: 16px;
+}
+
+.code-content.show {
+  display: block;
+}
+
+.code-content pre {
+  margin: 0;
+  font-size: 13px;
+  overflow-x: auto;
+}
+
+/* Basic usage section */
+.basic-usage-section pre {
+  background: #f5f5f5;
+  padding: 15px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.basic-usage-benefits {
+  margin-top: 10px;
+  color: #666;
+  font-size: 14px;
+}
+
+/* API Reference styles */
+.api-method {
+  border-left: 4px solid #0066cc;
+  padding-left: 16px;
+  margin: 24px 0;
+}
+
+.api-method h3 {
+  margin-top: 0;
+  color: #0066cc;
+  font-family: "Courier New", monospace;
+}
+
+.api-method-description {
+  margin: 8px 0;
+  font-size: 15px;
+}
+
+.api-method-section {
+  margin: 12px 0;
+}
+
+.api-method-section ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.api-method-section ul ul {
+  margin-top: 4px;
+}
+
+.api-method-example pre {
+  background: #f5f5f5;
+  padding: 12px;
+  border-radius: 4px;
+  margin-top: 8px;
+  overflow-x: auto;
+}
+
+/* Available components section */
+.available-components {
+  background: #f0f7ff;
+  border: 1px solid #c7e0f4;
+  border-radius: 4px;
+  padding: 16px;
+  margin-top: 24px;
+}
+
+.available-components h3 {
+  margin-top: 0;
+  color: #002952;
+}
+
+.components-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.components-grid code {
+  background: white;
+  padding: 4px 8px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+/* Web Components table styles */
+.wc-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.wc-table th,
+.wc-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.wc-table th {
+  background: #f5f5f5;
+  font-weight: 600;
+  color: #151515;
+}
+
+.wc-table tr:hover {
+  background: #f9f9f9;
+}
+
+.wc-table code {
+  background: #e7f3ff;
+  color: #004080;
+}
+
+/* Attributes section */
+.attributes-section {
+  margin-top: 12px;
+  padding: 12px;
+  background: #f9f9f9;
+  border-radius: 4px;
+}
+
+.attributes-section ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.attributes-section li {
+  margin: 4px 0;
+}
