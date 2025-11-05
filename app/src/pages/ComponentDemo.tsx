@@ -1,4 +1,5 @@
 import DynamicComponents from "@local-lib/components/DynamicComponents";
+import EmptyStateWrapper from "@local-lib/components/EmptyStateWrapper";
 import ErrorPlaceholder from "@local-lib/components/ErrorPlaceholder";
 import ImageComponent from "@local-lib/components/ImageComponent";
 import OneCardWrapper from "@local-lib/components/OneCardWrapper";
@@ -28,6 +29,7 @@ const ChartComponent = lazy(
 const componentMap: Record<string, React.ComponentType<any>> = {
   chart: ChartComponent,
   dynamic: DynamicComponents,
+  emptystate: EmptyStateWrapper,
   error: ErrorPlaceholder,
   image: ImageComponent,
   onecard: OneCardWrapper,

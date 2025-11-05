@@ -833,3 +833,45 @@ export const chartMovieBudget = {
   themeColor: "blue" as const,
   showAbsoluteValues: true,
 };
+
+// Empty State demos
+export const emptyStateInfo = {
+  component: "empty-state" as const,
+  id: "empty-state-info",
+  title: "No Data Available",
+  content: "We couldn't find any data to display at this time.",
+  variant: "info" as const,
+};
+
+export const emptyStateSuccess = {
+  component: "empty-state" as const,
+  id: "empty-state-success",
+  title: "All Tasks Complete",
+  content: "Great job! You've completed all your tasks successfully.",
+  variant: "success" as const,
+};
+
+export const emptyStateWarning = {
+  component: "empty-state" as const,
+  id: "empty-state-warning",
+  title: "Action Required",
+  content: "Some configurations need your attention before you can proceed.",
+  variant: "warning" as const,
+};
+
+export const emptyStateError = {
+  component: "empty-state" as const,
+  id: "empty-state-error",
+  title: "Connection Failed",
+  content: "Unable to connect to the server. Please try again later.",
+  variant: "error" as const,
+};
+
+export const emptyStateCustomIcon = {
+  component: "empty-state" as const,
+  id: "empty-state-custom",
+  title: "Custom Icon Example",
+  content: "This demonstrates a custom icon configuration.",
+  variant: "info" as const,
+  icon: "CheckCircleIcon",
+};
