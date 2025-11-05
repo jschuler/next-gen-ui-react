@@ -45,7 +45,7 @@ jobs:
 
       - name: Build demo app
         working-directory: ./app
-        run: npm run build
+        run: npm run build:all
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
