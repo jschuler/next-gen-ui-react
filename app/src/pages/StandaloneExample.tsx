@@ -2,7 +2,7 @@ export default function StandaloneExample() {
   return (
     <div style={{ height: "calc(100vh - 100px)", width: "100%" }}>
       <iframe
-        src="/examples/standalone-example.html"
+        src={`${import.meta.env.BASE_URL}examples/standalone-example.html`}
         style={{
           width: "100%",
           height: "100%",
