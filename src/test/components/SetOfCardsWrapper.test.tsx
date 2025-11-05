@@ -151,4 +151,3 @@ describe("SetOfCardsWrapper", () => {
     expect(gridElement).toBeInTheDocument();
   });
 });
-

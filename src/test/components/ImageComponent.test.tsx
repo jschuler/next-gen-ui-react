@@ -41,8 +41,9 @@ describe("ImageComponent", () => {
   it("applies correct card styling", () => {
     render(<ImageComponent {...defaultProps} />);
 
-    const card = screen.getByRole("img").closest('[data-testid="card"]') || 
-                 screen.getByRole("img").closest('div');
+    const card =
+      screen.getByRole("img").closest('[data-testid="card"]') ||
+      screen.getByRole("img").closest("div");
     expect(card).toBeInTheDocument();
   });
 

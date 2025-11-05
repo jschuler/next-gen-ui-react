@@ -50,7 +50,10 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
   // If no title and no fields, show error
   if (hasNoTitle && hasNoFields) {
     return (
-      <Card id={id} className={`onecard-component-container ${className || ''}`}>
+      <Card
+        id={id}
+        className={`onecard-component-container ${className || ""}`}
+      >
         <CardBody>
           <ErrorPlaceholder
             hasError={false}
@@ -62,15 +65,17 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
   }
 
   return (
-    <Card 
-      id={id} 
-      className={`onecard-component-container ${className || ''}`}
-    >
+    <Card id={id} className={`onecard-component-container ${className || ""}`}>
       <CardBody>
-        <Flex spaceItems={{ default: "spaceItemsLg" }} alignItems={{ default: "alignItemsFlexStart" }}>
+        <Flex
+          spaceItems={{ default: "spaceItemsLg" }}
+          alignItems={{ default: "alignItemsFlexStart" }}
+        >
           {/* Left Column - Image */}
           {image && !hasImageError ? (
-            <FlexItem className={`onecard-component-image-container size-${imageSize}`}>
+            <FlexItem
+              className={`onecard-component-image-container size-${imageSize}`}
+            >
               <img
                 src={image}
                 alt={title}
@@ -79,7 +84,9 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
               />
             </FlexItem>
           ) : image && hasImageError ? (
-            <FlexItem className={`onecard-component-image-container size-${imageSize}`}>
+            <FlexItem
+              className={`onecard-component-image-container size-${imageSize}`}
+            >
               <ErrorPlaceholder
                 hasError={true}
                 errorMessage="Image failed to load"
@@ -90,7 +97,11 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
 
           {/* Right Column - Title + Fields */}
           <FlexItem grow={{ default: "grow" }}>
-            <Title headingLevel="h4" size="lg" className="onecard-component-title">
+            <Title
+              headingLevel="h4"
+              size="lg"
+              className="onecard-component-title"
+            >
               {title}
             </Title>
             <Divider component="div" className="onecard-component-divider" />
@@ -106,9 +117,9 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
                     <DescriptionListGroup key={idx}>
                       <DescriptionListTerm>{field.name}</DescriptionListTerm>
                       <DescriptionListDescription>
-                        {field.data.map((item) =>
-                          item === null ? "N/A" : String(item)
-                        ).join(", ")}
+                        {field.data
+                          .map((item) => (item === null ? "N/A" : String(item)))
+                          .join(", ")}
                       </DescriptionListDescription>
                     </DescriptionListGroup>
                   ))}
