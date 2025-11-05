@@ -4,6 +4,7 @@ import {
   Nav,
   NavList,
   NavItem,
+  NavExpandable,
 } from "@patternfly/react-core";
 import { Link } from "react-router-dom";
 
@@ -21,6 +22,17 @@ export default function Sidebar() {
             <Link to={component.path}>{component.name}</Link>
           </NavItem>
         ))}
+        <NavExpandable
+          title="Non-React Integration"
+          groupId="integration-examples"
+        >
+          <NavItem itemId="standalone-example">
+            <Link to="/examples/standalone">Standalone Bundle</Link>
+          </NavItem>
+          <NavItem itemId="webcomponents-example">
+            <Link to="/examples/webcomponents">Web Components</Link>
+          </NavItem>
+        </NavExpandable>
       </NavList>
     </Nav>
   );

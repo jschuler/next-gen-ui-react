@@ -36,22 +36,32 @@
   },
   "peerDependencies": {
     "react": ">=17.0.0 <20.0.0",
-    "react-dom": ">=17.0.0 <20.0.0"
+    "react-dom": ">=17.0.0 <20.0.0",
+    "victory-legend": "^37.3.6"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "npm run dev --prefix app",
     "build": "vite build",
+    "build:app": "npm run build:all --prefix app",
     "test": "vitest",
     "test:ci": "vitest --run",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
     "preview": "vite preview",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "prepare": "husky"
   },
   "dependencies": {
     "@patternfly/patternfly": "^6.3.1",
+    "@patternfly/react-charts": "^8.4.0",
     "@patternfly/react-core": "^6.3.1",
     "@patternfly/react-table": "^6.2.2",
+    "victory": "^37.3.6",
+    "victory-bar": "^37.3.6",
+    "victory-chart": "^37.3.6",
+    "victory-core": "^37.3.6",
+    "victory-line": "^37.3.6",
+    "victory-pie": "^37.3.6",
     "vite-plugin-dts": "^4.5.3"
   },
   "peerDependenciesMeta": {
@@ -65,6 +75,15 @@
   "engines": {
     "node": ">=18.0.0"
   },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "npx eslint --fix",
+      "npx prettier --write"
+    ],
+    "*.{json,css,md}": [
+      "npx prettier --write"
+    ]
+  },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -74,13 +93,18 @@
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.7.0",
     "eslint": "^9.32.0",
+    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
+    "husky": "^9.1.7",
     "jsdom": "^26.1.0",
+    "lint-staged": "^16.2.5",
+    "prettier": "^3.4.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "terser": "^5.36.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.0",
     "vite": "^7.1.0",

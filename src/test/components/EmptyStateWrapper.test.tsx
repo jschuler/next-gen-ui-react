@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+
 import EmptyStateWrapper from "../../components/EmptyStateWrapper";
 
 describe("EmptyStateWrapper Component", () => {
@@ -11,8 +12,10 @@ describe("EmptyStateWrapper Component", () => {
     render(<EmptyStateWrapper {...defaultProps} />);
 
     expect(screen.getByText("No Results Found")).toBeInTheDocument();
-    expect(screen.getByText("Try adjusting your search filters")).toBeInTheDocument();
-    
+    expect(
+      screen.getByText("Try adjusting your search filters")
+    ).toBeInTheDocument();
+
     // Check for default info variant class
     const container = document.querySelector(".empty-state-info");
     expect(container).toBeInTheDocument();
@@ -29,8 +32,10 @@ describe("EmptyStateWrapper Component", () => {
     );
 
     expect(screen.getByText("Success!")).toBeInTheDocument();
-    expect(screen.getByText("Operation completed successfully")).toBeInTheDocument();
-    
+    expect(
+      screen.getByText("Operation completed successfully")
+    ).toBeInTheDocument();
+
     const container = document.querySelector(".empty-state-success");
     expect(container).toBeInTheDocument();
   });
@@ -47,7 +52,7 @@ describe("EmptyStateWrapper Component", () => {
 
     expect(screen.getByText("Warning")).toBeInTheDocument();
     expect(screen.getByText("Please review your settings")).toBeInTheDocument();
-    
+
     const container = document.querySelector(".empty-state-warning");
     expect(container).toBeInTheDocument();
   });
@@ -64,7 +69,7 @@ describe("EmptyStateWrapper Component", () => {
 
     expect(screen.getByText("Error Occurred")).toBeInTheDocument();
     expect(screen.getByText("Something went wrong")).toBeInTheDocument();
-    
+
     const container = document.querySelector(".empty-state-error");
     expect(container).toBeInTheDocument();
   });
@@ -72,10 +77,7 @@ describe("EmptyStateWrapper Component", () => {
   it("should handle multi-line content", () => {
     const multiLineContent = "Line 1\nLine 2\nLine 3";
     render(
-      <EmptyStateWrapper
-        title="Multi-line Test"
-        content={multiLineContent}
-      />
+      <EmptyStateWrapper title="Multi-line Test" content={multiLineContent} />
     );
 
     expect(screen.getByText("Line 1")).toBeInTheDocument();
@@ -92,7 +94,7 @@ describe("EmptyStateWrapper Component", () => {
       />
     );
 
-    // Icon should be rendered (we can't directly test the icon component, 
+    // Icon should be rendered (we can't directly test the icon component,
     // but we can verify the structure)
     const iconContainer = document.querySelector(".empty-state-icon");
     expect(iconContainer).toBeInTheDocument();
@@ -100,12 +102,7 @@ describe("EmptyStateWrapper Component", () => {
 
   it("should apply custom id", () => {
     const customId = "custom-empty-state";
-    render(
-      <EmptyStateWrapper
-        {...defaultProps}
-        id={customId}
-      />
-    );
+    render(<EmptyStateWrapper {...defaultProps} id={customId} />);
 
     const element = document.getElementById(customId);
     expect(element).toBeInTheDocument();
@@ -113,12 +110,7 @@ describe("EmptyStateWrapper Component", () => {
 
   it("should apply custom className", () => {
     const customClassName = "my-custom-class";
-    render(
-      <EmptyStateWrapper
-        {...defaultProps}
-        className={customClassName}
-      />
-    );
+    render(<EmptyStateWrapper {...defaultProps} className={customClassName} />);
 
     const container = document.querySelector(`.${customClassName}`);
     expect(container).toBeInTheDocument();
@@ -127,7 +119,7 @@ describe("EmptyStateWrapper Component", () => {
   it("should apply both custom id and className", () => {
     const customId = "test-id";
     const customClassName = "test-class";
-    
+
     render(
       <EmptyStateWrapper
         {...defaultProps}
@@ -170,15 +162,10 @@ describe("EmptyStateWrapper Component", () => {
   });
 
   it("should handle empty string content", () => {
-    render(
-      <EmptyStateWrapper
-        title="Test Title"
-        content=""
-      />
-    );
+    render(<EmptyStateWrapper title="Test Title" content="" />);
 
     expect(screen.getByText("Test Title")).toBeInTheDocument();
-    
+
     // Empty content should still render the container
     const contentContainer = document.querySelector(".empty-state-content");
     expect(contentContainer).toBeInTheDocument();
@@ -186,12 +173,7 @@ describe("EmptyStateWrapper Component", () => {
 
   it("should handle special characters in content", () => {
     const specialContent = "Special chars: @#$%^&*()";
-    render(
-      <EmptyStateWrapper
-        title="Special Test"
-        content={specialContent}
-      />
-    );
+    render(<EmptyStateWrapper title="Special Test" content={specialContent} />);
 
     expect(screen.getByText("Special chars: @#$%^&*()")).toBeInTheDocument();
   });
@@ -211,11 +193,14 @@ describe("EmptyStateWrapper Component", () => {
   });
 
   it("should render all four variants correctly", () => {
-    const variants: Array<'success' | 'info' | 'warning' | 'error'> = [
-      'success', 'info', 'warning', 'error'
+    const variants: Array<"success" | "info" | "warning" | "error"> = [
+      "success",
+      "info",
+      "warning",
+      "error",
     ];
 
-    variants.forEach(variant => {
+    variants.forEach((variant) => {
       const { container } = render(
         <EmptyStateWrapper
           title={`${variant} title`}
@@ -230,13 +215,13 @@ describe("EmptyStateWrapper Component", () => {
   });
 
   it("should handle long content text", () => {
-    const longContent = "This is a very long content string that might wrap to multiple lines in the UI. ".repeat(10).trim();
-    
+    const longContent =
+      "This is a very long content string that might wrap to multiple lines in the UI. "
+        .repeat(10)
+        .trim();
+
     render(
-      <EmptyStateWrapper
-        title="Long Content Test"
-        content={longContent}
-      />
+      <EmptyStateWrapper title="Long Content Test" content={longContent} />
     );
 
     expect(screen.getByText(longContent)).toBeInTheDocument();
@@ -254,10 +239,7 @@ describe("EmptyStateWrapper Component", () => {
   it("should render content paragraphs for multi-line content", () => {
     const content = "Paragraph 1\nParagraph 2\nParagraph 3";
     const { container } = render(
-      <EmptyStateWrapper
-        title="Test"
-        content={content}
-      />
+      <EmptyStateWrapper title="Test" content={content} />
     );
 
     const paragraphs = container.querySelectorAll(".empty-state-content p");
@@ -267,4 +249,3 @@ describe("EmptyStateWrapper Component", () => {
     expect(paragraphs[2]).toHaveTextContent("Paragraph 3");
   });
 });
-

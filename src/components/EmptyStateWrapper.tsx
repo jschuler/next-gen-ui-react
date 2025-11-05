@@ -11,7 +11,7 @@ interface EmptyStateProps {
   title: string;
   content: string;
   icon?: string;
-  variant?: 'success' | 'info' | 'warning' | 'error';
+  variant?: "success" | "info" | "warning" | "error";
   id?: string;
   className?: string;
 }
@@ -25,7 +25,7 @@ const EmptyStateWrapper: React.FC<EmptyStateProps> = ({
   className,
 }) => {
   // Map icon names to PatternFly icon components
-  const iconMap: Record<string, React.ComponentType<any>> = {
+  const iconMap: Record<string, React.ComponentType<object>> = {
     InfoCircleIcon,
     CheckCircleIcon,
     ExclamationTriangleIcon,
@@ -33,7 +33,7 @@ const EmptyStateWrapper: React.FC<EmptyStateProps> = ({
   };
 
   // Default icons based on variant
-  const defaultIcons: Record<string, React.ComponentType<any>> = {
+  const defaultIcons: Record<string, React.ComponentType<object>> = {
     info: InfoCircleIcon,
     success: CheckCircleIcon,
     warning: ExclamationTriangleIcon,
@@ -41,14 +41,13 @@ const EmptyStateWrapper: React.FC<EmptyStateProps> = ({
   };
 
   // Resolve icon: use provided icon name, or default based on variant
-  const IconComponent = icon && iconMap[icon] 
-    ? iconMap[icon] 
-    : defaultIcons[variant];
+  const IconComponent =
+    icon && iconMap[icon] ? iconMap[icon] : defaultIcons[variant];
 
   return (
-    <Card 
-      id={id} 
-      className={`empty-state-container empty-state-${variant} ${className || ''}`}
+    <Card
+      id={id}
+      className={`empty-state-container empty-state-${variant} ${className || ""}`}
     >
       <CardBody className="empty-state-body">
         <div className="empty-state-icon">
@@ -56,7 +55,7 @@ const EmptyStateWrapper: React.FC<EmptyStateProps> = ({
         </div>
         <h3 className="empty-state-title">{title}</h3>
         <div className="empty-state-content">
-          {content.split('\n').map((line, idx) => (
+          {content.split("\n").map((line, idx) => (
             <p key={idx}>{line}</p>
           ))}
         </div>
@@ -66,4 +65,3 @@ const EmptyStateWrapper: React.FC<EmptyStateProps> = ({
 };
 
 export default EmptyStateWrapper;
-
