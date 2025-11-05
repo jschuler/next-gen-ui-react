@@ -1,22 +1,28 @@
 import {
-  Page,
-  PageSection,
-  Masthead,
-  MastheadMain,
-  MastheadBrand,
-  MastheadContent,
-  MastheadToggle,
-  PageToggleButton,
+  Button,
   Content,
   ContentVariants,
-  Button,
+  Masthead,
+  MastheadBrand,
+  MastheadContent,
+  MastheadMain,
+  MastheadToggle,
+  Page,
+  PageSection,
+  PageToggleButton,
   Toolbar,
   ToolbarContent,
   ToolbarGroup,
   ToolbarItem,
 } from "@patternfly/react-core";
-import { CodeIcon, GithubIcon } from "@patternfly/react-icons";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import {
+  CodeIcon,
+  GithubIcon,
+  MoonIcon,
+  SunIcon,
+} from "@patternfly/react-icons";
+import { useEffect, useState } from "react";
+import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 
 import { getComponentByPath } from "./config/componentRegistry";
 import Sidebar from "./layout/Sidebar";
@@ -27,6 +33,23 @@ import WebComponentsExample from "./pages/WebComponentsExample";
 
 function AppContent() {
   const location = useLocation();
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const saved = localStorage.getItem("darkMode");
+    return saved === "true";
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add("pf-v6-theme-dark");
+    } else {
+      document.documentElement.classList.remove("pf-v6-theme-dark");
+    }
+    localStorage.setItem("darkMode", String(isDarkMode));
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
 
   const getPageTitle = () => {
     if (location.pathname === "/examples/standalone")
@@ -64,6 +87,17 @@ function AppContent() {
               align={{ default: "alignEnd" }}
               gap={{ default: "gapNone", md: "gapMd" }}
             >
+              <ToolbarItem>
+                <Button
+                  variant="plain"
+                  onClick={toggleDarkMode}
+                  aria-label={
+                    isDarkMode ? "Switch to light mode" : "Switch to dark mode"
+                  }
+                >
+                  {isDarkMode ? <SunIcon /> : <MoonIcon />}
+                </Button>
+              </ToolbarItem>
               <ToolbarItem>
                 <Button
                   variant="plain"
