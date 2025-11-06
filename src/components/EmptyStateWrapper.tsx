@@ -1,11 +1,13 @@
 import { Card, CardBody } from "@patternfly/react-core";
 import {
-  InfoCircleIcon,
   CheckCircleIcon,
-  ExclamationTriangleIcon,
   ExclamationCircleIcon,
+  ExclamationTriangleIcon,
+  InfoCircleIcon,
 } from "@patternfly/react-icons";
 import React from "react";
+
+import "./EmptyStateWrapper.css";
 
 interface EmptyStateProps {
   title: string;
@@ -24,7 +26,6 @@ const EmptyStateWrapper: React.FC<EmptyStateProps> = ({
   id,
   className,
 }) => {
-  // Map icon names to PatternFly icon components
   const iconMap: Record<string, React.ComponentType<object>> = {
     InfoCircleIcon,
     CheckCircleIcon,
@@ -32,7 +33,6 @@ const EmptyStateWrapper: React.FC<EmptyStateProps> = ({
     ExclamationCircleIcon,
   };
 
-  // Default icons based on variant
   const defaultIcons: Record<string, React.ComponentType<object>> = {
     info: InfoCircleIcon,
     success: CheckCircleIcon,
@@ -40,7 +40,6 @@ const EmptyStateWrapper: React.FC<EmptyStateProps> = ({
     error: ExclamationCircleIcon,
   };
 
-  // Resolve icon: use provided icon name, or default based on variant
   const IconComponent =
     icon && iconMap[icon] ? iconMap[icon] : defaultIcons[variant];
 
@@ -49,7 +48,7 @@ const EmptyStateWrapper: React.FC<EmptyStateProps> = ({
       id={id}
       className={`empty-state-container empty-state-${variant} ${className || ""}`}
     >
-      <CardBody className="empty-state-body">
+      <CardBody>
         <div className="empty-state-icon">
           <IconComponent />
         </div>

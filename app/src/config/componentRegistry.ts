@@ -21,6 +21,11 @@ import {
   dynamicDemo,
   dynamicDemoImage,
   dynamicDemoTable,
+  emptyStateCustomIcon,
+  emptyStateError,
+  emptyStateInfo,
+  emptyStateSuccess,
+  emptyStateWarning,
   imageDemo,
   imageDemoLarge,
   imageLogoGrid,
@@ -88,6 +93,21 @@ export const componentRegistry: ComponentConfig[] = [
         title: "Error example",
         data: { hasError: true, errorMessage: "Demo error" },
       },
+    ],
+  },
+  {
+    id: "emptystate",
+    name: "EmptyStateWrapper",
+    path: "/component/emptystate",
+    sourceUrl:
+      "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/EmptyStateWrapper.tsx",
+    componentImportPath: "@local-lib/components/EmptyStateWrapper",
+    examples: [
+      { title: "Info State", data: emptyStateInfo },
+      { title: "Success State", data: emptyStateSuccess },
+      { title: "Warning State", data: emptyStateWarning },
+      { title: "Error State", data: emptyStateError },
+      { title: "Custom Icon", data: emptyStateCustomIcon },
     ],
   },
   {
