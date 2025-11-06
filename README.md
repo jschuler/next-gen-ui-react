@@ -1,11 +1,13 @@
 # Next Gen UI Patternfly React Renderer
 
+This npm package provides a collection of reusable Patternfly React components to support dynamic UI rendering for Next Gen UI Agent.
+
+[**DEMO**](https://redhat-ux.github.io/next-gen-ui-react/)
+
 This module is part of the [Next Gen UI Agent project](https://github.com/RedHat-UX/next-gen-ui-agent)
 
 [![Module Category](https://img.shields.io/badge/Module_Category-UI_Renderer-green)](https://github.com/RedHat-UX/next-gen-ui-agent)
 [![Module Status](https://img.shields.io/badge/Module_Status-Tech_Preview-orange)](https://github.com/RedHat-UX/next-gen-ui-agent)
-
-This npm package provides a collection of reusable Patternfly React components to support dynamic UI rendering for Next Gen UI Agent.
 
 ## Provides:
 
@@ -206,4 +208,5 @@ function App() {
 
 - [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/renderer/patternfly_npm/)
 - [Source Code](https://github.com/RedHat-UX/next-gen-ui-react)
-- [Contributing](https://redhat-ux.github.io/next-gen-ui-agent/development/contributing/)
+- [Component Demo](https://redhat-ux.github.io/next-gen-ui-react/)
+- [Contributing Guide](./CONTRIBUTING.md)
