@@ -9,12 +9,15 @@ describe("EmptyStateWrapper Component", () => {
   };
 
   it("should render with default info variant", () => {
-    render(<EmptyStateWrapper {...defaultProps} />);
+    const { container } = render(<EmptyStateWrapper {...defaultProps} />);
 
     expect(screen.getByText("No Results Found")).toBeInTheDocument();
     expect(
       screen.getByText("Try adjusting your search filters")
     ).toBeInTheDocument();
+
+    const emptyState = container.querySelector(".empty-state-info");
+    expect(emptyState).toBeInTheDocument();
   });
 
   it("should render success variant with correct icon", () => {
@@ -118,7 +121,7 @@ describe("EmptyStateWrapper Component", () => {
     expect(element).toHaveClass(customClassName);
   });
 
-  it("should render with PatternFly Card structure", () => {
+  it("should render with PatternFly Card structure and CSS classes", () => {
     const { container } = render(<EmptyStateWrapper {...defaultProps} />);
 
     const card = container.querySelector(".pf-v6-c-card");
@@ -126,6 +129,20 @@ describe("EmptyStateWrapper Component", () => {
 
     const cardBody = container.querySelector(".pf-v6-c-card__body");
     expect(cardBody).toBeInTheDocument();
+
+    const emptyStateContainer = container.querySelector(
+      ".empty-state-container"
+    );
+    expect(emptyStateContainer).toBeInTheDocument();
+
+    const icon = container.querySelector(".empty-state-icon");
+    expect(icon).toBeInTheDocument();
+
+    const title = container.querySelector(".empty-state-title");
+    expect(title).toBeInTheDocument();
+
+    const content = container.querySelector(".empty-state-content");
+    expect(content).toBeInTheDocument();
   });
 
   it("should render icon, title, and content in correct order", () => {

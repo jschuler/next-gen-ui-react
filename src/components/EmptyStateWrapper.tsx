@@ -7,6 +7,8 @@ import {
 } from "@patternfly/react-icons";
 import React from "react";
 
+import "./EmptyStateWrapper.css";
+
 interface EmptyStateProps {
   title: string;
   content: string;
@@ -41,41 +43,17 @@ const EmptyStateWrapper: React.FC<EmptyStateProps> = ({
   const IconComponent =
     icon && iconMap[icon] ? iconMap[icon] : defaultIcons[variant];
 
-  const variantColors: Record<string, string> = {
-    info: "var(--pf-t--global--color--status--info--default)",
-    success: "var(--pf-t--global--color--status--success--default)",
-    warning: "var(--pf-t--global--color--status--warning--default)",
-    error: "var(--pf-t--global--color--status--danger--default)",
-  };
-
   return (
     <Card
       id={id}
-      className={className}
-      style={{
-        textAlign: "center",
-        padding: "var(--pf-v6-global--spacer--lg)",
-      }}
+      className={`empty-state-container empty-state-${variant} ${className || ""}`}
     >
       <CardBody>
-        <div
-          style={{
-            fontSize: "3rem",
-            marginBottom: "var(--pf-v6-global--spacer--md)",
-            color: variantColors[variant],
-          }}
-        >
+        <div className="empty-state-icon">
           <IconComponent />
         </div>
-        <h3
-          style={{
-            marginBottom: "var(--pf-v6-global--spacer--sm)",
-            fontSize: "var(--pf-v6-global--FontSize--lg)",
-          }}
-        >
-          {title}
-        </h3>
-        <div style={{ color: "var(--pf-v6-global--Color--200)" }}>
+        <h3 className="empty-state-title">{title}</h3>
+        <div className="empty-state-content">
           {content.split("\n").map((line, idx) => (
             <p key={idx}>{line}</p>
           ))}
