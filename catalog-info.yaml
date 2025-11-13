@@ -8,7 +8,6 @@ metadata:
   description: "This npm package provides a collection of reusable Patternfly React components to support dynamic UI rendering for Next Gen UI Agent."
   annotations:
     npm/package: '@rhngui/patternfly-react-renderer'
-    npm/registry: npmjs
   tags:
     - "next-gen-ui"
     - "next-gen-ui-agent"
