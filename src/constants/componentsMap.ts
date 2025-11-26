@@ -13,5 +13,9 @@ export const componentsMap = {
   "video-player": VideoPlayerWrapper,
   "set-of-cards": SetOfCardsWrapper,
   "empty-state": EmptyStateWrapper,
-  chart: ChartComponent,
+  "chart-bar": ChartComponent,
+  "chart-line": ChartComponent,
+  "chart-pie": ChartComponent,
+  "chart-donut": ChartComponent,
+  "chart-mirrored-bar": ChartComponent,
 };
