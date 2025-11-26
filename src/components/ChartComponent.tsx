@@ -786,32 +786,19 @@ export default function ChartComponent({
   };
 
   return (
-    <div
-      id={id}
-      ref={containerRef}
-      style={{
-        marginTop: 16,
-        marginBottom: 16,
-        overflow: "visible",
-        width: "100%",
-      }}
-    >
+    <div id={id} ref={containerRef} className="chart-container">
       {title && <h3>{title}</h3>}
       <div
+        className="chart-wrapper"
         style={{
-          overflow: "visible",
-          width: "100%",
           height: scaledHeight || 400,
-          maxWidth: "100%",
         }}
       >
         <div
+          className="chart-scale-wrapper"
           style={{
             transform: `scale(${scale})`,
-            transformOrigin: "top left",
-            width: "100%",
             height: height || 400,
-            maxWidth: "100%",
           }}
         >
           {renderChart()}

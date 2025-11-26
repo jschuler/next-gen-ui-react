@@ -146,6 +146,26 @@
   }
 }
 
+/* Chart Component Styles */
+.chart-container {
+  margin-top: var(--ngui-spacing-medium);
+  margin-bottom: var(--ngui-spacing-medium);
+  overflow: visible;
+  width: 100%;
+}
+
+.chart-wrapper {
+  overflow: visible;
+  width: 100%;
+  max-width: 100%;
+}
+
+.chart-scale-wrapper {
+  transform-origin: top left;
+  width: 100%;
+  max-width: 100%;
+}
+
 /* Common Error Handling Styles */
 .error-placeholder {
   width: 100%;
