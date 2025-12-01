@@ -180,10 +180,9 @@ export const dynamicDemoTable = {
 
 // Chart component demos
 export const chartDemoBar = {
-  component: "chart" as const,
+  component: "chart-bar" as const,
   id: "chart-bar-demo",
   title: "Quarterly Revenue by Product",
-  chartType: "bar" as const,
   data: [
     {
       name: "Product A",
@@ -217,10 +216,9 @@ export const chartDemoBar = {
 };
 
 export const chartDemoLine = {
-  component: "chart" as const,
+  component: "chart-line" as const,
   id: "chart-line-demo",
   title: "Website Traffic Over Time",
-  chartType: "line" as const,
   data: [
     {
       name: "Desktop",
@@ -262,10 +260,9 @@ export const chartDemoLine = {
 };
 
 export const chartDemoPie = {
-  component: "chart" as const,
+  component: "chart-pie" as const,
   id: "chart-pie-demo",
   title: "Market Share by Browser",
-  chartType: "pie" as const,
   data: [
     {
       name: "Browsers",
@@ -284,10 +281,9 @@ export const chartDemoPie = {
 };
 
 export const chartDemoDonut = {
-  component: "chart" as const,
+  component: "chart-donut" as const,
   id: "chart-donut-demo",
   title: "Storage Usage",
-  chartType: "donut" as const,
   data: [
     {
       name: "Storage",
@@ -307,10 +303,9 @@ export const chartDemoDonut = {
 
 // Chart demo with large numbers
 export const chartDemoBarLargeNumbers = {
-  component: "chart" as const,
+  component: "chart-bar" as const,
   id: "chart-bar-large-demo",
   title: "Annual Revenue by Region (in USD)",
-  chartType: "bar" as const,
   data: [
     {
       name: "North America",
@@ -349,10 +344,9 @@ export const chartDemoBarLargeNumbers = {
 };
 
 export const chartDemoLineLargeNumbers = {
-  component: "chart" as const,
+  component: "chart-line" as const,
   id: "chart-line-large-demo",
   title: "Global User Growth (Total Active Users)",
-  chartType: "line" as const,
   data: [
     {
       name: "Platform A",
@@ -394,10 +388,9 @@ export const chartDemoLineLargeNumbers = {
 };
 
 export const chartDemoBarScaled = {
-  component: "chart" as const,
+  component: "chart-bar" as const,
   id: "chart-bar-scaled-demo",
   title: "Quarterly Revenue (Scaled to 70%)",
-  chartType: "bar" as const,
   data: [
     {
       name: "Product A",
@@ -510,10 +503,9 @@ export const oneCardDemoAPIEndpoint = {
 };
 
 export const chartDemoBarStacked = {
-  component: "chart" as const,
+  component: "chart-bar" as const,
   id: "chart-bar-stacked-demo",
   title: "Monthly Sales by Category",
-  chartType: "bar" as const,
   data: [
     {
       name: "Electronics",
@@ -555,10 +547,9 @@ export const chartDemoBarStacked = {
 };
 
 export const chartDemoLinePerformance = {
-  component: "chart" as const,
+  component: "chart-line" as const,
   id: "chart-line-performance-demo",
   title: "Application Performance (Response Time)",
-  chartType: "line" as const,
   data: [
     {
       name: "API Server",
@@ -589,10 +580,9 @@ export const chartDemoLinePerformance = {
 };
 
 export const chartDemoPieServerDistribution = {
-  component: "chart" as const,
+  component: "chart-pie" as const,
   id: "chart-pie-server-demo",
   title: "Server Distribution by Region",
-  chartType: "pie" as const,
   data: [
     {
       name: "Regions",
@@ -610,10 +600,9 @@ export const chartDemoPieServerDistribution = {
 };
 
 export const chartDemoDonutCostBreakdown = {
-  component: "chart" as const,
+  component: "chart-donut" as const,
   id: "chart-donut-cost-demo",
   title: "Monthly Cloud Cost Breakdown",
-  chartType: "donut" as const,
   data: [
     {
       name: "Cost",
@@ -633,10 +622,9 @@ export const chartDemoDonutCostBreakdown = {
 };
 
 export const chartDemoBarMoviesHorizontal = {
-  component: "chart" as const,
+  component: "chart-bar" as const,
   id: "chart-bar-movies-horizontal-demo",
   title: "Box Office Revenue by Movie (Horizontal)",
-  chartType: "bar" as const,
   data: [
     {
       name: "Domestic Revenue (USD)",
@@ -658,10 +646,9 @@ export const chartDemoBarMoviesHorizontal = {
 };
 
 export const chartDemoBarLongTitlesHorizontal = {
-  component: "chart" as const,
+  component: "chart-bar" as const,
   id: "chart-bar-long-titles-horizontal",
   title: "Top Revenue by Movie Title",
-  chartType: "bar" as const,
   data: [
     {
       name: "Revenue (Millions)",
@@ -681,10 +668,9 @@ export const chartDemoBarLongTitlesHorizontal = {
 };
 
 export const chartDemoBarLongLabelsVertical = {
-  component: "chart" as const,
+  component: "chart-bar" as const,
   id: "chart-bar-long-labels-vertical",
   title: "Product Performance by Category",
-  chartType: "bar" as const,
   data: [
     {
       name: "Sales (USD)",
@@ -703,10 +689,9 @@ export const chartDemoBarLongLabelsVertical = {
 };
 
 export const chartDemoBarResponsive = {
-  component: "chart" as const,
+  component: "chart-bar" as const,
   id: "chart-bar-responsive",
   title: "Responsive Bar Chart (No Fixed Width)",
-  chartType: "bar" as const,
   data: [
     {
       name: "Revenue",
@@ -752,10 +737,9 @@ export const tableDemoEmpty = {
 
 // Mirrored Bar Chart Example (Simplified API)
 export const chartMovieROISimple = {
-  component: "chart" as const,
+  component: "chart-mirrored-bar" as const,
   id: "chart-movie-roi-simple",
   title: "Movie ROI vs Budget Comparison",
-  chartType: "mirrored-bar" as const,
   data: [
     {
       name: "ROI",
@@ -787,10 +771,9 @@ export const chartMovieROISimple = {
 // Mirrored Chart Examples
 // Top chart for ROI (positive values)
 export const chartMovieROI = {
-  component: "chart" as const,
+  component: "chart-bar" as const,
   id: "chart-movie-roi",
   title: "Return on Investment (ROI Multiplier)",
-  chartType: "bar" as const,
   data: [
     {
       name: "ROI",
@@ -811,10 +794,9 @@ export const chartMovieROI = {
 
 // Bottom chart for Budget (negative values with absolute display)
 export const chartMovieBudget = {
-  component: "chart" as const,
+  component: "chart-bar" as const,
   id: "chart-movie-budget",
   title: "Production Budget (USD)",
-  chartType: "bar" as const,
   data: [
     {
       name: "Budget",

@@ -12,6 +12,7 @@ import {
   ChartTooltip,
   ChartVoronoiContainer,
 } from "@patternfly/react-charts/victory";
+import { useEffect, useRef, useState } from "react";
 
 const HorizontalBarLabel = (props: React.ComponentProps<typeof ChartLabel>) => (
   <ChartLabel {...props} textAnchor="start" dy={15} dx={15} />
@@ -29,10 +30,14 @@ export interface ChartSeries {
 }
 
 export interface ChartComponentProps {
-  component: "chart";
+  component:
+    | "chart-bar"
+    | "chart-line"
+    | "chart-pie"
+    | "chart-donut"
+    | "chart-mirrored-bar";
   id: string;
   title?: string;
-  chartType: "bar" | "line" | "pie" | "donut" | "mirrored-bar";
   data: ChartSeries[];
   width?: number;
   height?: number;
@@ -58,9 +63,9 @@ export interface ChartComponentProps {
 }
 
 export default function ChartComponent({
+  component,
   id,
   title,
-  chartType,
   data,
   width,
   height,
@@ -79,7 +84,61 @@ export default function ChartComponent({
   // domainPadding,
   tickLabelComponent = <ChartLabel />,
 }: ChartComponentProps): JSX.Element {
+  // Extract chart type from component name (e.g., "chart-bar" -> "bar")
+  const chartType = component.replace("chart-", "") as
+    | "bar"
+    | "line"
+    | "pie"
+    | "donut"
+    | "mirrored-bar";
+
   const theme = ChartThemeColor[themeColor] || ChartThemeColor.multi;
+
+  // For responsive charts without explicit width, measure container width
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [containerWidth, setContainerWidth] = useState<number | undefined>(
+    undefined
+  );
+
+  useEffect(() => {
+    if (width) return; // Skip if width is explicitly provided
+
+    let timeoutId: ReturnType<typeof setTimeout>;
+
+    const updateWidth = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        const newWidth = Math.floor(rect.width);
+
+        // Only update if width actually changed significantly (avoid sub-pixel updates)
+        setContainerWidth((prevWidth) => {
+          if (!prevWidth || Math.abs(newWidth - prevWidth) > 10) {
+            return newWidth;
+          }
+          return prevWidth;
+        });
+      }
+    };
+
+    const debouncedUpdateWidth = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(updateWidth, 100); // Debounce for 100ms
+    };
+
+    // Initial measurement (with slight delay to ensure DOM is ready)
+    timeoutId = setTimeout(updateWidth, 0);
+
+    // Update on window resize with debouncing
+    window.addEventListener("resize", debouncedUpdateWidth);
+
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener("resize", debouncedUpdateWidth);
+    };
+  }, [width]);
+
+  // Use provided width, or measured container width, or undefined (Victory will use default)
+  const effectiveWidth = width || containerWidth;
 
   // Automatically determine legend position based on chart type and data
   const legendPosition: "bottom" | "right" = (() => {
@@ -116,18 +175,38 @@ export default function ChartComponent({
     return maxLabelLength > 20;
   })();
 
-  // Apply scale to dimensions (only if width/height are provided)
-  const scaledWidth = width ? width * scale : undefined;
+  // Apply scale to height (only if height is provided)
   const scaledHeight = height ? height * scale : undefined;
 
   // Format large numbers for axis labels
   const formatNumber = (value: number | string, isXAxis = false): string => {
-    const num = typeof value === "string" ? parseFloat(value) : value;
+    // If it's a number type, format it
+    if (typeof value === "number") {
+      const displayNum = showAbsoluteValues ? Math.abs(value) : value;
+      return formatNumericValue(displayNum, isXAxis);
+    }
+
+    // For strings, check if it's a pure number before parsing
+    const trimmed = value.trim();
+    const num = parseFloat(trimmed);
+
+    // If parsing fails, return the original string
     if (isNaN(num)) return String(value);
 
-    // Use absolute value if showAbsoluteValues is enabled
-    const displayNum = showAbsoluteValues ? Math.abs(num) : num;
+    // Check if the string represents a pure number by comparing
+    // the parsed number back to string with the original
+    // This handles cases like "06:19" which parses to 6 but shouldn't be formatted
+    if (trimmed !== num.toString() && trimmed !== String(num)) {
+      return String(value);
+    }
 
+    // It's a valid number string, format it
+    const displayNum = showAbsoluteValues ? Math.abs(num) : num;
+    return formatNumericValue(displayNum, isXAxis);
+  };
+
+  // Helper function to format numeric values
+  const formatNumericValue = (displayNum: number, isXAxis = false): string => {
     // Don't format years (4-digit numbers between 1900-2100)
     if (
       isXAxis &&
@@ -266,12 +345,11 @@ export default function ChartComponent({
       : [];
 
   // Common props for all charts
-  // Default to 700px width if not provided
   const safeHeight = height || 400; // Ensure height always has a value
-  const safeWidth = width || 700; // Default to 700px width
+  // For bar/line charts, use measured container width when no width is provided
   const commonChartProps = {
     height: safeHeight,
-    width: safeWidth,
+    ...(effectiveWidth && { width: effectiveWidth }),
     themeColor: theme,
   };
 
@@ -321,7 +399,7 @@ export default function ChartComponent({
   // Constrained tooltip
   const tooltip = <ChartTooltip constrainToVisibleArea />;
 
-  // Check if x-axis has numeric values (for fixLabelOverlap decision)
+  // Check if x-axis has numeric values
   const hasNumericXAxis = data.some((series) =>
     series.data.some((point) => typeof point.x === "number")
   );
@@ -352,7 +430,7 @@ export default function ChartComponent({
       uniqueLabels.length;
 
     // Calculate available space per label (rough estimate)
-    const chartWidth = safeWidth;
+    const chartWidth = effectiveWidth || 700; // Use effective width or default for calculation
     const rightPad = calculateRightPadding();
     const leftPad = calculateLeftPadding();
     const availableWidth = chartWidth - rightPad - leftPad;
@@ -380,7 +458,7 @@ export default function ChartComponent({
       };
     }
     if (shouldRotateLabels) {
-      return { angle: -45, textAnchor: "end" };
+      return { angle: -15, textAnchor: "end" };
     }
     if (effectiveHorizontal) {
       return { textAnchor: "start" };
@@ -444,7 +522,7 @@ export default function ChartComponent({
                 // In vertical mode, this axis shows categories on x-axis
                 return formatNumber(t, true);
               }}
-              fixLabelOverlap={hasNumericXAxis}
+              fixLabelOverlap
               style={{
                 tickLabels: xAxisLabelStyle,
                 axis: { stroke: "none" },
@@ -538,7 +616,7 @@ export default function ChartComponent({
           >
             <ChartAxis
               tickFormat={(t) => (hideXAxisLabels ? "" : formatNumber(t, true))}
-              fixLabelOverlap={hasNumericXAxis}
+              fixLabelOverlap
               style={{
                 tickLabels: xAxisLabelStyle,
                 axis: { stroke: "none" },
@@ -661,16 +739,15 @@ export default function ChartComponent({
         const leftColor = themeColor === "multi" ? "blue" : themeColor;
 
         // Split width between charts if provided, otherwise use undefined for responsive
-        const childWidth = width ? width / 2 : undefined;
+        const childWidth = effectiveWidth ? effectiveWidth / 2 : undefined;
 
         return (
           <div style={{ display: "flex", gap: "0px", width: "100%" }}>
             {/* Left Chart */}
             <ChartComponent
               {...{
-                component: "chart" as const,
+                component: "chart-bar" as const,
                 id: `${id}-left`,
-                chartType: "bar" as const,
                 data: leftChartData,
                 width: childWidth,
                 height,
@@ -686,9 +763,8 @@ export default function ChartComponent({
             {/* Right Chart */}
             <ChartComponent
               {...{
-                component: "chart" as const,
+                component: "chart-bar" as const,
                 id: `${id}-right`,
-                chartType: "bar" as const,
                 data: [rightSeries],
                 width: childWidth,
                 height,
@@ -710,30 +786,19 @@ export default function ChartComponent({
   };
 
   return (
-    <div
-      id={id}
-      style={{
-        marginTop: 16,
-        marginBottom: 16,
-        overflow: "visible",
-      }}
-    >
+    <div id={id} ref={containerRef} className="chart-container">
       {title && <h3>{title}</h3>}
       <div
+        className="chart-wrapper"
         style={{
-          overflow: "visible",
-          width: scaledWidth || "100%",
           height: scaledHeight || 400,
-          maxWidth: "100%",
         }}
       >
         <div
+          className="chart-scale-wrapper"
           style={{
             transform: `scale(${scale})`,
-            transformOrigin: "top left",
-            width: width || "100%",
             height: height || 400,
-            maxWidth: "100%",
           }}
         >
           {renderChart()}
