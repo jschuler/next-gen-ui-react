@@ -82,19 +82,66 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
       filterable: true,
     }));
 
+    // Helper function to format ISO dates for display
+    const formatValue = (
+      value: string | number | boolean | null | (string | number)[]
+    ): string => {
+      if (value === null || value === undefined) {
+        return "";
+      }
+      if (Array.isArray(value)) {
+        return value.join(", ");
+      }
+
+      const strValue = String(value);
+
+      // Check for ISO date format and auto-format for display
+      const isoDatePattern =
+        /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/;
+      if (isoDatePattern.test(strValue)) {
+        const date = new Date(strValue);
+        if (!isNaN(date.getTime())) {
+          // Format date based on whether it has time component
+          const hasTime = strValue.includes("T");
+          try {
+            if (hasTime) {
+              // Format with date and time
+              return new Intl.DateTimeFormat(undefined, {
+                dateStyle: "medium",
+                timeStyle: "short",
+              }).format(date);
+            } else {
+              // Format date only
+              return new Intl.DateTimeFormat(undefined, {
+                dateStyle: "medium",
+              }).format(date);
+            }
+          } catch {
+            // Fallback if Intl formatting fails
+            return strValue;
+          }
+        }
+      }
+
+      return strValue;
+    };
+
     // Create rows based on the maximum data length
+    // Store both display value and original value (for sorting)
     const transformedRows: Record<string, string | number>[] = [];
     for (let i = 0; i < maxDataLength; i++) {
       const row: Record<string, string | number> = {};
       fields.forEach((field) => {
-        const value = field.data[i];
-        if (value === null || value === undefined) {
-          row[field.name] = "";
-        } else if (Array.isArray(value)) {
-          row[field.name] = value.join(", ");
-        } else {
-          row[field.name] = String(value);
-        }
+        const originalValue = field.data[i];
+        const displayValue = formatValue(originalValue);
+        row[field.name] = displayValue;
+        // Store original value with a special key for sorting
+        row[`__sort_${field.name}`] =
+          originalValue === null || originalValue === undefined
+            ? ""
+            : Array.isArray(originalValue)
+              ? originalValue.join(", ")
+              : String(originalValue);
       });
       transformedRows.push(row);
     }
@@ -141,8 +188,14 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
       return Object.keys(filters).every((key) => {
         const filterValue = filters[key];
         if (!filterValue) return true;
-        const cellValue = String(row[key] || "");
-        return cellValue.toLowerCase().includes(filterValue.toLowerCase());
+        // Filter against both display value and original value
+        const displayValue = String(row[key] || "");
+        const sortKey = `__sort_${key}`;
+        const originalValue = String(row[sortKey] || "");
+        return (
+          displayValue.toLowerCase().includes(filterValue.toLowerCase()) ||
+          originalValue.toLowerCase().includes(filterValue.toLowerCase())
+        );
       });
     });
   }, [rows, filters]);
@@ -151,9 +204,47 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
     if (!sortBy || !direction) return filteredData;
 
     return [...filteredData].sort((a, b) => {
-      const aVal = String(a[sortBy] || "");
-      const bVal = String(b[sortBy] || "");
+      // Use original values for sorting (stored with __sort_ prefix)
+      const sortKey = `__sort_${sortBy}`;
+      const aVal = String(a[sortKey] || a[sortBy] || "");
+      const bVal = String(b[sortKey] || b[sortBy] || "");
 
+      // Check for ISO date format (YYYY-MM-DD or full ISO 8601 with time)
+      const isoDatePattern = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?/;
+      const aIsISO = isoDatePattern.test(aVal);
+      const bIsISO = isoDatePattern.test(bVal);
+
+      // If both values are ISO dates, parse and compare as dates
+      if (aIsISO && bIsISO) {
+        const aDate = new Date(aVal);
+        const bDate = new Date(bVal);
+
+        if (!isNaN(aDate.getTime()) && !isNaN(bDate.getTime())) {
+          const diff = aDate.getTime() - bDate.getTime();
+          return direction === "asc" ? diff : -diff;
+        }
+      }
+
+      // Strip leading non-numeric characters (except minus) for better number detection
+      // This handles currency symbols ($100, £50, €25) and other prefixes
+      const aStripped = aVal.replace(/^[^\d-]+/, "");
+      const bStripped = bVal.replace(/^[^\d-]+/, "");
+
+      // Extract leading numbers if present for numeric sorting
+      const aNumMatch = aStripped.match(/^-?\d+\.?\d*/);
+      const bNumMatch = bStripped.match(/^-?\d+\.?\d*/);
+
+      // If both values have numbers (after stripping prefixes), sort numerically
+      if (aNumMatch && bNumMatch && aNumMatch[0] && bNumMatch[0]) {
+        const aNum = parseFloat(aNumMatch[0]);
+        const bNum = parseFloat(bNumMatch[0]);
+
+        if (!isNaN(aNum) && !isNaN(bNum) && aNum !== bNum) {
+          return direction === "asc" ? aNum - bNum : bNum - aNum;
+        }
+      }
+
+      // Fall back to string comparison
       if (direction === "asc") {
         return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
       } else {
@@ -188,10 +279,11 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
     const end = start + perPage;
 
     return sortedData.slice(start, end).map((row) => ({
-      row: [...Object.values(row)],
+      // Only include values for actual columns (filter out __sort_ keys)
+      row: columns.map((col) => row[col.key]),
       props: {},
     }));
-  }, [sortedData, page, perPage]);
+  }, [sortedData, page, perPage, columns]);
 
   const emptyState = (
     <Tbody>

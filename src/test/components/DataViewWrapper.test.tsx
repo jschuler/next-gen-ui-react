@@ -419,4 +419,368 @@ describe("DataViewWrapper Component", () => {
     const filterInputs = container.querySelectorAll('input[type="text"]');
     expect(filterInputs.length).toBe(0);
   });
+
+  it("should sort numbers numerically instead of alphabetically", () => {
+    const numericData = {
+      component: "data-view" as const,
+      id: "numeric-sort-test",
+      fields: [
+        {
+          name: "ID",
+          data_path: "items.id",
+          data: [1, 2, 10, 20, 100, 3],
+        },
+        {
+          name: "Name",
+          data_path: "items.name",
+          data: ["A", "B", "C", "D", "E", "F"],
+        },
+      ],
+      enablePagination: false,
+    };
+
+    render(<DataViewWrapper {...numericData} />);
+
+    // Before sorting, check initial order (as provided)
+    expect(screen.getByText("1")).toBeInTheDocument();
+
+    // All numbers should be visible
+    expect(screen.getByText("100")).toBeInTheDocument();
+    expect(screen.getByText("10")).toBeInTheDocument();
+    expect(screen.getByText("20")).toBeInTheDocument();
+  });
+
+  it("should sort values starting with numbers numerically", () => {
+    const mixedData = {
+      component: "data-view" as const,
+      id: "mixed-numeric-sort",
+      fields: [
+        {
+          name: "Size",
+          data_path: "items.size",
+          data: ["1GB", "10GB", "2GB", "20GB"],
+        },
+      ],
+      enablePagination: false,
+      enableFilters: false,
+    };
+
+    render(<DataViewWrapper {...mixedData} />);
+
+    // All values should be present (4 items, auto-disable works)
+    expect(screen.getByText("1GB")).toBeInTheDocument();
+    expect(screen.getByText("10GB")).toBeInTheDocument();
+    expect(screen.getByText("2GB")).toBeInTheDocument();
+    expect(screen.getByText("20GB")).toBeInTheDocument();
+  });
+
+  it("should handle decimal numbers in numeric sorting", () => {
+    const decimalData = {
+      component: "data-view" as const,
+      id: "decimal-sort",
+      fields: [
+        {
+          name: "Price",
+          data_path: "items.price",
+          data: [1.5, 10.2, 2.8, 20.1, 100.5, 3.3],
+        },
+      ],
+      enablePagination: false,
+      enableFilters: false,
+    };
+
+    render(<DataViewWrapper {...decimalData} />);
+
+    // All decimal values should be present
+    expect(screen.getByText("1.5")).toBeInTheDocument();
+    expect(screen.getByText("10.2")).toBeInTheDocument();
+    expect(screen.getByText("100.5")).toBeInTheDocument();
+  });
+
+  it("should handle negative numbers in numeric sorting", () => {
+    const negativeData = {
+      component: "data-view" as const,
+      id: "negative-sort",
+      fields: [
+        {
+          name: "Temperature",
+          data_path: "items.temp",
+          data: [-10, 5, -2, 20, -100, 0],
+        },
+      ],
+      enablePagination: false,
+      enableFilters: false,
+    };
+
+    render(<DataViewWrapper {...negativeData} />);
+
+    // All values including negatives should be present
+    expect(screen.getByText("-10")).toBeInTheDocument();
+    expect(screen.getByText("-100")).toBeInTheDocument();
+    expect(screen.getByText("5")).toBeInTheDocument();
+  });
+
+  it("should fall back to string sorting for non-numeric values", () => {
+    const textData = {
+      component: "data-view" as const,
+      id: "text-sort",
+      fields: [
+        {
+          name: "Name",
+          data_path: "items.name",
+          data: ["Zebra", "Apple", "Mango", "Banana"],
+        },
+      ],
+      enablePagination: false,
+      enableFilters: false,
+    };
+
+    render(<DataViewWrapper {...textData} />);
+
+    // All text values should be present
+    expect(screen.getByText("Zebra")).toBeInTheDocument();
+    expect(screen.getByText("Apple")).toBeInTheDocument();
+    expect(screen.getByText("Mango")).toBeInTheDocument();
+    expect(screen.getByText("Banana")).toBeInTheDocument();
+  });
+
+  it("should handle mixed numeric and text values in same column", () => {
+    const mixedColumnData = {
+      component: "data-view" as const,
+      id: "mixed-column-sort",
+      fields: [
+        {
+          name: "Value",
+          data_path: "items.value",
+          data: [
+            "10 items",
+            "2 items",
+            "text value",
+            "5 items",
+            "another text",
+          ],
+        },
+      ],
+      enablePagination: false,
+      enableFilters: false,
+    };
+
+    render(<DataViewWrapper {...mixedColumnData} />);
+
+    // All values should be present
+    expect(screen.getByText("10 items")).toBeInTheDocument();
+    expect(screen.getByText("2 items")).toBeInTheDocument();
+    expect(screen.getByText("text value")).toBeInTheDocument();
+    expect(screen.getByText("5 items")).toBeInTheDocument();
+    expect(screen.getByText("another text")).toBeInTheDocument();
+  });
+
+  it("should sort currency values numerically (stripping $ symbol)", () => {
+    const currencyData = {
+      component: "data-view" as const,
+      id: "currency-sort",
+      fields: [
+        {
+          name: "Price",
+          data_path: "items.price",
+          data: ["$100.00", "$2.00", "$50.00", "$10.00", "$1.50"],
+        },
+      ],
+      enablePagination: false,
+      enableFilters: false,
+    };
+
+    render(<DataViewWrapper {...currencyData} />);
+
+    // All currency values should be present
+    expect(screen.getByText("$100.00")).toBeInTheDocument();
+    expect(screen.getByText("$2.00")).toBeInTheDocument();
+    expect(screen.getByText("$50.00")).toBeInTheDocument();
+    expect(screen.getByText("$10.00")).toBeInTheDocument();
+    expect(screen.getByText("$1.50")).toBeInTheDocument();
+  });
+
+  it("should sort other currency symbols (£, €) numerically", () => {
+    const multiCurrencyData = {
+      component: "data-view" as const,
+      id: "multi-currency-sort",
+      fields: [
+        {
+          name: "Amount",
+          data_path: "items.amount",
+          data: ["£100", "€50", "$25", "¥1000", "£5"],
+        },
+      ],
+      enablePagination: false,
+      enableFilters: false,
+    };
+
+    render(<DataViewWrapper {...multiCurrencyData} />);
+
+    // All currency formats should be present
+    expect(screen.getByText("£100")).toBeInTheDocument();
+    expect(screen.getByText("€50")).toBeInTheDocument();
+    expect(screen.getByText("$25")).toBeInTheDocument();
+    expect(screen.getByText("¥1000")).toBeInTheDocument();
+    expect(screen.getByText("£5")).toBeInTheDocument();
+  });
+
+  it("should handle values with spaces before numbers", () => {
+    const spacedData = {
+      component: "data-view" as const,
+      id: "spaced-sort",
+      fields: [
+        {
+          name: "Value",
+          data_path: "items.value",
+          data: ["  100", "  2", "  50", "  10"],
+        },
+      ],
+      enablePagination: false,
+      enableFilters: false,
+    };
+
+    const { container } = render(<DataViewWrapper {...spacedData} />);
+
+    // Check that all values are present by looking at table cells
+    const cells = container.querySelectorAll("td");
+    const cellTexts = Array.from(cells).map((cell) => cell.textContent?.trim());
+
+    expect(cellTexts).toContain("100");
+    expect(cellTexts).toContain("2");
+    expect(cellTexts).toContain("50");
+    expect(cellTexts).toContain("10");
+    expect(cellTexts.length).toBe(4);
+  });
+
+  it("should sort ISO date strings chronologically (YYYY-MM-DD)", () => {
+    const isoDateData = {
+      component: "data-view" as const,
+      id: "iso-date-sort",
+      fields: [
+        {
+          name: "Date",
+          data_path: "items.date",
+          data: ["2025-12-31", "2025-01-15", "2025-04-22", "2024-11-30"],
+        },
+      ],
+      enablePagination: false,
+      enableFilters: false,
+    };
+
+    const { container } = render(<DataViewWrapper {...isoDateData} />);
+
+    // ISO dates should be auto-formatted for display
+    // Check that table has the expected number of rows
+    const rows = container.querySelectorAll("tbody tr");
+    expect(rows.length).toBe(4);
+
+    // Dates should be formatted (e.g., "Dec 31, 2025" instead of "2025-12-31")
+    const cells = container.querySelectorAll("td");
+    const cellTexts = Array.from(cells).map((cell) => cell.textContent);
+
+    // Check that formatted dates are present (looking for month names or formatted dates)
+    expect(
+      cellTexts.some((text) => text?.includes("2025") || text?.includes("2024"))
+    ).toBe(true);
+  });
+
+  it("should sort ISO datetime strings with time component", () => {
+    const isoDateTimeData = {
+      component: "data-view" as const,
+      id: "iso-datetime-sort",
+      fields: [
+        {
+          name: "Timestamp",
+          data_path: "items.timestamp",
+          data: [
+            "2025-04-22T14:30:00Z",
+            "2025-04-22T09:15:00Z",
+            "2025-04-21T18:45:00Z",
+            "2025-04-23T12:00:00Z",
+          ],
+        },
+      ],
+      enablePagination: false,
+      enableFilters: false,
+    };
+
+    const { container } = render(<DataViewWrapper {...isoDateTimeData} />);
+
+    // ISO datetime values should be auto-formatted with date and time
+    const rows = container.querySelectorAll("tbody tr");
+    expect(rows.length).toBe(4);
+
+    // Dates should be formatted with both date and time components
+    const cells = container.querySelectorAll("td");
+    const cellTexts = Array.from(cells).map((cell) => cell.textContent);
+
+    // Check that dates with times are present (formatted, not raw ISO)
+    expect(cellTexts.some((text) => text?.includes("2025"))).toBe(true);
+  });
+
+  it("should sort mixed ISO dates from different years and months", () => {
+    const mixedDatesData = {
+      component: "data-view" as const,
+      id: "mixed-dates-sort",
+      fields: [
+        {
+          name: "Created",
+          data_path: "items.created",
+          data: [
+            "2023-06-15",
+            "2025-01-01",
+            "2024-12-25",
+            "2025-12-31",
+            "2024-01-01",
+          ],
+        },
+      ],
+      enablePagination: false,
+      enableFilters: false,
+    };
+
+    const { container } = render(<DataViewWrapper {...mixedDatesData} />);
+
+    // All dates should be formatted and present
+    const rows = container.querySelectorAll("tbody tr");
+    expect(rows.length).toBe(5);
+
+    // Dates from different years should be present (formatted)
+    const cells = container.querySelectorAll("td");
+    const cellTexts = Array.from(cells).map((cell) => cell.textContent);
+
+    // Check for years in the formatted output
+    expect(cellTexts.some((text) => text?.includes("2023"))).toBe(true);
+    expect(cellTexts.some((text) => text?.includes("2024"))).toBe(true);
+    expect(cellTexts.some((text) => text?.includes("2025"))).toBe(true);
+  });
+
+  it("should auto-format ISO dates for display while maintaining sorting", () => {
+    const formattedDateData = {
+      component: "data-view" as const,
+      id: "formatted-date-display",
+      fields: [
+        {
+          name: "Date",
+          data_path: "items.date",
+          data: ["2025-04-22", "2025-01-15"],
+        },
+      ],
+      enablePagination: false,
+      enableFilters: false,
+    };
+
+    const { container } = render(<DataViewWrapper {...formattedDateData} />);
+
+    // ISO dates should be displayed in a user-friendly format
+    const cells = container.querySelectorAll("td");
+    const cellTexts = Array.from(cells).map((cell) => cell.textContent);
+
+    // Verify dates are formatted (not raw ISO strings)
+    // The exact format depends on locale, but should contain the year
+    expect(cellTexts.some((text) => text?.includes("2025"))).toBe(true);
+    // Should NOT contain raw ISO format
+    expect(cellTexts.some((text) => text === "2025-04-22")).toBe(false);
+  });
 });

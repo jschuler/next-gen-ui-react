@@ -1179,3 +1179,128 @@ export const dataViewMinimalSmall = {
   // No optional props - should use all defaults:
   // perPage: 5, enableFilters: auto (false for ≤5 items), enablePagination: auto (false for ≤5 items), enableSort: true
 };
+
+// DataView demonstrating numeric sorting
+export const dataViewNumericSort = {
+  component: "data-view" as const,
+  id: "dataview-numeric-sort",
+  fields: [
+    {
+      name: "ID",
+      data_path: "items.id",
+      data: [1, 2, 10, 20, 100, 5, 50, 3, 30, 7],
+    },
+    {
+      name: "Size",
+      data_path: "items.size",
+      data: [
+        "1GB",
+        "2GB",
+        "10GB",
+        "20GB",
+        "100GB",
+        "5GB",
+        "50GB",
+        "3GB",
+        "30GB",
+        "7GB",
+      ],
+    },
+    {
+      name: "Price",
+      data_path: "items.price",
+      data: [
+        "$1.50",
+        "$2.00",
+        "$10.99",
+        "$20.50",
+        "$100.00",
+        "$5.25",
+        "$50.75",
+        "$3.99",
+        "$30.00",
+        "$7.49",
+      ],
+    },
+    {
+      name: "Count",
+      data_path: "items.count",
+      data: [
+        "1 item",
+        "2 items",
+        "10 items",
+        "20 items",
+        "100 items",
+        "5 items",
+        "50 items",
+        "3 items",
+        "30 items",
+        "7 items",
+      ],
+    },
+  ],
+  perPage: 5,
+  // Demonstrates smart numeric sorting: click column headers to sort
+  // - Numbers sort numerically (1, 2, 3, 5, 7, 10...) not alphabetically (1, 10, 100, 2, 20...)
+  // - Currency values ($1.50, $2.00, $10.99) sort by numeric value, not string
+  // - Handles units (1GB, 10GB, 100GB) and counts (1 item, 10 items) correctly
+};
+
+// DataView demonstrating ISO date sorting
+export const dataViewDateSort = {
+  component: "data-view" as const,
+  id: "dataview-date-sort",
+  fields: [
+    {
+      name: "Event",
+      data_path: "events.name",
+      data: [
+        "Project Kickoff",
+        "Design Review",
+        "Development Sprint",
+        "QA Testing",
+        "Production Deploy",
+        "Retrospective",
+      ],
+    },
+    {
+      name: "Date",
+      data_path: "events.date",
+      data: [
+        "2025-01-15",
+        "2025-02-10",
+        "2024-12-20",
+        "2025-03-05",
+        "2025-04-01",
+        "2025-04-15",
+      ],
+    },
+    {
+      name: "Time",
+      data_path: "events.time",
+      data: [
+        "2025-01-15T09:00:00Z",
+        "2025-02-10T14:30:00Z",
+        "2024-12-20T10:15:00Z",
+        "2025-03-05T16:45:00Z",
+        "2025-04-01T08:00:00Z",
+        "2025-04-15T13:20:00Z",
+      ],
+    },
+    {
+      name: "Status",
+      data_path: "events.status",
+      data: [
+        "Complete",
+        "Complete",
+        "Complete",
+        "In Progress",
+        "Pending",
+        "Pending",
+      ],
+    },
+  ],
+  perPage: 10,
+  // Demonstrates ISO date/time sorting: dates sort chronologically regardless of display order
+  // 2024-12-20 < 2025-01-15 < 2025-02-10 < 2025-03-05 < 2025-04-01 < 2025-04-15
+};
