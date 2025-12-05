@@ -18,6 +18,12 @@ import {
   chartDemoPie,
   chartDemoPieServerDistribution,
   chartMovieROISimple,
+  dataViewMinimal,
+  dataViewMinimalSmall,
+  dataViewRepositories,
+  dataViewServers,
+  dataViewSimple,
+  dataViewUsers,
   dynamicDemo,
   dynamicDemoImage,
   dynamicDemoTable,
@@ -60,6 +66,28 @@ export interface ComponentConfig {
 }
 
 export const componentRegistry: ComponentConfig[] = [
+  {
+    id: "dataview",
+    name: "DataViewWrapper",
+    path: "/component/dataview",
+    sourceUrl:
+      "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/DataViewWrapper.tsx",
+    componentImportPath: "@local-lib/components/DataViewWrapper",
+    examples: [
+      { title: "Repositories Table", data: dataViewRepositories },
+      { title: "Users Management", data: dataViewUsers },
+      { title: "Server List", data: dataViewServers },
+      { title: "Simple Product List", data: dataViewSimple },
+      {
+        title: "Minimal (12 items, filters & pagination enabled)",
+        data: dataViewMinimal,
+      },
+      {
+        title: "Minimal (5 items, filters & pagination auto-disabled)",
+        data: dataViewMinimalSmall,
+      },
+    ],
+  },
   {
     id: "dynamic",
     name: "DynamicComponents",

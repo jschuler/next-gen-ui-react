@@ -1,3 +1,4 @@
+import DataViewWrapper from "@local-lib/components/DataViewWrapper";
 import DynamicComponents from "@local-lib/components/DynamicComponents";
 import EmptyStateWrapper from "@local-lib/components/EmptyStateWrapper";
 import ErrorPlaceholder from "@local-lib/components/ErrorPlaceholder";
@@ -28,6 +29,7 @@ const ChartComponent = lazy(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const componentMap: Record<string, React.ComponentType<any>> = {
   chart: ChartComponent,
+  dataview: DataViewWrapper,
   dynamic: DynamicComponents,
   emptystate: EmptyStateWrapper,
   error: ErrorPlaceholder,

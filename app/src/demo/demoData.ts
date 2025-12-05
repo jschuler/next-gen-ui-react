@@ -857,3 +857,325 @@ export const emptyStateCustomIcon = {
   variant: "info" as const,
   icon: "CheckCircleIcon",
 };
+
+// DataView demos
+export const dataViewRepositories = {
+  component: "data-view" as const,
+  id: "dataview-repos",
+  fields: [
+    {
+      name: "Repository",
+      data_path: "repositories.name",
+      data: [
+        "next-gen-ui-react",
+        "patternfly-react",
+        "patternfly",
+        "react-data-view",
+        "react-charts",
+        "react-table",
+      ],
+    },
+    {
+      name: "Branch",
+      data_path: "repositories.branch",
+      data: ["main", "main", "main", "development", "main", "feature-branch"],
+    },
+    {
+      name: "Pull Requests",
+      data_path: "repositories.prs",
+      data: ["3 open", "12 open", "8 open", "2 open", "5 open", "1 open"],
+    },
+    {
+      name: "Workspace",
+      data_path: "repositories.workspace",
+      data: [
+        "UI Components",
+        "UI Components",
+        "Design System",
+        "Extensions",
+        "Extensions",
+        "Core",
+      ],
+    },
+    {
+      name: "Last Commit",
+      data_path: "repositories.lastCommit",
+      data: [
+        "2 hours ago",
+        "1 day ago",
+        "3 hours ago",
+        "5 days ago",
+        "2 days ago",
+        "1 week ago",
+      ],
+    },
+  ],
+  perPage: 5,
+  enableFilters: true,
+  enablePagination: true,
+  enableSort: true,
+};
+
+export const dataViewUsers = {
+  component: "data-view" as const,
+  id: "dataview-users",
+  fields: [
+    {
+      name: "Name",
+      data_path: "users.name",
+      data: [
+        "Alice Johnson",
+        "Bob Smith",
+        "Carol Williams",
+        "David Brown",
+        "Eve Davis",
+        "Frank Miller",
+        "Grace Wilson",
+        "Henry Moore",
+        "Ivy Taylor",
+        "Jack Anderson",
+      ],
+    },
+    {
+      name: "Email",
+      data_path: "users.email",
+      data: [
+        "alice.j@example.com",
+        "bob.smith@example.com",
+        "carol.w@example.com",
+        "david.b@example.com",
+        "eve.d@example.com",
+        "frank.m@example.com",
+        "grace.w@example.com",
+        "henry.m@example.com",
+        "ivy.t@example.com",
+        "jack.a@example.com",
+      ],
+    },
+    {
+      name: "Role",
+      data_path: "users.role",
+      data: [
+        "Admin",
+        "Developer",
+        "Designer",
+        "Developer",
+        "QA Engineer",
+        "Product Manager",
+        "Developer",
+        "DevOps",
+        "Designer",
+        "Developer",
+      ],
+    },
+    {
+      name: "Status",
+      data_path: "users.status",
+      data: [
+        "Active",
+        "Active",
+        "Active",
+        "Inactive",
+        "Active",
+        "Active",
+        "Active",
+        "Active",
+        "Inactive",
+        "Active",
+      ],
+    },
+    {
+      name: "Last Login",
+      data_path: "users.lastLogin",
+      data: [
+        "5 mins ago",
+        "2 hours ago",
+        "1 day ago",
+        "2 weeks ago",
+        "30 mins ago",
+        "4 hours ago",
+        "Yesterday",
+        "3 days ago",
+        "1 month ago",
+        "Just now",
+      ],
+    },
+  ],
+  perPage: 10,
+  enableFilters: true,
+  enablePagination: true,
+  enableSort: true,
+};
+
+export const dataViewServers = {
+  component: "data-view" as const,
+  id: "dataview-servers",
+  fields: [
+    {
+      name: "Server Name",
+      data_path: "servers.name",
+      data: [
+        "prod-web-01",
+        "prod-web-02",
+        "prod-db-01",
+        "staging-web-01",
+        "dev-web-01",
+      ],
+    },
+    {
+      name: "IP Address",
+      data_path: "servers.ip",
+      data: [
+        "192.168.1.10",
+        "192.168.1.11",
+        "192.168.1.20",
+        "192.168.2.10",
+        "192.168.3.10",
+      ],
+    },
+    {
+      name: "Environment",
+      data_path: "servers.env",
+      data: [
+        "Production",
+        "Production",
+        "Production",
+        "Staging",
+        "Development",
+      ],
+    },
+    {
+      name: "CPU Usage",
+      data_path: "servers.cpu",
+      data: ["45%", "67%", "23%", "12%", "8%"],
+    },
+    {
+      name: "Memory",
+      data_path: "servers.memory",
+      data: [
+        "8GB / 16GB",
+        "12GB / 16GB",
+        "4GB / 32GB",
+        "2GB / 8GB",
+        "1GB / 8GB",
+      ],
+    },
+    {
+      name: "Status",
+      data_path: "servers.status",
+      data: ["Running", "Running", "Running", "Running", "Stopped"],
+    },
+  ],
+  perPage: 10,
+  enableFilters: true,
+  enablePagination: true,
+  enableSort: true,
+};
+
+export const dataViewSimple = {
+  component: "data-view" as const,
+  id: "dataview-simple",
+  fields: [
+    {
+      name: "Product",
+      data_path: "products.name",
+      data: ["Laptop", "Mouse", "Keyboard"],
+    },
+    {
+      name: "Price",
+      data_path: "products.price",
+      data: ["$999", "$25", "$79"],
+    },
+    {
+      name: "Stock",
+      data_path: "products.stock",
+      data: ["15", "50", "32"],
+    },
+  ],
+  perPage: 5,
+  enableFilters: false,
+  enablePagination: false,
+  enableSort: true,
+};
+
+// DataView with minimal configuration to test defaults (12 items - pagination enabled)
+export const dataViewMinimal = {
+  component: "data-view" as const,
+  id: "dataview-minimal",
+  fields: [
+    {
+      name: "Item",
+      data_path: "items.name",
+      data: [
+        "Item A",
+        "Item B",
+        "Item C",
+        "Item D",
+        "Item E",
+        "Item F",
+        "Item G",
+        "Item H",
+        "Item I",
+        "Item J",
+        "Item K",
+        "Item L",
+      ],
+    },
+    {
+      name: "Category",
+      data_path: "items.category",
+      data: [
+        "Electronics",
+        "Books",
+        "Clothing",
+        "Food",
+        "Sports",
+        "Home",
+        "Garden",
+        "Toys",
+        "Music",
+        "Health",
+        "Beauty",
+        "Tools",
+      ],
+    },
+    {
+      name: "Quantity",
+      data_path: "items.quantity",
+      data: [10, 25, 8, 50, 15, 32, 18, 45, 7, 22, 38, 12],
+    },
+  ],
+  // No optional props - should use all defaults:
+  // perPage: 5, enableFilters: auto (true for >5 items), enablePagination: auto (true for >5 items), enableSort: true
+};
+
+// DataView with minimal configuration and 5 items (filters & pagination auto-disabled)
+export const dataViewMinimalSmall = {
+  component: "data-view" as const,
+  id: "dataview-minimal-small",
+  fields: [
+    {
+      name: "Task",
+      data_path: "tasks.name",
+      data: [
+        "Setup Development Environment",
+        "Write Unit Tests",
+        "Code Review",
+        "Deploy to Staging",
+        "Update Documentation",
+      ],
+    },
+    {
+      name: "Status",
+      data_path: "tasks.status",
+      data: ["Complete", "In Progress", "Pending", "Complete", "In Progress"],
+    },
+    {
+      name: "Priority",
+      data_path: "tasks.priority",
+      data: ["High", "Medium", "Low", "Medium", "Low"],
+    },
+  ],
+  // No optional props - should use all defaults:
+  // perPage: 5, enableFilters: auto (false for ≤5 items), enablePagination: auto (false for ≤5 items), enableSort: true
+};
