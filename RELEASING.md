@@ -8,15 +8,27 @@ This project uses GitHub Actions to automatically publish releases to npm when y
 
 ## Prerequisites
 
-1. **npm Access Token**: You need to set up an `NPM_TOKEN` secret in your GitHub repository
-   - Go to [npmjs.com](https://www.npmjs.com/) and log in
+### Required Permissions
+
+To perform a release, you need:
+
+1. **GitHub Repository Access**: Write/maintain permissions on the `RedHat-UX/next-gen-ui-react` repository
+2. **npm Organization Access**: Publish permissions for the `@rhngui` scope on [npmjs.com](https://www.npmjs.com/)
+
+### NPM_TOKEN Configuration
+
+The `NPM_TOKEN` secret is **already configured** in the GitHub repository for automated releases. This token is used by GitHub Actions to publish packages to npm.
+
+**Token Maintenance**: The npm access token has a limited validity period and needs to be renewed periodically. If releases fail with authentication errors:
+
+1. Generate a new token on [npmjs.com](https://www.npmjs.com/):
    - Go to Account Settings → Access Tokens → Generate New Token
    - Select "Automation" type (or "Publish" if you want stricter permissions)
    - Copy the token
-   - Go to your GitHub repository → Settings → Secrets and variables → Actions
-   - Add a new repository secret named `NPM_TOKEN` with your token value
-
-2. **npm Organization Access**: Ensure you have publish permissions for the `@rhngui` scope on npm
+2. Update the GitHub secret:
+   - Go to repository Settings → Secrets and variables → Actions
+   - Update the `NPM_TOKEN` secret with the new token value
+   - **Note**: Only repository admins can update secrets
 
 ## Release Process
 
@@ -29,14 +41,19 @@ git checkout main
 git pull origin main
 ```
 
+Review and update documentation:
+
+- Ensure `README.md` is up to date with all new features and components
+- Update examples if needed
+- Verify all links are working
+
 Verify everything is working locally:
 
 ```bash
-npm run type-check
-npm run lint
-npm run test:ci
-npm run build
+npm run verify
 ```
+
+This command runs type checking, linting, tests, and builds the package.
 
 ### 2. Create a Version Tag
 
@@ -192,15 +209,17 @@ npm unpublish @rhngui/patternfly-react-renderer@1.0.0
 ## Release Checklist
 
 - [ ] All changes merged to `main`
+- [ ] `README.md` reviewed and updated with new features
 - [ ] All tests passing locally
 - [ ] Version number follows SemVer
-- [ ] `CHANGELOG.md` updated (if you maintain one)
 - [ ] `npm version` command run
 - [ ] Tag pushed to GitHub
 - [ ] GitHub Actions workflow completed successfully
 - [ ] npm package published and available
-- [ ] GitHub Release created
-- [ ] Documentation updated (if needed)
+- [ ] GitHub Release created with auto-generated notes
+- [ ] Documentation site updated (if needed)
+
+**Note**: This project does not currently maintain a `CHANGELOG.md` file. Release notes are automatically generated from commit messages by GitHub Actions.
 
 ## Questions?
 
