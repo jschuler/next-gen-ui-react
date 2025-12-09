@@ -369,9 +369,20 @@ function App() {
 }
 ```
 
+## Development
+
+### Contributing
+
+See the [Contributing Guide](https://github.com/RedHat-UX/next-gen-ui-react/blob/main/CONTRIBUTING.md) for guidelines on adding new components.
+
+### Releases
+
+This project uses automated releases via GitHub Actions. See the [Release Guide](https://github.com/RedHat-UX/next-gen-ui-react/blob/main/RELEASING.md) for the complete release process.
+
 ## Links
 
 - [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/renderer/patternfly_npm/)
 - [Source Code](https://github.com/RedHat-UX/next-gen-ui-react)
 - [Component Demo](https://redhat-ux.github.io/next-gen-ui-react/)
-- [Contributing Guide](./CONTRIBUTING.md)
+- [Contributing Guide](https://github.com/RedHat-UX/next-gen-ui-react/blob/main/CONTRIBUTING.md)
+- [Release Guide](https://github.com/RedHat-UX/next-gen-ui-react/blob/main/RELEASING.md)
