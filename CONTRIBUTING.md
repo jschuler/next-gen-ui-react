@@ -313,6 +313,10 @@ User visits /component/dataview
 - Check existing issues before creating new ones
 - Ask questions in pull request comments
 
+## Releasing
+
+For maintainers: see [RELEASING.md](./RELEASING.md) for the release process.
+
 ## Code of Conduct
 
 Be respectful and constructive in all interactions.

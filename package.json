@@ -1,7 +1,7 @@
 {
   "name": "@rhngui/patternfly-react-renderer",
   "private": false,
-  "version": "1.0.0-alpha.0",
+  "version": "1.0.1",
   "description": "Patternfly React component wrappers for the Next Gen UI Agent",
   "type": "module",
   "main": "dist/index.cjs.js",
@@ -13,23 +13,14 @@
     "LICENSE"
   ],
   "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/RedHat-UX/next-gen-ui-react.git"
+  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "contributors": [
-    "Anuj Rajak <arajak@redhat.com>",
-    "Hrithik Gavankar <hgavanka@redhat.com>",
-    "Libor Krzyzanek <lkrzyzan@redhat.com>",
-    "Vlastimil Elias <velias@redhat.com>",
-    "Ivana Rodriguez <ivrodrig@redhat.com>",
-    "Sydney Grant <sgrant@redhat.com>",
-    "Diwanshi Gadgil <dpandey@redhat.com>",
-    "Ryszard Kozmik <rkozmik@redhat.com>",
-    "Nachiket Zadap <nzadap@redhat.com>",
-    "Benny Powers <web@bennypowers.com>",
-    "Meghan Craft <mecraft@redhat.com>"
-  ],
   "exports": {
     "import": "./dist/index.es.js",
     "require": "./dist/index.cjs.js"
@@ -50,6 +41,7 @@
     "format": "prettier --write \"src/**/*.{ts,tsx,css,json}\" \"*.{json,md}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx,css,json}\" \"*.{json,md}\"",
     "preview": "vite preview",
+    "verify": "npm run type-check && npm run lint && npm run test:ci && npm run build",
     "prepublishOnly": "npm run build",
     "prepare": "husky"
   },
