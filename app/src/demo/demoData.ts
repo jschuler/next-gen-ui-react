@@ -84,7 +84,7 @@ export const setOfCardsDemoTwoCards = {
 };
 
 export const tableDemo = {
-  component: "table" as const,
+  component: "data-view" as const,
   id: "table-1",
   title: "Users",
   fields: [
@@ -99,7 +99,7 @@ export const tableDemo = {
 };
 
 export const tableDemoComplexData = {
-  component: "table" as const,
+  component: "data-view" as const,
   id: "table-2",
   title: "System Metrics",
   fields: [
@@ -173,7 +173,7 @@ export const dynamicDemoImage = {
 };
 
 export const dynamicDemoTable = {
-  component: "table" as const,
+  component: "data-view" as const,
   key: "table-demo",
   props: tableDemo,
 };
@@ -457,7 +457,7 @@ export const setOfCardsDemoWithImages = {
 };
 
 export const tableDemoServerMetrics = {
-  component: "table" as const,
+  component: "data-view" as const,
   id: "table-3",
   title: "Server Performance Metrics",
   fields: [
@@ -726,7 +726,7 @@ export const imageLogoGrid = {
 };
 
 export const tableDemoEmpty = {
-  component: "table" as const,
+  component: "data-view" as const,
   id: "table-empty",
   title: "No Data Available",
   fields: [

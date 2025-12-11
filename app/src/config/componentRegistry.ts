@@ -44,10 +44,6 @@ import {
   setOfCardsDemo,
   setOfCardsDemoTwoCards,
   setOfCardsDemoWithImages,
-  tableDemo,
-  tableDemoComplexData,
-  tableDemoEmpty,
-  tableDemoServerMetrics,
   videoDemo,
   videoDemoAuto,
   videoDemo4x3,
@@ -102,7 +98,10 @@ export const componentRegistry: ComponentConfig[] = [
     examples: [
       { title: "One Card Component", data: dynamicDemo },
       { title: "Image Component", data: dynamicDemoImage },
-      { title: "Table Component", data: dynamicDemoTable },
+      {
+        title: "Data View Component (Table - Backwards Compatible)",
+        data: dynamicDemoTable,
+      },
       { title: "Bar Chart", data: chartDemoBar },
       { title: "Line Chart", data: chartDemoLine },
       { title: "Pie Chart", data: chartDemoPie },
@@ -180,20 +179,6 @@ export const componentRegistry: ComponentConfig[] = [
       { title: "Three Cards", data: setOfCardsDemo },
       { title: "Two Cards", data: setOfCardsDemoTwoCards },
       { title: "Team Members (Four Cards)", data: setOfCardsDemoWithImages },
-    ],
-  },
-  {
-    id: "table",
-    name: "TableWrapper",
-    path: "/component/table",
-    sourceUrl:
-      "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/TableWrapper.tsx",
-    componentImportPath: "@local-lib/components/TableWrapper",
-    examples: [
-      { title: "Simple Table", data: tableDemo },
-      { title: "Complex Data Types", data: tableDemoComplexData },
-      { title: "Server Metrics (5 rows)", data: tableDemoServerMetrics },
-      { title: "Empty Table", data: tableDemoEmpty },
     ],
   },
   {

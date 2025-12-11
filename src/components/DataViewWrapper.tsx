@@ -32,7 +32,7 @@ interface DataViewColumn {
 }
 
 export interface DataViewWrapperProps {
-  component: "data-view";
+  component: "data-view" | "table"; // "table" supported for backwards compatibility
   title?: string;
   id: string;
   fields: FieldData[];
