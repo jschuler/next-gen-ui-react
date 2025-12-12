@@ -12,32 +12,38 @@ export default defineConfig({
       fileName: (format) => `index.${format}.js`,
     },
     // Target modern browsers for smaller bundles
-    target: 'es2020',
+    target: "es2020",
     // Enable CSS code splitting
     cssCodeSplit: true,
     // Enable minification
-    minify: 'esbuild',
+    minify: "esbuild",
     rollupOptions: {
       external: (id) => {
         // Externalize all React-related imports
-        return id === "react" || 
-               id === "react-dom" || 
-               id.startsWith("react/") || 
-               id.startsWith("react-dom/");
+        return (
+          id === "react" ||
+          id === "react-dom" ||
+          id.startsWith("react/") ||
+          id.startsWith("react-dom/")
+        );
       },
       output: {
         exports: "named",
         // Manual chunk splitting for better caching
         manualChunks: {
           // Separate PatternFly into its own chunk
-          'patternfly': ['@patternfly/react-core', '@patternfly/react-table'],
+          patternfly: [
+            "@patternfly/react-core",
+            "@patternfly/react-table",
+            "@patternfly/react-data-view",
+          ],
         },
         globals: {
           react: "React",
           "react-dom": "ReactDOM",
           "react/jsx-runtime": "React",
           "react/jsx-dev-runtime": "React",
-          "react-dom/client": "ReactDOM"
+          "react-dom/client": "ReactDOM",
         },
       },
     },
@@ -46,15 +52,20 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: "./src/test/setup.tsx",
+    server: {
+      deps: {
+        inline: ["@patternfly/react-data-view", "@patternfly/react-tokens"],
+      },
+    },
     coverage: {
-      provider: 'v8',
-      reporter: ['text', 'json', 'html', 'lcov'],
+      provider: "v8",
+      reporter: ["text", "json", "html", "lcov"],
       exclude: [
-        'node_modules/',
-        'src/test/',
-        '**/*.test.{ts,tsx}',
-        '**/*.config.{ts,js}',
-        'dist/',
+        "node_modules/",
+        "src/test/",
+        "**/*.test.{ts,tsx}",
+        "**/*.config.{ts,js}",
+        "dist/",
       ],
     },
   },
