@@ -20,7 +20,7 @@ export default defineConfig({
     rollupOptions: {
       external: (id) => {
         // Externalize all React-related imports
-        return (
+        if (
           id === "react" ||
           id === "react-dom" ||
           id.startsWith("react/") ||
@@ -30,13 +30,16 @@ export default defineConfig({
       output: {
         exports: "named",
         // Manual chunk splitting for better caching
-        manualChunks: {
+        manualChunks: (id) => {
           // Separate PatternFly into its own chunk
-          patternfly: [
-            "@patternfly/react-core",
-            "@patternfly/react-table",
-            "@patternfly/react-data-view",
-          ],
+          if (
+            id.includes("@patternfly/react-core") ||
+            id.includes("@patternfly/react-charts") ||
+            id.includes("@patternfly/react-table") ||
+            id.includes("@patternfly/react-data-view")
+          ) {
+            return "patternfly";
+          }
         },
         globals: {
           react: "React",
@@ -52,11 +55,6 @@ export default defineConfig({
     globals: true,
     environment: "jsdom",
     setupFiles: "./src/test/setup.tsx",
-    server: {
-      deps: {
-        inline: ["@patternfly/react-data-view", "@patternfly/react-tokens"],
-      },
-    },
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html", "lcov"],

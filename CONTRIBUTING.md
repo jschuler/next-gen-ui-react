@@ -6,7 +6,7 @@ Thanks for helping out. This guide covers how to add new components and contribu
 
 ### Prerequisites
 
-- Node 18 or higher
+- Node 20 or higher
 - npm 8 or higher
 - Git
 

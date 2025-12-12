@@ -46,7 +46,6 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@patternfly/patternfly": "^6.3.1",
     "@patternfly/react-charts": "^8.4.0",
     "@patternfly/react-core": "^6.3.1",
     "@patternfly/react-data-view": "^6.4.0",
@@ -68,7 +67,7 @@
     }
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "lint-staged": {
     "*.{ts,tsx}": [
