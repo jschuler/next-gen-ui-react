@@ -47,41 +47,34 @@ npm install @rhngui/patternfly-react-renderer
 import DynamicComponent from "@rhngui/patternfly-react-renderer";
 
 const onecardConfig = {
-    component: "one-card",
-    image: "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
-    id: "one-card-id",
-    title: "Toy Story Movie",
-    fields: [
-        {
-            "name": "Title",
-            "data_path": "$..movie.title",
-            "data": [
-                "Toy Story"
-            ]
-        },
-        {
-            "name": "Year",
-            "data_path": "$..movie.year",
-            "data": [
-                1995
-            ]
-        },
-        {
-            "name": "Rating",
-            "data_path": "$..movie.imdbRating",
-            "data": [
-                8.3
-            ]
-        },
-        {
-            "name": "Release Date",
-            "data_path": "$..movie.released",
-            "data": [
-                "2022-11-02"
-            ]
-        }
-    ]
-}
+  component: "one-card",
+  image:
+    "https://image.tmdb.org/t/p/w440_and_h660_face/uXDfjJbdP4ijW5hWSBrPrlKpxab.jpg",
+  id: "one-card-id",
+  title: "Toy Story Movie",
+  fields: [
+    {
+      name: "Title",
+      data_path: "$..movie.title",
+      data: ["Toy Story"],
+    },
+    {
+      name: "Year",
+      data_path: "$..movie.year",
+      data: [1995],
+    },
+    {
+      name: "Rating",
+      data_path: "$..movie.imdbRating",
+      data: [8.3],
+    },
+    {
+      name: "Release Date",
+      data_path: "$..movie.released",
+      data: ["2022-11-02"],
+    },
+  ],
+};
 
 function App() {
   return <DynamicComponent config={onecardConfig} />;
