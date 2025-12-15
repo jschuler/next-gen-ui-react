@@ -19,6 +19,7 @@ import { FunctionComponent, useMemo } from "react";
 import ErrorPlaceholder from "./ErrorPlaceholder";
 
 interface FieldData {
+  id?: string;
   name: string;
   data_path: string;
   data: (string | number | boolean | null | (string | number)[])[];
@@ -27,6 +28,7 @@ interface FieldData {
 interface DataViewColumn {
   label: string;
   key: string;
+  fieldId?: string; // Store field.id for CSS class generation
   sortable?: boolean;
   filterable?: boolean;
 }
@@ -78,6 +80,7 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
     const transformedColumns: DataViewColumn[] = fields.map((field) => ({
       key: field.name,
       label: field.name,
+      fieldId: field.id, // Store field.id for CSS class generation
       sortable: true,
       filterable: true,
     }));
@@ -274,15 +277,40 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
     props: enableSort && column.sortable ? { sort: getSortParams(index) } : {},
   }));
 
+  // Helper function to generate CSS class name from field id
+  const getFieldIdClass = (fieldId?: string, fieldName?: string): string => {
+    const id = fieldId || fieldName || "";
+    if (!id) return "";
+    // Sanitize the id to be a valid CSS class name
+    // Replace spaces and special characters with hyphens, ensure it starts with a letter
+    const sanitized = id
+      .toString()
+      .replace(/[^a-zA-Z0-9-_]/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .toLowerCase();
+    return sanitized ? `field-id-${sanitized}` : "";
+  };
+
   const pageRows = useMemo(() => {
     const start = (page - 1) * perPage;
     const end = start + perPage;
 
-    return sortedData.slice(start, end).map((row) => ({
-      // Only include values for actual columns (filter out __sort_ keys)
-      row: columns.map((col) => row[col.key]),
-      props: {},
-    }));
+    return sortedData.slice(start, end).map((row) => {
+      // Create row with cells that have CSS classes based on field.id (only for data rows, not headers)
+      const rowCells = columns.map((col) => {
+        const cellValue = row[col.key];
+        const className = getFieldIdClass(col.fieldId, col.key);
+
+        // If we have a className, return DataViewTd object with props, otherwise return plain value
+        return className
+          ? { cell: cellValue, props: { className } }
+          : cellValue;
+      });
+
+      return {
+        row: rowCells,
+      };
+    });
   }, [sortedData, page, perPage, columns]);
 
   const emptyState = (
