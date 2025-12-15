@@ -1304,3 +1304,52 @@ export const dataViewDateSort = {
   // Demonstrates ISO date/time sorting: dates sort chronologically regardless of display order
   // 2024-12-20 < 2025-01-15 < 2025-02-10 < 2025-03-05 < 2025-04-01 < 2025-04-15
 };
+
+// DataView demonstrating row click functionality
+export const dataViewRowClick = {
+  component: "data-view" as const,
+  id: "dataview-row-click",
+  fields: [
+    {
+      id: "product-name",
+      name: "Product",
+      data_path: "products.name",
+      data: [
+        "Laptop Pro 15",
+        "Wireless Mouse",
+        "Mechanical Keyboard",
+        "USB-C Hub",
+        'Monitor 27"',
+      ],
+    },
+    {
+      id: "product-price",
+      name: "Price",
+      data_path: "products.price",
+      data: ["$1,299", "$29.99", "$149.99", "$79.99", "$399.99"],
+    },
+    {
+      id: "product-stock",
+      name: "Stock",
+      data_path: "products.stock",
+      data: ["15 units", "50 units", "32 units", "8 units", "12 units"],
+    },
+    {
+      id: "product-category",
+      name: "Category",
+      data_path: "products.category",
+      data: [
+        "Computers",
+        "Accessories",
+        "Accessories",
+        "Accessories",
+        "Displays",
+      ],
+    },
+  ],
+  perPage: 5,
+  enableFilters: true,
+  enablePagination: true,
+  enableSort: true,
+  // Note: onRowClick handler will be added in ComponentDemo.tsx
+};

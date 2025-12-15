@@ -23,6 +23,7 @@ import {
   dataViewMinimalSmall,
   dataViewNumericSort,
   dataViewRepositories,
+  dataViewRowClick,
   dataViewServers,
   dataViewSimple,
   dataViewUsers,
@@ -86,6 +87,7 @@ export const componentRegistry: ComponentConfig[] = [
       },
       { title: "Numeric Sorting Demo", data: dataViewNumericSort },
       { title: "ISO Date/Time Sorting Demo", data: dataViewDateSort },
+      { title: "Row Click Handler Demo", data: dataViewRowClick },
     ],
   },
   {

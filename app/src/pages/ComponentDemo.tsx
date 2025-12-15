@@ -17,6 +17,7 @@ import {
   ExpandableSection,
 } from "@patternfly/react-core";
 import { lazy, Suspense, useState } from "react";
+import type { MouseEvent, KeyboardEvent } from "react";
 import { useParams } from "react-router-dom";
 
 import { getComponentById } from "../config/componentRegistry";
@@ -118,6 +119,29 @@ export default function ComponentDemo() {
             >
               {componentId === "dynamic" ? (
                 <Component config={example.data as Record<string, unknown>} />
+              ) : componentId === "dataview" &&
+                (example.data as Record<string, unknown>).id ===
+                  "dataview-row-click" ? (
+                <Component
+                  {...(example.data as Record<string, unknown>)}
+                  onRowClick={(
+                    event: MouseEvent | KeyboardEvent,
+                    rowData: Record<string, string | number>
+                  ) => {
+                    // Demo: Show an alert with the clicked row data
+                    const rowInfo = Object.entries(rowData)
+                      .map(([key, value]) => `${key}: ${value}`)
+                      .join(", ");
+                    alert(
+                      `Row clicked!\n\nRow data:\n${rowInfo}\n\nCheck the browser console for more details.`
+                    );
+                    console.log("Row clicked:", {
+                      event,
+                      rowData,
+                      timestamp: new Date().toISOString(),
+                    });
+                  }}
+                />
               ) : (
                 <Component {...(example.data as Record<string, unknown>)} />
               )}

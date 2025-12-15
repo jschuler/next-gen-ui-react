@@ -4,6 +4,7 @@ import { DataViewFilters } from "@patternfly/react-data-view/dist/dynamic/DataVi
 import {
   DataViewTable,
   DataViewTh,
+  DataViewTr,
 } from "@patternfly/react-data-view/dist/dynamic/DataViewTable";
 import { DataViewTextFilter } from "@patternfly/react-data-view/dist/dynamic/DataViewTextFilter";
 import { DataViewToolbar } from "@patternfly/react-data-view/dist/dynamic/DataViewToolbar";
@@ -15,6 +16,7 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 import { Tbody, Td, ThProps, Tr } from "@patternfly/react-table";
 import { FunctionComponent, useMemo } from "react";
+import type { MouseEvent, KeyboardEvent } from "react";
 
 import ErrorPlaceholder from "./ErrorPlaceholder";
 
@@ -28,7 +30,7 @@ interface FieldData {
 interface DataViewColumn {
   label: string;
   key: string;
-  fieldId?: string; // Store field.id for CSS class generation
+  fieldId?: string;
   sortable?: boolean;
   filterable?: boolean;
 }
@@ -45,6 +47,10 @@ export interface DataViewWrapperProps {
   enablePagination?: boolean; // If undefined, auto-disables when 5 or fewer items
   enableSort?: boolean;
   emptyStateMessage?: string;
+  onRowClick?: (
+    event: React.MouseEvent | React.KeyboardEvent,
+    rowData: Record<string, string | number>
+  ) => void;
 }
 
 const perPageOptions = [
@@ -63,6 +69,7 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
   enablePagination,
   enableSort = true,
   emptyStateMessage = "No data available",
+  onRowClick,
 }) => {
   // Check for missing or invalid data
   const hasNoFields = !fields || fields.length === 0;
@@ -80,7 +87,7 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
     const transformedColumns: DataViewColumn[] = fields.map((field) => ({
       key: field.name,
       label: field.name,
-      fieldId: field.id, // Store field.id for CSS class generation
+      fieldId: field.id,
       sortable: true,
       filterable: true,
     }));
@@ -291,11 +298,11 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
     return sanitized ? `field-id-${sanitized}` : "";
   };
 
-  const pageRows = useMemo(() => {
+  const pageRows = useMemo((): DataViewTr[] => {
     const start = (page - 1) * perPage;
     const end = start + perPage;
 
-    return sortedData.slice(start, end).map((row) => {
+    return sortedData.slice(start, end).map((row): DataViewTr => {
       // Create row with cells that have CSS classes based on field.id (only for data rows, not headers)
       const rowCells = columns.map((col) => {
         const cellValue = row[col.key];
@@ -307,11 +314,32 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
           : cellValue;
       });
 
+      // Build row props, including onRowClick if provided
+      if (onRowClick) {
+        return {
+          row: rowCells,
+          props: {
+            onRowClick: (event?: MouseEvent | KeyboardEvent) => {
+              if (event) {
+                // Create a clean row data object without internal sorting keys
+                const rowData: Record<string, string | number> = {};
+                columns.forEach((col) => {
+                  rowData[col.key] = row[col.key];
+                });
+                onRowClick(event, rowData);
+              }
+            },
+            isClickable: true,
+            style: { cursor: "pointer" },
+          },
+        };
+      }
+
       return {
         row: rowCells,
       };
     });
-  }, [sortedData, page, perPage, columns]);
+  }, [sortedData, page, perPage, columns, onRowClick]);
 
   const emptyState = (
     <Tbody>
