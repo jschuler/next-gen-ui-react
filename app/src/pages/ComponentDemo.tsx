@@ -15,9 +15,17 @@ import {
   ContentVariants,
   Divider,
   ExpandableSection,
+  Icon,
 } from "@patternfly/react-core";
+import {
+  CheckCircleIcon,
+  ChartLineIcon,
+  ExclamationCircleIcon,
+  ExclamationTriangleIcon,
+  PausedIcon,
+} from "@patternfly/react-icons";
 import { lazy, Suspense, useState } from "react";
-import type { MouseEvent, KeyboardEvent } from "react";
+import type { MouseEvent, KeyboardEvent, ReactNode } from "react";
 import { useParams } from "react-router-dom";
 
 import { getComponentById } from "../config/componentRegistry";
@@ -141,6 +149,127 @@ export default function ComponentDemo() {
                       timestamp: new Date().toISOString(),
                     });
                   }}
+                />
+              ) : componentId === "dataview" &&
+                (example.data as Record<string, unknown>).id ===
+                  "dataview-with-icons" ? (
+                <Component
+                  {...(example.data as Record<string, unknown>)}
+                  fields={(
+                    (example.data as Record<string, unknown>).fields as Array<{
+                      id?: string;
+                      name: string;
+                      data_path: string;
+                      data: unknown[];
+                      formatter?: (value: unknown) => ReactNode;
+                    }>
+                  ).map((field) => {
+                    // Add formatter functions with icons based on field id
+                    if (field.id === "server-status") {
+                      return {
+                        ...field,
+                        formatter: (value: unknown): ReactNode => {
+                          const status = String(value);
+                          const isRunning = status === "Running";
+                          return (
+                            <span
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              {isRunning ? (
+                                <Icon status="success">
+                                  <CheckCircleIcon />
+                                </Icon>
+                              ) : status === "Stopped" ? (
+                                <PausedIcon />
+                              ) : (
+                                <Icon status="warning">
+                                  <ExclamationTriangleIcon />
+                                </Icon>
+                              )}
+                              {status}
+                            </span>
+                          );
+                        },
+                      };
+                    }
+                    if (field.id === "server-health") {
+                      return {
+                        ...field,
+                        formatter: (value: unknown): ReactNode => {
+                          const health = String(value).toLowerCase();
+                          let icon;
+                          let status:
+                            | "success"
+                            | "warning"
+                            | "danger"
+                            | undefined;
+                          if (health === "healthy") {
+                            icon = <CheckCircleIcon />;
+                            status = "success";
+                          } else if (health === "warning") {
+                            icon = <ExclamationTriangleIcon />;
+                            status = "warning";
+                          } else {
+                            icon = <ExclamationCircleIcon />;
+                            status = "danger";
+                          }
+                          return (
+                            <span
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              {status ? (
+                                <Icon status={status}>{icon}</Icon>
+                              ) : (
+                                icon
+                              )}
+                              <span style={{ textTransform: "capitalize" }}>
+                                {health}
+                              </span>
+                            </span>
+                          );
+                        },
+                      };
+                    }
+                    if (field.id === "server-cpu") {
+                      return {
+                        ...field,
+                        formatter: (value: unknown): ReactNode => {
+                          const cpuStr = String(value);
+                          const cpuNum = parseInt(cpuStr.replace("%", ""), 10);
+                          let status: "success" | "warning" | "danger" =
+                            "success";
+                          if (cpuNum > 80) {
+                            status = "danger";
+                          } else if (cpuNum > 60) {
+                            status = "warning";
+                          }
+                          return (
+                            <span
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "8px",
+                              }}
+                            >
+                              <Icon status={status}>
+                                <ChartLineIcon />
+                              </Icon>
+                              {cpuStr}
+                            </span>
+                          );
+                        },
+                      };
+                    }
+                    return field;
+                  })}
                 />
               ) : (
                 <Component {...(example.data as Record<string, unknown>)} />

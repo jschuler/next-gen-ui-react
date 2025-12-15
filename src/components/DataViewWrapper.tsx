@@ -16,7 +16,7 @@ import {
 import { CubesIcon } from "@patternfly/react-icons";
 import { Tbody, Td, ThProps, Tr } from "@patternfly/react-table";
 import { FunctionComponent, useMemo } from "react";
-import type { MouseEvent, KeyboardEvent } from "react";
+import type { MouseEvent, KeyboardEvent, ReactNode } from "react";
 
 import ErrorPlaceholder from "./ErrorPlaceholder";
 
@@ -25,6 +25,9 @@ interface FieldData {
   name: string;
   data_path: string;
   data: (string | number | boolean | null | (string | number)[])[];
+  formatter?: (
+    value: string | number | boolean | null | (string | number)[]
+  ) => ReactNode;
 }
 
 interface DataViewColumn {
@@ -33,6 +36,9 @@ interface DataViewColumn {
   fieldId?: string;
   sortable?: boolean;
   filterable?: boolean;
+  formatter?: (
+    value: string | number | boolean | null | (string | number)[]
+  ) => ReactNode;
 }
 
 export interface DataViewWrapperProps {
@@ -88,6 +94,7 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
       key: field.name,
       label: field.name,
       fieldId: field.id,
+      formatter: field.formatter,
       sortable: true,
       filterable: true,
     }));
@@ -308,10 +315,22 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
         const cellValue = row[col.key];
         const className = getFieldIdClass(col.fieldId, col.key);
 
-        // If we have a className, return DataViewTd object with props, otherwise return plain value
-        return className
-          ? { cell: cellValue, props: { className } }
+        // Apply formatter if provided, otherwise use the cell value as-is
+        const displayValue = col.formatter
+          ? col.formatter(cellValue)
           : cellValue;
+
+        // If we have a className, return DataViewTd object with props
+        if (className) {
+          return { cell: displayValue, props: { className } };
+        }
+
+        // If we have a formatter but no className, still return DataViewTd object (formatter may return ReactNode)
+        if (col.formatter) {
+          return { cell: displayValue };
+        }
+
+        return displayValue;
       });
 
       // Build row props, including onRowClick if provided

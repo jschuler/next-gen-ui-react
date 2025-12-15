@@ -1353,3 +1353,58 @@ export const dataViewRowClick = {
   enableSort: true,
   // Note: onRowClick handler will be added in ComponentDemo.tsx
 };
+
+// DataView demonstrating formatter functions with icons
+export const dataViewWithIcons = {
+  component: "data-view" as const,
+  id: "dataview-with-icons",
+  fields: [
+    {
+      id: "server-name",
+      name: "Server",
+      data_path: "servers.name",
+      data: [
+        "prod-web-01",
+        "prod-db-01",
+        "staging-web-01",
+        "dev-api-01",
+        "prod-cache-01",
+      ],
+    },
+    {
+      id: "server-status",
+      name: "Status",
+      data_path: "servers.status",
+      data: ["Running", "Running", "Stopped", "Running", "Warning"],
+    },
+    {
+      id: "server-health",
+      name: "Health",
+      data_path: "servers.health",
+      data: ["healthy", "healthy", "degraded", "healthy", "warning"],
+    },
+    {
+      id: "server-cpu",
+      name: "CPU Usage",
+      data_path: "servers.cpu",
+      data: ["45%", "78%", "0%", "23%", "89%"],
+    },
+    {
+      id: "server-memory",
+      name: "Memory",
+      data_path: "servers.memory",
+      data: [
+        "8GB / 16GB",
+        "12GB / 16GB",
+        "0GB / 8GB",
+        "2GB / 8GB",
+        "14GB / 16GB",
+      ],
+    },
+  ],
+  perPage: 5,
+  enableFilters: true,
+  enablePagination: true,
+  enableSort: true,
+  // Note: formatter functions with icons will be added in ComponentDemo.tsx
+};
