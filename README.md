@@ -84,7 +84,7 @@ const onecardConfig = {
 }
 
 function App() {
-  return <DynamicComponent {onecardConfig} />;
+  return <DynamicComponent config={onecardConfig} />;
 }
 ```
 
