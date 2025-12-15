@@ -19,6 +19,7 @@ import { FunctionComponent, useMemo } from "react";
 import type { MouseEvent, KeyboardEvent, ReactNode } from "react";
 
 import ErrorPlaceholder from "./ErrorPlaceholder";
+import { formatValue } from "../utils/valueFormatter";
 
 interface FieldData {
   id?: string;
@@ -98,50 +99,6 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
       sortable: true,
       filterable: true,
     }));
-
-    // Helper function to format ISO dates for display
-    const formatValue = (
-      value: string | number | boolean | null | (string | number)[]
-    ): string => {
-      if (value === null || value === undefined) {
-        return "";
-      }
-      if (Array.isArray(value)) {
-        return value.join(", ");
-      }
-
-      const strValue = String(value);
-
-      // Check for ISO date format and auto-format for display
-      const isoDatePattern =
-        /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/;
-      if (isoDatePattern.test(strValue)) {
-        const date = new Date(strValue);
-        if (!isNaN(date.getTime())) {
-          // Format date based on whether it has time component
-          const hasTime = strValue.includes("T");
-          try {
-            if (hasTime) {
-              // Format with date and time
-              return new Intl.DateTimeFormat(undefined, {
-                dateStyle: "medium",
-                timeStyle: "short",
-              }).format(date);
-            } else {
-              // Format date only
-              return new Intl.DateTimeFormat(undefined, {
-                dateStyle: "medium",
-              }).format(date);
-            }
-          } catch {
-            // Fallback if Intl formatting fails
-            return strValue;
-          }
-        }
-      }
-
-      return strValue;
-    };
 
     // Create rows based on the maximum data length
     // Store both display value and original value (for sorting)

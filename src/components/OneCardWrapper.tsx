@@ -13,6 +13,7 @@ import {
 import React, { useState } from "react";
 
 import ErrorPlaceholder from "./ErrorPlaceholder";
+import { formatValue } from "../utils/valueFormatter";
 
 interface DataField {
   name: string;
@@ -118,7 +119,9 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
                       <DescriptionListTerm>{field.name}</DescriptionListTerm>
                       <DescriptionListDescription>
                         {field.data
-                          .map((item) => (item === null ? "N/A" : String(item)))
+                          .map((item) =>
+                            item === null ? "N/A" : formatValue(item)
+                          )
                           .join(", ")}
                       </DescriptionListDescription>
                     </DescriptionListGroup>

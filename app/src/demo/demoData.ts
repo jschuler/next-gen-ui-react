@@ -502,6 +502,34 @@ export const oneCardDemoAPIEndpoint = {
   ],
 };
 
+export const oneCardDemoWithDates = {
+  component: "one-card" as const,
+  title: "Project Details",
+  id: "onecard-5",
+  image: "https://avatars.githubusercontent.com/u/6391110?v=4",
+  imageSize: "md",
+  fields: [
+    { name: "Project Name", data_path: "project.name", data: ["Next Gen UI"] },
+    { name: "Status", data_path: "project.status", data: ["Active"] },
+    {
+      name: "Created",
+      data_path: "project.created",
+      data: ["2024-01-15"],
+    },
+    {
+      name: "Last Updated",
+      data_path: "project.updated",
+      data: ["2024-12-20T14:30:00Z"],
+    },
+    {
+      name: "Release Date",
+      data_path: "project.release",
+      data: ["2025-03-01T09:00:00Z"],
+    },
+    { name: "Version", data_path: "project.version", data: ["2.1.0"] },
+  ],
+};
+
 export const chartDemoBarStacked = {
   component: "chart-bar" as const,
   id: "chart-bar-stacked-demo",

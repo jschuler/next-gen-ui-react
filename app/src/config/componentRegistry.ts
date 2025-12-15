@@ -43,6 +43,7 @@ import {
   oneCardDemoAPIEndpoint,
   oneCardDemoNoImage,
   oneCardDemoSmallImage,
+  oneCardDemoWithDates,
   setOfCardsDemo,
   setOfCardsDemoTwoCards,
   setOfCardsDemoWithImages,
@@ -170,6 +171,7 @@ export const componentRegistry: ComponentConfig[] = [
       { title: "Without Image", data: oneCardDemoNoImage },
       { title: "With Small Image", data: oneCardDemoSmallImage },
       { title: "API Endpoint Status", data: oneCardDemoAPIEndpoint },
+      { title: "With Date Fields", data: oneCardDemoWithDates },
     ],
   },
   {
