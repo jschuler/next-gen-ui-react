@@ -161,7 +161,7 @@ const videoConfig = {
 };
 
 function App() {
-  return <DynamicComponent {videoConfig} />;
+  return <DynamicComponent config={videoConfig} />;
 }
 ```
 
