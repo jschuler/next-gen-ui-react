@@ -38,7 +38,10 @@ Make sure you're on the `main` branch with all changes committed:
 
 ```bash
 git checkout main
+# If you have direct access to the main repository:
 git pull origin main
+# If you're working with a fork:
+git pull upstream main
 ```
 
 Review and update documentation:
@@ -87,8 +90,14 @@ This will:
 Push both the commit and the tag to GitHub:
 
 ```bash
+# If you have direct access to the main repository:
 git push origin main --follow-tags
+
+# If you're working with a fork (origin = your fork, upstream = main repo):
+git push upstream main --follow-tags
 ```
+
+**Note**: For releases, always push to the main repository (`RedHat-UX/next-gen-ui-react`). If you have an `upstream` remote configured, use `upstream` instead of `origin`.
 
 ### 4. Automated Build & Publish
 
