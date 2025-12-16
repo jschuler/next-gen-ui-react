@@ -20,7 +20,7 @@ export default defineConfig({
     rollupOptions: {
       external: (id) => {
         // Externalize all React-related imports
-        if (
+        return (
           id === "react" ||
           id === "react-dom" ||
           id.startsWith("react/") ||
