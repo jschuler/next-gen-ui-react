@@ -18,6 +18,16 @@ import {
   chartDemoPie,
   chartDemoPieServerDistribution,
   chartMovieROISimple,
+  dataViewDateSort,
+  dataViewMinimal,
+  dataViewMinimalSmall,
+  dataViewNumericSort,
+  dataViewRepositories,
+  dataViewRowClick,
+  dataViewServers,
+  dataViewWithIcons,
+  dataViewSimple,
+  dataViewUsers,
   dynamicDemo,
   dynamicDemoImage,
   dynamicDemoTable,
@@ -33,13 +43,10 @@ import {
   oneCardDemoAPIEndpoint,
   oneCardDemoNoImage,
   oneCardDemoSmallImage,
+  oneCardDemoWithDates,
   setOfCardsDemo,
   setOfCardsDemoTwoCards,
   setOfCardsDemoWithImages,
-  tableDemo,
-  tableDemoComplexData,
-  tableDemoEmpty,
-  tableDemoServerMetrics,
   videoDemo,
   videoDemoAuto,
   videoDemo4x3,
@@ -61,6 +68,32 @@ export interface ComponentConfig {
 
 export const componentRegistry: ComponentConfig[] = [
   {
+    id: "dataview",
+    name: "DataViewWrapper",
+    path: "/component/dataview",
+    sourceUrl:
+      "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/DataViewWrapper.tsx",
+    componentImportPath: "@local-lib/components/DataViewWrapper",
+    examples: [
+      { title: "Repositories Table", data: dataViewRepositories },
+      { title: "Users Management", data: dataViewUsers },
+      { title: "Server List", data: dataViewServers },
+      { title: "Simple Product List", data: dataViewSimple },
+      {
+        title: "Minimal (12 items, filters & pagination enabled)",
+        data: dataViewMinimal,
+      },
+      {
+        title: "Minimal (5 items, filters & pagination auto-disabled)",
+        data: dataViewMinimalSmall,
+      },
+      { title: "Numeric Sorting Demo", data: dataViewNumericSort },
+      { title: "ISO Date/Time Sorting Demo", data: dataViewDateSort },
+      { title: "Row Click Handler Demo", data: dataViewRowClick },
+      { title: "Column Formatters", data: dataViewWithIcons },
+    ],
+  },
+  {
     id: "dynamic",
     name: "DynamicComponents",
     path: "/component/dynamic",
@@ -70,7 +103,10 @@ export const componentRegistry: ComponentConfig[] = [
     examples: [
       { title: "One Card Component", data: dynamicDemo },
       { title: "Image Component", data: dynamicDemoImage },
-      { title: "Table Component", data: dynamicDemoTable },
+      {
+        title: "Data View Component (Table - Backwards Compatible)",
+        data: dynamicDemoTable,
+      },
       { title: "Bar Chart", data: chartDemoBar },
       { title: "Line Chart", data: chartDemoLine },
       { title: "Pie Chart", data: chartDemoPie },
@@ -135,6 +171,7 @@ export const componentRegistry: ComponentConfig[] = [
       { title: "Without Image", data: oneCardDemoNoImage },
       { title: "With Small Image", data: oneCardDemoSmallImage },
       { title: "API Endpoint Status", data: oneCardDemoAPIEndpoint },
+      { title: "With Date Fields", data: oneCardDemoWithDates },
     ],
   },
   {
@@ -148,20 +185,6 @@ export const componentRegistry: ComponentConfig[] = [
       { title: "Three Cards", data: setOfCardsDemo },
       { title: "Two Cards", data: setOfCardsDemoTwoCards },
       { title: "Team Members (Four Cards)", data: setOfCardsDemoWithImages },
-    ],
-  },
-  {
-    id: "table",
-    name: "TableWrapper",
-    path: "/component/table",
-    sourceUrl:
-      "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/TableWrapper.tsx",
-    componentImportPath: "@local-lib/components/TableWrapper",
-    examples: [
-      { title: "Simple Table", data: tableDemo },
-      { title: "Complex Data Types", data: tableDemoComplexData },
-      { title: "Server Metrics (5 rows)", data: tableDemoServerMetrics },
-      { title: "Empty Table", data: tableDemoEmpty },
     ],
   },
   {
