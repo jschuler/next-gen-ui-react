@@ -12,9 +12,10 @@ import {
 } from "react";
 
 import { componentsMap } from "../constants/componentsMap";
+import { debugWarn } from "../utils/debug";
 
 // Type for component configuration
-interface ComponentConfig {
+export interface ComponentConfig {
   component?: string;
   key?: string;
   props?: Record<string, unknown>;
@@ -25,12 +26,15 @@ interface ComponentConfig {
 // Type for custom props values
 type CustomPropValue = unknown | ((...args: unknown[]) => void) | ReactElement;
 
-interface IProps {
+export interface DynamicComponentProps {
   config: ComponentConfig;
   customProps?: Record<string, Record<string, CustomPropValue>>;
 }
 
-const DynamicComponent = ({ config, customProps = {} }: IProps) => {
+const DynamicComponent = ({
+  config,
+  customProps = {},
+}: DynamicComponentProps) => {
   const [customData, setCustomData] = useState(null);
 
   if (!config || Object.keys(config).length === 0) {
@@ -43,6 +47,16 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
   const parseProps = (props?: Record<string, unknown>) => {
     const newProps: Record<string, unknown> = { ...props };
 
+    // Map snake_case props from JSON to camelCase props expected by components
+    if (newProps.input_data_type !== undefined) {
+      newProps.inputDataType = newProps.input_data_type;
+      delete newProps.input_data_type;
+    }
+    if (newProps.on_row_click !== undefined && newProps.on_row_click !== null) {
+      newProps.onRowClick = newProps.on_row_click;
+      delete newProps.on_row_click;
+    }
+
     if (componentKey && customProps[componentKey]) {
       Object.entries(customProps[componentKey]).forEach(([key, value]) => {
         if (typeof value === "function") {
@@ -53,25 +67,39 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
               customData,
             });
         } else if (isValidElement(value)) {
-          newProps[key] = cloneElement(value, {
+          const elementWithProps = value as ReactElement<{
+            onClick?: (event: MouseEvent, context?: unknown) => void;
+          }>;
+          newProps[key] = cloneElement(elementWithProps, {
             onClick: (event: MouseEvent) =>
-              value.props.onClick?.(event, {
+              (
+                elementWithProps.props as {
+                  onClick?: (event: MouseEvent, context?: unknown) => void;
+                }
+              ).onClick?.(event, {
                 componentKey,
                 // config,
                 customData,
               }),
-          });
+          } as Partial<{ onClick: (event: MouseEvent) => void }>);
         } else if (Array.isArray(value) && value.every(isValidElement)) {
-          newProps[key] = value.map((element) =>
-            cloneElement(element, {
+          newProps[key] = value.map((element) => {
+            const elementWithProps = element as ReactElement<{
+              onClick?: (event: MouseEvent, context?: unknown) => void;
+            }>;
+            return cloneElement(elementWithProps, {
               onClick: (event: MouseEvent) =>
-                element.props.onClick?.(event, {
+                (
+                  elementWithProps.props as {
+                    onClick?: (event: MouseEvent, context?: unknown) => void;
+                  }
+                ).onClick?.(event, {
                   componentKey,
                   // config,
                   customData,
                 }),
-            })
-          );
+            } as Partial<{ onClick: (event: MouseEvent) => void }>);
+          });
         } else {
           newProps[key] = value;
         }
@@ -104,7 +132,7 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
 
   if (!Component) {
     // Return null for unknown components instead of throwing an error
-    console.warn(
+    debugWarn(
       `Component "${config?.component}" is not available in the React package. Available components: ${Object.keys(componentsMap).join(", ")}`
     );
     return null;

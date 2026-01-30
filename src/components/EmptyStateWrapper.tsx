@@ -9,7 +9,7 @@ import React from "react";
 
 import "./EmptyStateWrapper.css";
 
-interface EmptyStateProps {
+export interface EmptyStateProps {
   title: string;
   content: string;
   icon?: string;

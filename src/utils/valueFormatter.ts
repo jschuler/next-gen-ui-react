@@ -1,6 +1,10 @@
+import { isoDateFormatter } from "./builtInFormatters";
+
 /**
  * Formats a value for display in UI components.
- * Handles ISO date formatting, arrays, null values, and basic type conversion.
+ * Handles arrays, null values, and basic type conversion.
+ * ISO date formatting is now handled by builtInFormatters.isoDateFormatter
+ * and should be registered in ComponentHandlerRegistry for better reusability.
  *
  * @param value - The value to format (string, number, boolean, null, or array)
  * @returns Formatted string representation of the value
@@ -17,31 +21,11 @@ export const formatValue = (
 
   const strValue = String(value);
 
-  // Check for ISO date format and auto-format for display
-  const isoDatePattern = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/;
-  if (isoDatePattern.test(strValue)) {
-    const date = new Date(strValue);
-    if (!isNaN(date.getTime())) {
-      // Format date based on whether it has time component
-      const hasTime = strValue.includes("T");
-      try {
-        if (hasTime) {
-          // Format with date and time
-          return new Intl.DateTimeFormat(undefined, {
-            dateStyle: "medium",
-            timeStyle: "short",
-          }).format(date);
-        } else {
-          // Format date only
-          return new Intl.DateTimeFormat(undefined, {
-            dateStyle: "medium",
-          }).format(date);
-        }
-      } catch {
-        // Fallback if Intl formatting fails
-        return strValue;
-      }
-    }
+  // Try ISO date formatting (using built-in formatter)
+  // This maintains backward compatibility for components that don't use the registry
+  const formatted = isoDateFormatter(strValue);
+  if (formatted !== strValue) {
+    return String(formatted);
   }
 
   return strValue;

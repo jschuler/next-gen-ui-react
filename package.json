@@ -22,8 +22,11 @@
     "registry": "https://registry.npmjs.org/"
   },
   "exports": {
-    "import": "./dist/index.es.js",
-    "require": "./dist/index.cjs.js"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.es.js",
+      "require": "./dist/index.cjs.js"
+    }
   },
   "peerDependencies": {
     "react": ">=17.0.0 <20.0.0",

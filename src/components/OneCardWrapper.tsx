@@ -10,24 +10,35 @@ import {
   FlexItem,
   Title,
 } from "@patternfly/react-core";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
+import type { ReactNode } from "react";
 
+import { useComponentHandlerRegistry } from "./ComponentHandlerRegistry";
 import ErrorPlaceholder from "./ErrorPlaceholder";
+import { getDataTypeClass } from "../utils/cssClassHelpers";
+import { resolveFormatterForField } from "../utils/formatterResolution";
 import { formatValue } from "../utils/valueFormatter";
 
 interface DataField {
   name: string;
   data_path: string;
   data: (string | number | boolean | null)[];
+  id?: string;
+  formatter?:
+    | string
+    | ((
+        value: string | number | boolean | null | (string | number)[]
+      ) => ReactNode);
 }
 
-interface OneCardProps {
+export interface OneCardProps {
   title: string;
   fields: DataField[];
   image?: string | null;
   id?: string;
   imageSize?: "sm" | "md" | "lg";
   className?: string;
+  inputDataType?: string;
 }
 
 const OneCardWrapper: React.FC<OneCardProps> = ({
@@ -37,24 +48,47 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
   id,
   imageSize = "md",
   className,
+  inputDataType,
 }) => {
   const [hasImageError, setHasImageError] = useState(false);
+  const registry = useComponentHandlerRegistry();
 
   const handleImageError = () => {
     setHasImageError(true);
   };
 
+  // Resolve formatters for fields (shared logic with DataViewWrapper)
+  const fieldsWithFormatters = useMemo(() => {
+    return fields.map((field) => {
+      const resolvedFormatter = resolveFormatterForField(registry, field, {
+        inputDataType,
+        componentId: id,
+      });
+      return {
+        ...field,
+        resolvedFormatter,
+      };
+    });
+  }, [fields, registry, inputDataType, id]);
+
   // Check for missing or invalid data
   const hasNoFields = !fields || fields.length === 0;
   const hasNoTitle = !title || title.trim() === "";
 
+  // Combine className with dataType-based class
+  const dataTypeClass = getDataTypeClass(inputDataType, "one-card");
+  const combinedClassName = [
+    "onecard-component-container",
+    className,
+    dataTypeClass,
+  ]
+    .filter(Boolean)
+    .join(" ");
+
   // If no title and no fields, show error
   if (hasNoTitle && hasNoFields) {
     return (
-      <Card
-        id={id}
-        className={`onecard-component-container ${className || ""}`}
-      >
+      <Card id={id} className={combinedClassName}>
         <CardBody>
           <ErrorPlaceholder
             hasError={false}
@@ -66,7 +100,7 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
   }
 
   return (
-    <Card id={id} className={`onecard-component-container ${className || ""}`}>
+    <Card id={id} className={combinedClassName}>
       <CardBody>
         <Flex
           spaceItems={{ default: "spaceItemsLg" }}
@@ -114,15 +148,34 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
                 />
               ) : (
                 <DescriptionList isAutoFit>
-                  {fields?.map((field, idx) => (
+                  {fieldsWithFormatters?.map((field, idx) => (
                     <DescriptionListGroup key={idx}>
                       <DescriptionListTerm>{field.name}</DescriptionListTerm>
                       <DescriptionListDescription>
-                        {field.data
-                          .map((item) =>
-                            item === null ? "N/A" : formatValue(item)
-                          )
-                          .join(", ")}
+                        {field.data.map((item, itemIdx) => {
+                          if (item === null) {
+                            return (
+                              <React.Fragment key={itemIdx}>
+                                N/A
+                                {itemIdx < field.data.length - 1 ? ", " : ""}
+                              </React.Fragment>
+                            );
+                          }
+                          // Use formatter if available, otherwise use default formatValue
+                          // formatValue handles arrays by joining them with commas
+                          const formatted =
+                            typeof field.resolvedFormatter === "function"
+                              ? field.resolvedFormatter(item)
+                              : formatValue(item);
+
+                          // Render formatted value (handles both ReactNode and primitive values)
+                          return (
+                            <React.Fragment key={itemIdx}>
+                              {formatted}
+                              {itemIdx < field.data.length - 1 ? ", " : ""}
+                            </React.Fragment>
+                          );
+                        })}
                       </DescriptionListDescription>
                     </DescriptionListGroup>
                   ))}

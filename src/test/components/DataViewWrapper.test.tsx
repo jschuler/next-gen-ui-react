@@ -1,6 +1,12 @@
-import { render, screen } from "@testing-library/react";
-import { describe, it, expect } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import React from "react";
+import { describe, it, expect, vi } from "vitest";
 
+import {
+  ComponentHandlerRegistryProvider,
+  useComponentHandlerRegistry,
+  type RowClickHandler,
+} from "../../components/ComponentHandlerRegistry";
 import DataViewWrapper from "../../components/DataViewWrapper";
 
 describe("DataViewWrapper Component", () => {
@@ -782,5 +788,70 @@ describe("DataViewWrapper Component", () => {
     expect(cellTexts.some((text) => text?.includes("2025"))).toBe(true);
     // Should NOT contain raw ISO format
     expect(cellTexts.some((text) => text === "2025-04-22")).toBe(false);
+  });
+
+  describe("Registry integration", () => {
+    it("should call onRowClick resolved from registry when row is clicked", async () => {
+      const componentId = "registry-dv-rowclick";
+      const mockHandler: RowClickHandler = vi.fn();
+
+      function Wrapper() {
+        const registry = useComponentHandlerRegistry();
+        const [ready, setReady] = React.useState(false);
+        React.useEffect(() => {
+          registry.registerRowClick(componentId, mockHandler);
+          setReady(true);
+        }, [registry]);
+
+        if (!ready) return null;
+        return (
+          <DataViewWrapper
+            component="data-view"
+            id={componentId}
+            fields={[
+              {
+                name: "Repository",
+                data_path: "repositories.name",
+                data: ["repo-one", "repo-two"],
+              },
+              {
+                name: "Branch",
+                data_path: "repositories.branch",
+                data: ["main", "develop"],
+              },
+            ]}
+            perPage={10}
+            enableFilters={false}
+            enablePagination={false}
+            enableSort={false}
+          />
+        );
+      }
+
+      const { container } = render(
+        <ComponentHandlerRegistryProvider>
+          <Wrapper />
+        </ComponentHandlerRegistryProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText("repo-one")).toBeInTheDocument();
+      });
+
+      const tbody = container.querySelector("tbody");
+      expect(tbody).not.toBeNull();
+      const firstRow = tbody?.querySelector("tr");
+      expect(firstRow).not.toBeNull();
+      fireEvent.click(firstRow!);
+
+      expect(mockHandler).toHaveBeenCalledTimes(1);
+      expect(mockHandler).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          Repository: "repo-one",
+          Branch: "main",
+        })
+      );
+    });
   });
 });

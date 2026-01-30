@@ -175,8 +175,85 @@ export default function ChartComponent({
     return maxLabelLength > 20;
   })();
 
-  // Apply scale to height (only if height is provided)
-  const scaledHeight = height ? height * scale : undefined;
+  // Calculate dynamic minimum height based on data
+  const calculateDynamicHeight = (): number => {
+    // For pie and donut charts, use default
+    if (chartType === "pie" || chartType === "donut") {
+      return 400;
+    }
+
+    // For horizontal bar charts, calculate based on number of data points
+    if (
+      effectiveHorizontal &&
+      (chartType === "bar" || chartType === "mirrored-bar")
+    ) {
+      // Get all unique data points (x values)
+      const uniqueDataPoints = new Set(
+        data.flatMap((series) => series.data.map((point) => String(point.x)))
+      );
+      const numberOfDataPoints = uniqueDataPoints.size;
+
+      // Each data point needs space for:
+      // - Bar height: ~25px
+      // - Spacing between bars: ~8px
+      // - Label space: ~7px (labels are positioned with dy={15} dx={15})
+      const spacePerDataPoint = 40;
+
+      // Calculate base height needed for bars
+      const barsHeight = numberOfDataPoints * spacePerDataPoint;
+
+      // Add padding (top + bottom from commonChartPadding)
+      // We'll estimate these since calculateBottomPadding/calculateLeftPadding depend on other factors
+      // For horizontal charts: top ~50, bottom ~70-120 (depending on legend)
+      const estimatedTopPadding = 50;
+      const estimatedBottomPadding = legendPosition === "bottom" ? 120 : 70;
+
+      const totalHeight =
+        barsHeight + estimatedTopPadding + estimatedBottomPadding;
+
+      // Minimum height of 200px, maximum of 1200px to prevent excessive height
+      return Math.max(200, Math.min(totalHeight, 1200));
+    }
+
+    // For vertical bar charts, check if labels need rotation
+    if (chartType === "bar" || chartType === "line") {
+      // Check if we have string labels that might need rotation
+      const hasStringLabels = data.some((series) =>
+        series.data.some((point) => typeof point.x === "string")
+      );
+
+      if (hasStringLabels) {
+        // Get all unique x-axis labels
+        const xLabels = data.flatMap((series) =>
+          series.data.map((point) => String(point.x || ""))
+        );
+        const uniqueLabels = [...new Set(xLabels)];
+
+        // Calculate average label length
+        const avgLabelLength =
+          uniqueLabels.length > 0
+            ? uniqueLabels.reduce((sum, label) => sum + label.length, 0) /
+              uniqueLabels.length
+            : 0;
+
+        // If labels are long, we might need more bottom padding
+        // Base height + extra for long labels
+        const baseHeight = 400;
+        const extraHeightForLabels = avgLabelLength > 15 ? 60 : 0;
+
+        return baseHeight + extraHeightForLabels;
+      }
+    }
+
+    // Default height for other chart types
+    return 400;
+  };
+
+  // Use dynamic height calculation when height is not explicitly provided
+  const calculatedHeight = height || calculateDynamicHeight();
+
+  // Apply scale to height
+  const scaledHeight = calculatedHeight * scale;
 
   // Format large numbers for axis labels
   const formatNumber = (value: number | string, isXAxis = false): string => {
@@ -345,7 +422,7 @@ export default function ChartComponent({
       : [];
 
   // Common props for all charts
-  const safeHeight = height || 400; // Ensure height always has a value
+  const safeHeight = calculatedHeight; // Use calculated dynamic height
   // For bar/line charts, use measured container width when no width is provided
   const commonChartProps = {
     height: safeHeight,
@@ -355,7 +432,7 @@ export default function ChartComponent({
 
   // Pie and donut charts need explicit dimensions to maintain circular shape
   // Use constrained container approach to prevent overflow
-  const pieDonutHeight = height || 400;
+  const pieDonutHeight = height || calculateDynamicHeight();
   const pieDonutWidth = width || 500;
   const pieDonutProps = {
     height: pieDonutHeight,
@@ -791,14 +868,14 @@ export default function ChartComponent({
       <div
         className="chart-wrapper"
         style={{
-          height: scaledHeight || 400,
+          height: scaledHeight || calculatedHeight,
         }}
       >
         <div
           className="chart-scale-wrapper"
           style={{
             transform: `scale(${scale})`,
-            height: height || 400,
+            height: calculatedHeight,
           }}
         >
           {renderChart()}

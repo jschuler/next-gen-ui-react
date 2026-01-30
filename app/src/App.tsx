@@ -28,6 +28,7 @@ import { getComponentByPath } from "./config/componentRegistry";
 import Sidebar from "./layout/Sidebar";
 import ComponentDemo from "./pages/ComponentDemo";
 import Home from "./pages/Home";
+import RegistryDemo from "./pages/RegistryDemo";
 
 function AppContent() {
   const location = useLocation();
@@ -157,6 +158,7 @@ function AppContent() {
         <div id={mainContainerId} tabIndex={-1}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route path="/component/registry" element={<RegistryDemo />} />
             <Route path="/component/:componentId" element={<ComponentDemo />} />
           </Routes>
         </div>

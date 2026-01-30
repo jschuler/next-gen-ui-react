@@ -4,12 +4,10 @@
 import {
   chartDemoBar,
   chartDemoBarLargeNumbers,
-  chartDemoBarLongLabelsVertical,
-  chartDemoBarLongTitlesHorizontal,
   chartDemoBarMoviesHorizontal,
-  chartDemoBarResponsive,
   chartDemoBarScaled,
   chartDemoBarStacked,
+  chartDemoBarSubscriptionRuntimes,
   chartDemoDonut,
   chartDemoDonutCostBreakdown,
   chartDemoLine,
@@ -22,13 +20,12 @@ import {
   dataViewMinimal,
   dataViewMinimalSmall,
   dataViewNumericSort,
-  dataViewRepositories,
   dataViewRowClick,
   dataViewServers,
+  dataViewSubscriptions,
   dataViewWithIcons,
-  dataViewSimple,
-  dataViewUsers,
   dynamicDemo,
+  dynamicDemoDataViewWithFormatters,
   dynamicDemoImage,
   dynamicDemoTable,
   emptyStateCustomIcon,
@@ -55,6 +52,12 @@ import {
 export interface ComponentExample {
   title: string;
   data: unknown;
+  /** Optional short description shown below the example title */
+  description?: string;
+  /** Optional explanation for "How this was set up" (e.g. registry formatters) */
+  setupDescription?: string;
+  /** Optional code snippet shown with setupDescription */
+  setupCode?: string;
 }
 
 export interface ComponentConfig {
@@ -75,10 +78,7 @@ export const componentRegistry: ComponentConfig[] = [
       "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/DataViewWrapper.tsx",
     componentImportPath: "@local-lib/components/DataViewWrapper",
     examples: [
-      { title: "Repositories Table", data: dataViewRepositories },
-      { title: "Users Management", data: dataViewUsers },
       { title: "Server List", data: dataViewServers },
-      { title: "Simple Product List", data: dataViewSimple },
       {
         title: "Minimal (12 items, filters & pagination enabled)",
         data: dataViewMinimal,
@@ -90,7 +90,40 @@ export const componentRegistry: ComponentConfig[] = [
       { title: "Numeric Sorting Demo", data: dataViewNumericSort },
       { title: "ISO Date/Time Sorting Demo", data: dataViewDateSort },
       { title: "Row Click Handler Demo", data: dataViewRowClick },
-      { title: "Column Formatters", data: dataViewWithIcons },
+      {
+        title: "Column Formatters",
+        data: dataViewWithIcons,
+        description:
+          "Status, Health, and CPU Usage columns are formatted with icons. Formatters are registered by field id; DataViewWrapper resolves them automatically when rendered inside a registry provider.",
+        setupDescription:
+          "Wrap your app (or the subtree that contains the table) with ComponentHandlerRegistryProvider. Where you have access to the tree (e.g. a layout or parent component), call useComponentHandlerRegistry() and register formatters by field id. Each table field has a matching id (server-status, server-health, server-cpu). DataViewWrapper resolves formatters via the registry when rendered inside the provider, so no formatter property is needed on the field definitions.",
+        setupCode: `// 1. Wrap your app (or subtree) with ComponentHandlerRegistryProvider
+<ComponentHandlerRegistryProvider>
+  <App />
+</ComponentHandlerRegistryProvider>
+
+// 2. In a component inside the provider, get the registry and register formatters
+function MyLayout() {
+  const registry = useComponentHandlerRegistry();
+
+  useMemo(() => {
+    registry.registerFormatterById("server-status", (value) => {
+      const status = String(value);
+      return (
+        <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {status === "Running" ? <Icon status="success"><CheckCircleIcon /></Icon> : ...}
+          {status}
+        </span>
+      );
+    });
+    registry.registerFormatterById("server-health", (value) => { ... });
+    registry.registerFormatterById("server-cpu", (value) => { ... });
+  }, [registry]);
+
+  return <DataViewWrapper id="dataview-with-icons" fields={fields} />;
+}`,
+      },
+      { title: "Subscriptions", data: dataViewSubscriptions },
     ],
   },
   {
@@ -106,6 +139,10 @@ export const componentRegistry: ComponentConfig[] = [
       {
         title: "Data View Component (Table - Backwards Compatible)",
         data: dynamicDemoTable,
+      },
+      {
+        title: "Data View with Formatted Columns",
+        data: dynamicDemoDataViewWithFormatters,
       },
       { title: "Bar Chart", data: chartDemoBar },
       { title: "Line Chart", data: chartDemoLine },
@@ -211,22 +248,14 @@ export const componentRegistry: ComponentConfig[] = [
       { title: "Bar Chart - Quarterly Revenue", data: chartDemoBar },
       { title: "Bar Chart - Large Numbers", data: chartDemoBarLargeNumbers },
       {
-        title: "Bar Chart - Long Labels",
-        data: chartDemoBarLongLabelsVertical,
-      },
-      {
-        title: "Bar Chart - Responsive (No Fixed Width)",
-        data: chartDemoBarResponsive,
-      },
-      {
         title: "Bar Chart - Movie Box Office (Horizontal)",
         data: chartDemoBarMoviesHorizontal,
       },
-      {
-        title: "Bar Chart - Long Movie Titles (Horizontal)",
-        data: chartDemoBarLongTitlesHorizontal,
-      },
       { title: "Bar Chart - Scaled (70%)", data: chartDemoBarScaled },
+      {
+        title: "Bar Chart - Subscription Runtimes (Long Labels)",
+        data: chartDemoBarSubscriptionRuntimes,
+      },
       { title: "Bar Chart - Stacked Sales", data: chartDemoBarStacked },
       { title: "Line Chart - Website Traffic", data: chartDemoLine },
       { title: "Line Chart - Large Numbers", data: chartDemoLineLargeNumbers },
@@ -244,6 +273,36 @@ export const componentRegistry: ComponentConfig[] = [
       {
         title: "Mirrored Bar Chart - Movie ROI vs Budget",
         data: chartMovieROISimple,
+      },
+    ],
+  },
+  {
+    id: "registry",
+    name: "ComponentHandlerRegistry",
+    path: "/component/registry",
+    sourceUrl:
+      "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/components/ComponentHandlerRegistry.tsx",
+    componentImportPath: "@local-lib/components/ComponentHandlerRegistry",
+    examples: [
+      {
+        title: "Basic Formatter Registration",
+        data: { type: "registry-basic" },
+      },
+      {
+        title: "Data-Type Specific Formatters",
+        data: { type: "registry-datatype" },
+      },
+      {
+        title: "Field-ID Specific Formatters",
+        data: { type: "registry-fieldid" },
+      },
+      {
+        title: "Row Click Handlers",
+        data: { type: "registry-rowclick" },
+      },
+      {
+        title: "Multiple Resolution Strategies",
+        data: { type: "registry-strategies" },
       },
     ],
   },

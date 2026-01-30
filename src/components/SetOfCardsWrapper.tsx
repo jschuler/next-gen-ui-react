@@ -6,7 +6,7 @@ interface FieldData {
   data: (string | number | boolean | null | (string | number)[])[];
 }
 
-interface SetOfCardsWrapperProps {
+export interface SetOfCardsWrapperProps {
   component: "set-of-cards";
   id: string;
   title: string;

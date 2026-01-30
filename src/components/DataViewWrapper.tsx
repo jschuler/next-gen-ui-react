@@ -18,7 +18,12 @@ import { Tbody, Td, ThProps, Tr } from "@patternfly/react-table";
 import { FunctionComponent, useMemo } from "react";
 import type { MouseEvent, KeyboardEvent, ReactNode } from "react";
 
+import { useComponentHandlerRegistry } from "./ComponentHandlerRegistry";
 import ErrorPlaceholder from "./ErrorPlaceholder";
+import { ISO_DATE_PATTERN_SORT } from "../utils/builtInFormatters";
+import { getDataTypeClass, sanitizeClassName } from "../utils/cssClassHelpers";
+import { debugLog } from "../utils/debug";
+import { resolveFormatterForField } from "../utils/formatterResolution";
 import { formatValue } from "../utils/valueFormatter";
 
 interface FieldData {
@@ -26,9 +31,11 @@ interface FieldData {
   name: string;
   data_path: string;
   data: (string | number | boolean | null | (string | number)[])[];
-  formatter?: (
-    value: string | number | boolean | null | (string | number)[]
-  ) => ReactNode;
+  formatter?:
+    | string
+    | ((
+        value: string | number | boolean | null | (string | number)[]
+      ) => ReactNode);
 }
 
 interface DataViewColumn {
@@ -54,6 +61,7 @@ export interface DataViewWrapperProps {
   enablePagination?: boolean; // If undefined, auto-disables when 5 or fewer items
   enableSort?: boolean;
   emptyStateMessage?: string;
+  inputDataType?: string;
   onRowClick?: (
     event: React.MouseEvent | React.KeyboardEvent,
     rowData: Record<string, string | number>
@@ -76,10 +84,58 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
   enablePagination,
   enableSort = true,
   emptyStateMessage = "No data available",
+  inputDataType,
   onRowClick,
 }) => {
   // Check for missing or invalid data
   const hasNoFields = !fields || fields.length === 0;
+  const registry = useComponentHandlerRegistry();
+
+  // Resolve onRowClick from registry or props
+  const resolvedOnRowClick = useMemo(() => {
+    // If onRowClick is a function, use it directly
+    if (typeof onRowClick === "function") {
+      debugLog(`[DataViewWrapper] Using onRowClick from props for id: ${id}`);
+      return onRowClick;
+    }
+
+    // If onRowClick is a string (handler ID), look it up from registry
+    if (typeof onRowClick === "string") {
+      const handler = registry.getRowClick(onRowClick, inputDataType);
+      if (handler) {
+        debugLog(
+          `[DataViewWrapper] ✅ Resolved onRowClick handler '${onRowClick}' from registry`
+        );
+        return handler;
+      }
+      // Fallback: try component id when explicit handler ID was not found
+      const fallbackHandler = registry.getRowClick(id, inputDataType);
+      if (fallbackHandler) {
+        debugLog(
+          `[DataViewWrapper] ✅ Resolved onRowClick from registry for id: ${id} (fallback)`
+        );
+        return fallbackHandler;
+      }
+      debugLog(
+        `[DataViewWrapper] ❌ No onRowClick handler found in registry for handler ID: ${onRowClick} or id: ${id}`
+      );
+      return undefined;
+    }
+
+    // When onRowClick is not provided, try to resolve by component id from registry
+    // (e.g. row click example: handler registered as "registry-demo-rowclick", component id is same)
+    if (registry.isActive()) {
+      const handler = registry.getRowClick(id, inputDataType);
+      if (handler) {
+        debugLog(
+          `[DataViewWrapper] ✅ Resolved onRowClick from registry for id: ${id}`
+        );
+        return handler;
+      }
+    }
+
+    return undefined;
+  }, [onRowClick, registry, id, inputDataType]);
 
   // Transform fields data into table format
   const { columns, rows, filterableFields } = useMemo(() => {
@@ -90,15 +146,21 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
     // Find the maximum number of data items across all fields
     const maxDataLength = Math.max(...fields.map((field) => field.data.length));
 
-    // Create columns from field names
-    const transformedColumns: DataViewColumn[] = fields.map((field) => ({
-      key: field.name,
-      label: field.name,
-      fieldId: field.id,
-      formatter: field.formatter,
-      sortable: true,
-      filterable: true,
-    }));
+    // Create columns from field names (formatter resolution shared with OneCardWrapper)
+    const transformedColumns: DataViewColumn[] = fields.map((field) => {
+      const resolvedFormatter = resolveFormatterForField(registry, field, {
+        inputDataType,
+        componentId: id,
+      });
+      return {
+        key: field.name,
+        label: field.name,
+        fieldId: field.id,
+        formatter: resolvedFormatter,
+        sortable: true,
+        filterable: true,
+      };
+    });
 
     // Create rows based on the maximum data length
     // Store both display value and original value (for sorting)
@@ -130,7 +192,7 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
       rows: transformedRows,
       filterableFields: filterable,
     };
-  }, [fields, hasNoFields]);
+  }, [fields, hasNoFields, registry, inputDataType, id]);
 
   // Auto-disable pagination and filters if there are 5 or fewer items (unless explicitly set)
   const shouldEnablePagination =
@@ -184,9 +246,8 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
       const bVal = String(b[sortKey] || b[sortBy] || "");
 
       // Check for ISO date format (YYYY-MM-DD or full ISO 8601 with time)
-      const isoDatePattern = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?/;
-      const aIsISO = isoDatePattern.test(aVal);
-      const bIsISO = isoDatePattern.test(bVal);
+      const aIsISO = ISO_DATE_PATTERN_SORT.test(aVal);
+      const bIsISO = ISO_DATE_PATTERN_SORT.test(bVal);
 
       // If both values are ISO dates, parse and compare as dates
       if (aIsISO && bIsISO) {
@@ -252,13 +313,7 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
   const getFieldIdClass = (fieldId?: string, fieldName?: string): string => {
     const id = fieldId || fieldName || "";
     if (!id) return "";
-    // Sanitize the id to be a valid CSS class name
-    // Replace spaces and special characters with hyphens, ensure it starts with a letter
-    const sanitized = id
-      .toString()
-      .replace(/[^a-zA-Z0-9-_]/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .toLowerCase();
+    const sanitized = sanitizeClassName(id);
     return sanitized ? `field-id-${sanitized}` : "";
   };
 
@@ -273,9 +328,10 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
         const className = getFieldIdClass(col.fieldId, col.key);
 
         // Apply formatter if provided, otherwise use the cell value as-is
-        const displayValue = col.formatter
-          ? col.formatter(cellValue)
-          : cellValue;
+        const displayValue =
+          typeof col.formatter === "function"
+            ? col.formatter(cellValue)
+            : cellValue;
 
         // If we have a className, return DataViewTd object with props
         if (className) {
@@ -283,26 +339,43 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
         }
 
         // If we have a formatter but no className, still return DataViewTd object (formatter may return ReactNode)
-        if (col.formatter) {
+        if (typeof col.formatter === "function") {
           return { cell: displayValue };
         }
 
         return displayValue;
       });
 
-      // Build row props, including onRowClick if provided
-      if (onRowClick) {
+      // Build row props, including onRowClick if provided or resolved from registry
+      if (resolvedOnRowClick) {
         return {
           row: rowCells,
           props: {
             onRowClick: (event?: MouseEvent | KeyboardEvent) => {
-              if (event) {
-                // Create a clean row data object without internal sorting keys
-                const rowData: Record<string, string | number> = {};
-                columns.forEach((col) => {
-                  rowData[col.key] = row[col.key];
-                });
-                onRowClick(event, rowData);
+              debugLog(
+                `[DataViewWrapper] onRowClick called with event:`,
+                event,
+                `handler:`,
+                resolvedOnRowClick
+              );
+              // Create a clean row data object without internal sorting keys
+              const rowData: Record<string, string | number> = {};
+              columns.forEach((col) => {
+                rowData[col.key] = row[col.key];
+              });
+              // Call handler - only if we have a MouseEvent (has 'button' property)
+              // KeyboardEvent doesn't have 'button', so we skip it for now
+              // The handler expects MouseEvent, so we only call it with MouseEvent
+              if (event && "button" in event) {
+                resolvedOnRowClick(
+                  event as unknown as React.MouseEvent,
+                  rowData
+                );
+              } else if (!event) {
+                // No event provided, but handler exists - call it with a minimal event
+                // This handles cases where DataView might not pass an event
+                const minimalEvent = {} as unknown as React.MouseEvent;
+                resolvedOnRowClick(minimalEvent, rowData);
               }
             },
             isClickable: true,
@@ -315,7 +388,7 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
         row: rowCells,
       };
     });
-  }, [sortedData, page, perPage, columns, onRowClick]);
+  }, [sortedData, page, perPage, columns, resolvedOnRowClick]);
 
   const emptyState = (
     <Tbody>
@@ -333,9 +406,15 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
     </Tbody>
   );
 
+  // Combine className with dataType-based class
+  const dataTypeClass = getDataTypeClass(inputDataType, "data-view");
+  const combinedClassName = [className, dataTypeClass]
+    .filter(Boolean)
+    .join(" ");
+
   if (hasNoFields) {
     return (
-      <div id={id} className={className}>
+      <div id={id} className={combinedClassName}>
         <ErrorPlaceholder
           hasError={false}
           noContentMessage={emptyStateMessage}
@@ -345,7 +424,7 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
   }
 
   return (
-    <div id={id} className={className}>
+    <div id={id} className={combinedClassName}>
       <DataView activeState={sortedData.length > 0 ? undefined : "empty"}>
         <DataViewToolbar
           ouiaId={`${id}-toolbar-top`}
@@ -378,13 +457,15 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
             ) : undefined
           }
         />
-        <DataViewTable
-          aria-label="Data view table"
-          ouiaId={id}
-          columns={dataViewColumns}
-          rows={pageRows}
-          bodyStates={{ empty: emptyState }}
-        />
+        <div style={{ overflowX: "auto" }} className="dataview-table-container">
+          <DataViewTable
+            aria-label="Data view table"
+            ouiaId={id}
+            columns={dataViewColumns}
+            rows={pageRows}
+            bodyStates={{ empty: emptyState }}
+          />
+        </div>
         {shouldEnablePagination && (
           <DataViewToolbar
             ouiaId={`${id}-toolbar-bottom`}

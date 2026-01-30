@@ -1,6 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import React from "react";
 import "@testing-library/jest-dom";
 
+import {
+  ComponentHandlerRegistryProvider,
+  useComponentHandlerRegistry,
+} from "../../components/ComponentHandlerRegistry";
 import OneCardWrapper from "../../components/OneCardWrapper";
 
 const mockData = {
@@ -232,6 +237,58 @@ describe("OneCardWrapper", () => {
     // Check that all field terms are present
     mockData.fields.forEach((field) => {
       expect(screen.getByText(field.name)).toBeInTheDocument();
+    });
+  });
+
+  describe("Registry integration", () => {
+    it("should display formatted value from registry formatter", async () => {
+      const inputDataType = "movies";
+      const formattedPrefix = "[formatted]";
+
+      function Wrapper() {
+        const registry = useComponentHandlerRegistry();
+        const [ready, setReady] = React.useState(false);
+        React.useEffect(() => {
+          registry.registerFormatterByName(
+            "Year",
+            (value) => `${formattedPrefix} ${value}`,
+            inputDataType
+          );
+          setReady(true);
+        }, [registry]);
+
+        if (!ready) return null;
+        return (
+          <OneCardWrapper
+            title="Movie Card"
+            id="onecard-registry-test"
+            inputDataType={inputDataType}
+            fields={[
+              {
+                name: "Title",
+                data_path: "movie.title",
+                data: ["Toy Story"],
+              },
+              {
+                name: "Year",
+                data_path: "movie.year",
+                data: [1995],
+              },
+            ]}
+          />
+        );
+      }
+
+      render(
+        <ComponentHandlerRegistryProvider>
+          <Wrapper />
+        </ComponentHandlerRegistryProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(`${formattedPrefix} 1995`)).toBeInTheDocument();
+      });
+      expect(screen.getByText("Toy Story")).toBeInTheDocument();
     });
   });
 });

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 import ErrorPlaceholder from "./ErrorPlaceholder";
 
-interface ImageComponentProps {
+export interface ImageComponentProps {
   component: "image";
   id: string;
   image?: string | null;
