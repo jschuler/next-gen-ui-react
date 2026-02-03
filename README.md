@@ -16,6 +16,10 @@ This module is part of the [Next Gen UI Agent project](https://github.com/RedHat
   - `video-player` supports YouTube video URLs and direct video file URLs
   - `set-of-cards` displays multiple OneCard components in an auto-aligned grid layout
   - Chart components support multiple data series with interactive legends and tooltips
+- [Hand Build Components (HBC)](https://redhat-ux.github.io/next-gen-ui-agent/spec/component/#hand-build-component-aka-hbc) support:
+  - Register custom React components via `register()` function
+  - Support for single or batch component registration
+  - Full integration with `DynamicComponent` system
 - Dynamic Component Renderer
   - `DynamicComponent`
 - Patternfly React Components
@@ -484,6 +488,48 @@ const mirroredBarChartConfig = {
 function App() {
   return <DynamicComponent config={mirroredBarChartConfig} />;
 }
+```
+
+### Hand Build Components (HBC)
+
+Register custom React components to render through `DynamicComponent`. Follows the [HBC specification](https://redhat-ux.github.io/next-gen-ui-agent/spec/component/#hand-build-component-aka-hbc).
+
+**Register a component:**
+
+```jsx
+import DynamicComponent, { register } from "@rhngui/patternfly-react-renderer";
+
+// Define your component
+const MovieDetail = ({ data, id }) => (
+  <div>
+    <h1>{data.title}</h1>
+    <p>Year: {data.year}</p>
+  </div>
+);
+
+// Register it
+register("movies:movie-detail", MovieDetail);
+
+// Use with HBC config
+const config = {
+  id: "movie-123",
+  component: "movies:movie-detail",
+  data: {
+    title: "Avatar",
+    year: "2009",
+  },
+};
+
+<DynamicComponent config={config} />;
+```
+
+**Register multiple components:**
+
+```jsx
+register({
+  "movies:movie-detail": MovieDetail,
+  "movies:movie-list": MovieList,
+});
 ```
 
 ## Development
