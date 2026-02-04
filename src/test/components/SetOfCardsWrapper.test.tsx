@@ -41,14 +41,14 @@ describe("SetOfCardsWrapper", () => {
   it("renders cards with correct field data", () => {
     render(<SetOfCardsWrapper {...mockProps} />);
 
-    // Check first card data
+    // Check first card data (numbers use locale formatting, e.g. 1,995)
     expect(screen.getByText("Toy Story")).toBeInTheDocument();
-    expect(screen.getByText("1995")).toBeInTheDocument();
+    expect(screen.getByText("1,995")).toBeInTheDocument();
     expect(screen.getByText("8.3")).toBeInTheDocument();
 
     // Check second card data
     expect(screen.getByText("Finding Nemo")).toBeInTheDocument();
-    expect(screen.getByText("2003")).toBeInTheDocument();
+    expect(screen.getByText("2,003")).toBeInTheDocument();
     expect(screen.getByText("8.1")).toBeInTheDocument();
   });
 

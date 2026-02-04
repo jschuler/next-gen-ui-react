@@ -3,6 +3,7 @@ export {
   useComponentHandlerRegistry,
   type HandlerResolver,
   type FormatterContext,
+  type FormatterContextMatcher,
   type CellFormatter,
-  type RowClickHandler,
+  type ItemClickHandler,
 } from "./components/ComponentHandlerRegistry";

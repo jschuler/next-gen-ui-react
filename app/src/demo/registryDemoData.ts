@@ -53,15 +53,23 @@ export const registryDemoByDataPath = {
   fields: commonTableFields,
 };
 
-// Example 4: Row Click Handler — inputDataType "catalog", same table
-export const registryDemoRowClick = {
+// Example 4: registerFormatter (multiple criteria) — dataPath + name narrows to Status column only
+export const registryDemoMultiMatch = {
   component: "data-view" as const,
-  id: "registry-demo-rowclick",
+  id: "registry-demo-multimatch",
+  inputDataType: "context-matcher",
+  fields: commonTableFields,
+};
+
+// Example 5: Item Click Handler — inputDataType "catalog", same table
+export const registryDemoItemClick = {
+  component: "data-view" as const,
+  id: "registry-demo-itemclick",
   inputDataType: "catalog",
   fields: commonTableFields,
 };
 
-// Example 5: Pattern matching (RegExp) — formatters registered with regex for first param
+// Example 6: Pattern matching (RegExp) — formatters registered with regex for first param
 export const registryDemoPatternMatching = {
   component: "data-view" as const,
   id: "registry-demo-pattern",
@@ -69,7 +77,7 @@ export const registryDemoPatternMatching = {
   fields: commonTableFields,
 };
 
-// Example 6: CSS classes — data-view with unique inputDataType for auto-generated wrapper/cell classes
+// Example 7: CSS classes — data-view with unique inputDataType for auto-generated wrapper/cell classes
 export const registryDemoCssClasses = {
   component: "data-view" as const,
   id: "registry-demo-css-classes",
@@ -77,7 +85,52 @@ export const registryDemoCssClasses = {
   fields: commonTableFields,
 };
 
-// Example 7: OneCardWrapper
+// Example 5: Auto formatters — type is detected from values (empty, iso-date, boolean, number); other → string. No formatter in JSON.
+export const registryDemoBuiltInFormatters = {
+  component: "data-view" as const,
+  id: "registry-demo-builtin-formatters",
+  inputDataType: "built-in-formatters",
+  fields: [
+    {
+      id: "col-date",
+      name: "Date",
+      data_path: "row.date",
+      data: ["2025-01-15", "2024-12-31T14:30:00", "2025-06-01"],
+    },
+    {
+      id: "col-active",
+      name: "Active",
+      data_path: "row.active",
+      data: [true, false, true],
+    },
+    {
+      id: "col-count",
+      name: "Count",
+      data_path: "row.count",
+      data: [1234.5, 42_000, 1_000_000],
+    },
+    {
+      id: "col-amount",
+      name: "Amount",
+      data_path: "row.amount",
+      data: [99.99, 1250, 0.5],
+    },
+    {
+      id: "col-label",
+      name: "Label",
+      data_path: "row.label",
+      data: ["Alpha", "Beta", "Gamma"],
+    },
+    {
+      id: "col-notes",
+      name: "Notes",
+      data_path: "row.notes",
+      data: ["Has value", null, ""],
+    },
+  ],
+};
+
+// Example 8: OneCardWrapper
 export const registryDemoOneCard = {
   component: "one-card" as const,
   id: "registry-demo-onecard",

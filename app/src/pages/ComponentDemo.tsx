@@ -68,7 +68,7 @@ function FormatterSetup() {
 
   useMemo(() => {
     // Register server-status formatter
-    registry.registerFormatterById("server-status", (value) => {
+    registry.registerFormatter({ id: "server-status" }, (value) => {
       const status = String(value);
       const isRunning = status === "Running";
       return (
@@ -96,7 +96,7 @@ function FormatterSetup() {
     });
 
     // Register server-health formatter
-    registry.registerFormatterById("server-health", (value) => {
+    registry.registerFormatter({ id: "server-health" }, (value) => {
       const health = String(value).toLowerCase();
       let icon;
       let status: "success" | "warning" | "danger" | undefined;
@@ -125,7 +125,7 @@ function FormatterSetup() {
     });
 
     // Register server-cpu formatter
-    registry.registerFormatterById("server-cpu", (value) => {
+    registry.registerFormatter({ id: "server-cpu" }, (value) => {
       const cpuStr = String(value);
       const cpuNum = parseInt(cpuStr.replace("%", ""), 10);
       let status: "success" | "warning" | "danger" = "success";
@@ -292,23 +292,23 @@ export default function ComponentDemo() {
                     />
                   ) : componentId === "dataview" &&
                     (example.data as Record<string, unknown>).id ===
-                      "dataview-row-click" ? (
+                      "dataview-item-click" ? (
                     <Component
                       {...(example.data as Record<string, unknown>)}
-                      onRowClick={(
+                      onItemClick={(
                         event: MouseEvent | KeyboardEvent,
-                        rowData: Record<string, string | number>
+                        itemData: Record<string, string | number>
                       ) => {
-                        // Demo: Show an alert with the clicked row data
-                        const rowInfo = Object.entries(rowData)
+                        // Demo: Show an alert with the clicked item data
+                        const itemInfo = Object.entries(itemData)
                           .map(([key, value]) => `${key}: ${value}`)
                           .join(", ");
                         alert(
-                          `Row clicked!\n\nRow data:\n${rowInfo}\n\nCheck the browser console for more details.`
+                          `Item clicked!\n\nItem data:\n${itemInfo}\n\nCheck the browser console for more details.`
                         );
-                        console.log("Row clicked:", {
+                        console.log("Item clicked:", {
                           event,
-                          rowData,
+                          itemData,
                           timestamp: new Date().toISOString(),
                         });
                       }}

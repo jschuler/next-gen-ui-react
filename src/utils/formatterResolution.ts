@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-
+import { autoFormatter } from "./builtInFormatters";
 import type {
   ComponentHandlerRegistry,
   CellFormatter,
@@ -8,17 +7,12 @@ import type {
 
 /**
  * Minimal field shape needed for formatter resolution (data_path → id → name,
- * most specific to least; plus optional explicit formatter). Shared by DataViewWrapper and OneCardWrapper.
+ * most specific to least). Shared by DataViewWrapper and OneCardWrapper.
  */
 export interface FieldWithFormatterOption {
   id?: string;
   name?: string;
   data_path?: string;
-  formatter?:
-    | string
-    | ((
-        value: string | number | boolean | null | (string | number)[]
-      ) => ReactNode | string | number);
 }
 
 export interface ResolveFormatterContextOptions {
@@ -27,15 +21,14 @@ export interface ResolveFormatterContextOptions {
 }
 
 /**
- * Resolves a formatter for a field using the registry: tries data_path (most specific),
- * then id, then name (least specific); then falls back to explicit field.formatter (string or function).
- * Keeps DataViewWrapper and OneCardWrapper DRY.
+ * Resolves a formatter for a field: registry (data_path → id → name), then
+ * auto formatter (type detection + built-in formatters) when nothing matches.
  */
 export function resolveFormatterForField(
   registry: ComponentHandlerRegistry,
   field: FieldWithFormatterOption,
   contextOptions: ResolveFormatterContextOptions
-): CellFormatter | undefined {
+): CellFormatter {
   const context: FormatterContext = {
     inputDataType: contextOptions.inputDataType,
     componentId: contextOptions.componentId,
@@ -58,15 +51,5 @@ export function resolveFormatterForField(
     }
   }
 
-  if (!resolved && field.formatter) {
-    if (typeof field.formatter === "string") {
-      if (registry.isActive()) {
-        resolved = registry.getFormatter(field.formatter, context);
-      }
-    } else {
-      resolved = field.formatter as CellFormatter;
-    }
-  }
-
-  return resolved;
+  return resolved ?? autoFormatter;
 }

@@ -45,5 +45,12 @@ export default tseslint.config(
         },
       ],
     },
+  },
+  // Library code: mixed exports (components, hooks, types) are intentional; rule is for app code
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    rules: {
+      "react-refresh/only-export-components": "off",
+    },
   }
 );

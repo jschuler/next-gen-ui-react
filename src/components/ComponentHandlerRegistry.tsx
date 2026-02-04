@@ -10,9 +10,9 @@ import { debugLog } from "../utils/debug";
 /**
  * Type definitions for component handlers
  */
-export type RowClickHandler = (
+export type ItemClickHandler = (
   event: React.MouseEvent | React.KeyboardEvent,
-  rowData: Record<string, string | number | boolean | null>
+  itemData: Record<string, string | number | boolean | null>
 ) => void;
 export type CellFormatter = (
   value: string | number | boolean | null | (string | number)[]
@@ -30,7 +30,18 @@ export interface FormatterContext {
 }
 
 /**
- * Handler resolver interface for resolving formatter and onRowClick identifiers
+ * Matchers for registerFormatter. All provided criteria must match.
+ * Use when a single pattern (e.g. dataPath /products/) matches too many fields
+ * and you want to narrow by name or id (e.g. dataPath /products/ AND name "Status").
+ */
+export interface FormatterContextMatcher {
+  id?: string | RegExp;
+  name?: string | RegExp;
+  dataPath?: string | RegExp;
+}
+
+/**
+ * Handler resolver interface for resolving formatter and onItemClick identifiers
  * This is used by DataViewWrapper to resolve string identifiers to functions
  */
 export interface HandlerResolver {
@@ -38,59 +49,76 @@ export interface HandlerResolver {
     id: string,
     context?: FormatterContext
   ) => CellFormatter | undefined;
-  getRowClick?: (id: string) => RowClickHandler | undefined;
+  getItemClick?: (inputDataType: string) => ItemClickHandler | undefined;
 }
 
 /**
- * Registry for component handlers (onRowClick, formatters, etc.)
+ * Registry for component handlers (onItemClick, formatters, etc.)
  * Supports data-aware formatter selection based on context
  */
 export interface ComponentHandlerRegistry {
-  onRowClickHandlers: Map<string, RowClickHandler>;
+  onItemClickHandlers: Map<string, ItemClickHandler>;
   formatters: Map<string, CellFormatter>;
-  registerRowClick: (
-    id: string,
-    handler: RowClickHandler,
-    inputDataType?: string
+  registerItemClick: (
+    inputDataType: string | RegExp,
+    handler: ItemClickHandler
   ) => void;
-  unregisterRowClick: (id: string, inputDataType?: string) => void;
-  getRowClick: (
-    id: string | null | undefined,
-    inputDataType?: string
-  ) => RowClickHandler | undefined;
-  unregisterFormatter: (id: string | RegExp) => void;
+  unregisterItemClick: (inputDataType: string | RegExp) => void;
+  getItemClick: (
+    inputDataType: string | null | undefined
+  ) => ItemClickHandler | undefined;
   /**
-   * Register a formatter that will be matched by field id.
-   * @param id - The field id to match against (string or RegExp pattern)
+   * Register a formatter that matches when all provided context criteria match.
+   * Use id, name, and/or dataPath (string or RegExp). All provided criteria must match.
+   * @param matchers - Criteria that must all match: id, name, and/or dataPath (string or RegExp)
    * @param formatter - The formatter function
-   * @param inputDataType - Optional: If provided, formatter will only match when input_data_type matches
+   * @param inputDataType - Optional: If provided (string or RegExp), formatter will only match when input_data_type matches
    */
+  registerFormatter: (
+    matchers: FormatterContextMatcher,
+    formatter: CellFormatter,
+    inputDataType?: string | RegExp
+  ) => void;
+  /**
+   * Unregister a formatter that was registered with registerFormatter.
+   * Pass the same matchers (and optional inputDataType) used at registration to remove that entry.
+   */
+  unregisterFormatter: (
+    matchers: FormatterContextMatcher,
+    inputDataType?: string | RegExp
+  ) => void;
+  /** Convenience: register a formatter by field id. Wraps registerFormatter({ id }, formatter, inputDataType). */
   registerFormatterById: (
     id: string | RegExp,
     formatter: CellFormatter,
-    inputDataType?: string
+    inputDataType?: string | RegExp
   ) => void;
-  /**
-   * Register a formatter that will be matched by field name.
-   * @param name - The field name to match against (string or RegExp pattern)
-   * @param formatter - The formatter function
-   * @param inputDataType - Optional: If provided, formatter will only match when input_data_type matches
-   */
+  /** Convenience: register a formatter by field name. Wraps registerFormatter({ name }, formatter, inputDataType). */
   registerFormatterByName: (
     name: string | RegExp,
     formatter: CellFormatter,
-    inputDataType?: string
+    inputDataType?: string | RegExp
   ) => void;
-  /**
-   * Register a formatter that will be matched by field data_path.
-   * @param dataPath - The field data_path to match against (string or RegExp pattern)
-   * @param formatter - The formatter function
-   * @param inputDataType - Optional: If provided, formatter will only match when input_data_type matches
-   */
+  /** Convenience: register a formatter by data path. Wraps registerFormatter({ dataPath }, formatter, inputDataType). */
   registerFormatterByDataPath: (
     dataPath: string | RegExp,
     formatter: CellFormatter,
-    inputDataType?: string
+    inputDataType?: string | RegExp
+  ) => void;
+  /** Convenience: unregister a formatter by field id. Wraps unregisterFormatter({ id }, inputDataType). */
+  unregisterFormatterById: (
+    id: string | RegExp,
+    inputDataType?: string | RegExp
+  ) => void;
+  /** Convenience: unregister a formatter by field name. Wraps unregisterFormatter({ name }, inputDataType). */
+  unregisterFormatterByName: (
+    name: string | RegExp,
+    inputDataType?: string | RegExp
+  ) => void;
+  /** Convenience: unregister a formatter by data path. Wraps unregisterFormatter({ dataPath }, inputDataType). */
+  unregisterFormatterByDataPath: (
+    dataPath: string | RegExp,
+    inputDataType?: string | RegExp
   ) => void;
   /**
    * Returns true if the registry is active (has a provider), false if it's a no-op
@@ -98,7 +126,6 @@ export interface ComponentHandlerRegistry {
   isActive: () => boolean;
   /**
    * Get formatter by identifier, with optional context for data-aware selection.
-   * Only checks the map that matches the lookup type (id, name, or dataPath).
    */
   getFormatter: (
     id: string | null | undefined,
@@ -124,32 +151,56 @@ function logRegistryOperation(
   debugLog(`${prefix} ${message}`);
 }
 
-/**
- * Helper: try formatter from a map and optionally log
- */
-function getFromMap(
-  map: Map<string, CellFormatter>,
-  key: string,
-  logMessage?: string
-): CellFormatter | undefined {
-  const formatter = map.get(key);
-  if (formatter && logMessage) {
-    logRegistryOperation("success", logMessage);
-  }
-  return formatter;
+interface ItemClickEntry {
+  pattern: RegExp;
+  handler: ItemClickHandler;
 }
 
-/**
- * Provider component that manages the handler registry
- */
-/**
- * Formatter entry that can be either a direct formatter or a regex pattern
- */
-interface FormatterEntry {
+interface FormatterContextEntry {
+  matchers: FormatterContextMatcher;
   formatter: CellFormatter;
-  pattern?: RegExp;
-  inputDataType?: string;
-  matchType?: "id" | "name" | "dataPath";
+  inputDataType?: string | RegExp;
+}
+
+function matchesContextValue(
+  value: string | undefined,
+  matcher: string | RegExp
+): boolean {
+  if (value === undefined) return false;
+  if (typeof matcher === "string") return value === matcher;
+  return matcher.test(value);
+}
+
+function formatterContextMatchersEqual(
+  a: FormatterContextMatcher,
+  b: FormatterContextMatcher
+): boolean {
+  const keys = ["id", "name", "dataPath"] as const;
+  for (const key of keys) {
+    const av = a[key];
+    const bv = b[key];
+    if (av === undefined && bv === undefined) continue;
+    if (av === undefined || bv === undefined) return false;
+    if (typeof av === "string" || typeof bv === "string") {
+      if (av !== bv) return false;
+    } else {
+      if (av.source !== bv.source || av.flags !== bv.flags) return false;
+    }
+  }
+  return true;
+}
+
+/** Return true when both inputDataTypes are equal (for unregister filtering). */
+function inputDataTypeMatches(
+  a: string | RegExp | undefined,
+  b: string | RegExp | undefined
+): boolean {
+  if (a === undefined && b === undefined) return true;
+  if (a === undefined || b === undefined) return false;
+  if (typeof a === "string" && typeof b === "string") return a === b;
+  if (a instanceof RegExp && b instanceof RegExp)
+    return a.source === b.source && a.flags === b.flags;
+  return false;
 }
 
 export function ComponentHandlerRegistryProvider({
@@ -157,216 +208,170 @@ export function ComponentHandlerRegistryProvider({
 }: {
   children: ReactNode;
 }) {
-  const onRowClickHandlers = React.useRef<Map<string, RowClickHandler>>(
+  const onItemClickHandlers = React.useRef<Map<string, ItemClickHandler>>(
     new Map()
   );
-  // Separate maps for direct lookup by registration type (id → only check id map)
-  const formattersById = React.useRef<Map<string, CellFormatter>>(new Map());
-  const formattersByName = React.useRef<Map<string, CellFormatter>>(new Map());
-  const formattersByDataPath = React.useRef<Map<string, CellFormatter>>(
-    new Map()
-  );
-  // Combined map for public API (registry.formatters)
+  const onItemClickPatterns = React.useRef<ItemClickEntry[]>([]);
+  const formatterContextEntries = React.useRef<FormatterContextEntry[]>([]);
+  // Public API map: index-based keys, synced from formatterContextEntries
   const formatters = React.useRef<Map<string, CellFormatter>>(new Map());
-  const formatterPatterns = React.useRef<FormatterEntry[]>([]);
 
-  const registerRowClick = useCallback(
-    (id: string, handler: RowClickHandler, inputDataType?: string) => {
-      if (inputDataType && id === "*") {
-        onRowClickHandlers.current.set(inputDataType, handler);
-      } else if (inputDataType) {
-        onRowClickHandlers.current.set(`${inputDataType}.${id}`, handler);
-        // Also store under bare id so getRowClick(id) without inputDataType finds it
-        onRowClickHandlers.current.set(id, handler);
+  const syncFormattersMap = useCallback(() => {
+    formatters.current.clear();
+    formatterContextEntries.current.forEach((entry, i) => {
+      formatters.current.set(String(i), entry.formatter);
+    });
+  }, []);
+
+  const registerItemClick = useCallback(
+    (inputDataType: string | RegExp, handler: ItemClickHandler) => {
+      if (inputDataType instanceof RegExp) {
+        onItemClickPatterns.current.push({ pattern: inputDataType, handler });
       } else {
-        onRowClickHandlers.current.set(id, handler);
+        onItemClickHandlers.current.set(inputDataType, handler);
       }
     },
     []
   );
 
-  const unregisterRowClick = useCallback(
-    (id: string, inputDataType?: string) => {
-      if (inputDataType && id === "*") {
-        onRowClickHandlers.current.delete(inputDataType);
-      } else if (inputDataType) {
-        onRowClickHandlers.current.delete(`${inputDataType}.${id}`);
-        onRowClickHandlers.current.delete(id);
-      } else {
-        onRowClickHandlers.current.delete(id);
-      }
-    },
-    []
-  );
+  const unregisterItemClick = useCallback((inputDataType: string | RegExp) => {
+    if (inputDataType instanceof RegExp) {
+      onItemClickPatterns.current = onItemClickPatterns.current.filter(
+        (entry) =>
+          entry.pattern.source !== inputDataType.source ||
+          entry.pattern.flags !== inputDataType.flags
+      );
+    } else {
+      onItemClickHandlers.current.delete(inputDataType);
+    }
+  }, []);
 
-  const getRowClick = useCallback(
+  const getItemClick = useCallback(
     (
-      id: string | null | undefined,
-      inputDataType?: string
-    ): RowClickHandler | undefined => {
-      if (!id && !inputDataType) return undefined;
+      inputDataType: string | null | undefined
+    ): ItemClickHandler | undefined => {
+      if (!inputDataType) return undefined;
 
-      // Strategy 1: Try data-type specific handler for this component id
-      // (e.g., "catalog.registry-demo-rowclick")
-      // Only if id doesn't already contain a dot (not already prefixed)
-      if (inputDataType && id && !id.includes(".")) {
-        const lookupKey = `${inputDataType}.${id}`;
-        const handler = onRowClickHandlers.current.get(lookupKey);
-        if (handler) {
-          logRegistryOperation(
-            "success",
-            `Found data-type specific onRowClick handler: ${lookupKey}`
-          );
-          return handler;
-        }
+      // Strategy 1: Exact string lookup
+      const exactHandler = onItemClickHandlers.current.get(inputDataType);
+      if (exactHandler) {
+        logRegistryOperation(
+          "success",
+          `Found onItemClick handler for inputDataType: ${inputDataType}`
+        );
+        return exactHandler;
       }
 
-      // Strategy 2: Try inputDataType-only handler (registered with id="*")
-      if (inputDataType) {
-        const dataTypeHandler = onRowClickHandlers.current.get(inputDataType);
-        if (dataTypeHandler) {
-          logRegistryOperation(
-            "success",
-            `Found inputDataType-only onRowClick handler: ${inputDataType}`
-          );
-          return dataTypeHandler;
-        }
-      }
-
-      // Strategy 3: Direct lookup by id as-is (e.g., "get_openshift_nodes.onRowClick" or "onRowClick")
-      // This handles both cases: full ID from backend or just handler ID
-      if (id) {
-        const directHandler = onRowClickHandlers.current.get(id);
-        if (directHandler) {
-          logRegistryOperation("success", `Found onRowClick handler: ${id}`);
-          return directHandler;
-        }
-      }
-
-      // Strategy 4: Extract handler ID from prefixed ID and try generic lookup
-      // If id is "get_openshift_nodes.onRowClick", extract "onRowClick" and try that
-      if (inputDataType && id && id.startsWith(`${inputDataType}.`)) {
-        const handlerId = id.substring(inputDataType.length + 1);
-        const genericHandler = onRowClickHandlers.current.get(handlerId);
-        if (genericHandler) {
-          logRegistryOperation(
-            "warning",
-            `Using generic onRowClick handler: ${handlerId}`
-          );
-          return genericHandler;
-        }
+      // Strategy 2: Try regex patterns (first match wins)
+      const patternEntry = onItemClickPatterns.current.find((entry) =>
+        entry.pattern.test(inputDataType)
+      );
+      if (patternEntry) {
+        logRegistryOperation(
+          "success",
+          `Found onItemClick handler by pattern for: ${inputDataType}`
+        );
+        return patternEntry.handler;
       }
 
       logRegistryOperation(
         "error",
-        `No onRowClick handler found for: ${id || "(no id)"}${inputDataType ? ` (with inputDataType: ${inputDataType})` : ""}`
+        `No onItemClick handler found for inputDataType: ${inputDataType}`
       );
       return undefined;
     },
     []
   );
 
-  // Helper to register a formatter (handles both string and RegExp patterns)
-  const registerFormatterEntry = useCallback(
+  const registerFormatter = useCallback(
     (
-      pattern: string | RegExp,
+      matchers: FormatterContextMatcher,
       formatter: CellFormatter,
-      inputDataType?: string,
-      matchType?: "id" | "name" | "dataPath"
+      inputDataType?: string | RegExp
     ) => {
-      if (pattern instanceof RegExp) {
-        formatterPatterns.current.push({
-          formatter,
-          pattern,
-          inputDataType,
-          matchType,
-        });
-      } else {
-        const key = inputDataType ? `${inputDataType}.${pattern}` : pattern;
-        const target =
-          matchType === "id"
-            ? formattersById.current
-            : matchType === "name"
-              ? formattersByName.current
-              : formattersByDataPath.current;
-        target.set(key, formatter);
-        formatters.current.set(key, formatter);
-      }
+      const hasAtLeastOne =
+        matchers.id !== undefined ||
+        matchers.name !== undefined ||
+        matchers.dataPath !== undefined;
+      if (!hasAtLeastOne) return;
+      formatterContextEntries.current.push({
+        matchers,
+        formatter,
+        inputDataType,
+      });
+      syncFormattersMap();
     },
-    []
+    [syncFormattersMap]
   );
 
-  const unregisterFormatter = useCallback((id: string | RegExp) => {
-    if (id instanceof RegExp) {
-      formatterPatterns.current = formatterPatterns.current.filter(
-        (entry) => entry.pattern !== id
+  const unregisterFormatter = useCallback(
+    (matchers: FormatterContextMatcher, inputDataType?: string | RegExp) => {
+      formatterContextEntries.current = formatterContextEntries.current.filter(
+        (entry) => {
+          if (!formatterContextMatchersEqual(entry.matchers, matchers))
+            return true;
+          if (inputDataType !== undefined)
+            return !inputDataTypeMatches(entry.inputDataType, inputDataType);
+          return false;
+        }
       );
-    } else {
-      formattersById.current.delete(id);
-      formattersByName.current.delete(id);
-      formattersByDataPath.current.delete(id);
-      formatters.current.delete(id);
-    }
-  }, []);
-
-  // Convenience methods for registering formatters by field property type
-  const registerFormatterById = useCallback(
-    (id: string | RegExp, formatter: CellFormatter, inputDataType?: string) => {
-      registerFormatterEntry(id, formatter, inputDataType, "id");
+      syncFormattersMap();
     },
-    [registerFormatterEntry]
+    [syncFormattersMap]
+  );
+
+  const registerFormatterById = useCallback(
+    (
+      id: string | RegExp,
+      formatter: CellFormatter,
+      inputDataType?: string | RegExp
+    ) => {
+      registerFormatter({ id }, formatter, inputDataType);
+    },
+    [registerFormatter]
   );
 
   const registerFormatterByName = useCallback(
     (
       name: string | RegExp,
       formatter: CellFormatter,
-      inputDataType?: string
+      inputDataType?: string | RegExp
     ) => {
-      registerFormatterEntry(name, formatter, inputDataType, "name");
+      registerFormatter({ name }, formatter, inputDataType);
     },
-    [registerFormatterEntry]
+    [registerFormatter]
   );
 
   const registerFormatterByDataPath = useCallback(
     (
       dataPath: string | RegExp,
       formatter: CellFormatter,
-      inputDataType?: string
+      inputDataType?: string | RegExp
     ) => {
-      registerFormatterEntry(dataPath, formatter, inputDataType, "dataPath");
+      registerFormatter({ dataPath }, formatter, inputDataType);
     },
-    [registerFormatterEntry]
+    [registerFormatter]
   );
 
-  // Helper to check regex patterns
-  const tryPatternMatch = useCallback(
-    (
-      value: string,
-      context?: FormatterContext,
-      matchType?: "id" | "name" | "dataPath"
-    ): CellFormatter | undefined => {
-      if (formatterPatterns.current.length === 0) return undefined;
-      for (const entry of formatterPatterns.current) {
-        if (entry.inputDataType) {
-          if (context?.inputDataType !== entry.inputDataType) continue;
-        }
-        if (matchType && entry.matchType && entry.matchType !== matchType) {
-          continue;
-        }
-
-        // Try to match the pattern against the value
-        if (entry.pattern && entry.pattern.test(value)) {
-          logRegistryOperation(
-            "success",
-            `Found formatter by pattern match: ${entry.pattern} for value: ${value}`
-          );
-          return entry.formatter;
-        }
-      }
-      return undefined;
+  const unregisterFormatterById = useCallback(
+    (id: string | RegExp, inputDataType?: string | RegExp) => {
+      unregisterFormatter({ id }, inputDataType);
     },
-    []
+    [unregisterFormatter]
+  );
+
+  const unregisterFormatterByName = useCallback(
+    (name: string | RegExp, inputDataType?: string | RegExp) => {
+      unregisterFormatter({ name }, inputDataType);
+    },
+    [unregisterFormatter]
+  );
+
+  const unregisterFormatterByDataPath = useCallback(
+    (dataPath: string | RegExp, inputDataType?: string | RegExp) => {
+      unregisterFormatter({ dataPath }, inputDataType);
+    },
+    [unregisterFormatter]
   );
 
   const getFormatter = useCallback(
@@ -376,89 +381,50 @@ export function ComponentHandlerRegistryProvider({
     ): CellFormatter | undefined => {
       if (!id) return undefined;
 
-      const scopedKey = context?.inputDataType
-        ? `${context.inputDataType}.${id}`
-        : undefined;
-      type LookupType = "id" | "name" | "dataPath";
-      let lookupType: LookupType | undefined;
-      if (context?.fieldId && id === context.fieldId) {
-        lookupType = "id";
-      } else if (context?.fieldName && id === context.fieldName) {
-        lookupType = "name";
-      } else if (context?.dataPath && id === context.dataPath) {
-        lookupType = "dataPath";
+      const entries = formatterContextEntries.current;
+      // Prefer scoped formatters (matching inputDataType) over global
+      const withScope: typeof entries = [];
+      const withoutScope: typeof entries = [];
+      for (const entry of entries) {
+        const scopeMatches =
+          entry.inputDataType === undefined ||
+          (typeof entry.inputDataType === "string"
+            ? context?.inputDataType === entry.inputDataType
+            : context?.inputDataType != null &&
+              entry.inputDataType.test(context.inputDataType));
+        if (!scopeMatches) continue;
+        if (entry.inputDataType !== undefined) withScope.push(entry);
+        else withoutScope.push(entry);
       }
+      const orderToTry = context?.inputDataType
+        ? [...withScope, ...withoutScope]
+        : [...withoutScope, ...withScope];
 
-      const tryById = () =>
-        getFromMap(
-          formattersById.current,
-          scopedKey ?? id,
-          `Found formatter (by id): ${scopedKey ?? id}`
-        ) ??
-        (scopedKey
-          ? getFromMap(
-              formattersById.current,
-              id,
-              `Using formatter (by id): ${id}`
-            )
-          : undefined);
-
-      const tryByName = () =>
-        getFromMap(
-          formattersByName.current,
-          scopedKey ?? id,
-          `Found formatter (by name): ${scopedKey ?? id}`
-        ) ??
-        (scopedKey
-          ? getFromMap(
-              formattersByName.current,
-              id,
-              `Using formatter (by name): ${id}`
-            )
-          : undefined);
-
-      const tryByDataPath = () =>
-        getFromMap(
-          formattersByDataPath.current,
-          scopedKey ?? id,
-          `Found formatter (by dataPath): ${scopedKey ?? id}`
-        ) ??
-        (scopedKey
-          ? getFromMap(
-              formattersByDataPath.current,
-              id,
-              `Using formatter (by dataPath): ${id}`
-            )
-          : undefined);
-
-      if (lookupType === "id") {
-        const formatter = tryById();
-        if (formatter) return formatter;
-      } else if (lookupType === "name") {
-        const formatter = tryByName();
-        if (formatter) return formatter;
-      } else if (lookupType === "dataPath") {
-        const formatter = tryByDataPath();
-        if (formatter) return formatter;
-      } else {
-        const formatter = tryById() ?? tryByName() ?? tryByDataPath();
-        if (formatter) return formatter;
+      for (const entry of orderToTry) {
+        const { matchers } = entry;
+        let allMatch = true;
+        // Id matcher: match only by context.fieldId (or id when no context), not by lookup key alone (map isolation)
+        if (matchers.id !== undefined) {
+          const valueFromContext = context?.fieldId ?? id;
+          if (!matchesContextValue(valueFromContext, matchers.id))
+            allMatch = false;
+        }
+        if (allMatch && matchers.name !== undefined) {
+          const value = context?.fieldName ?? id;
+          if (!matchesContextValue(value, matchers.name)) allMatch = false;
+        }
+        if (allMatch && matchers.dataPath !== undefined) {
+          const value = context?.dataPath ?? id;
+          if (!matchesContextValue(value, matchers.dataPath)) allMatch = false;
+        }
+        if (allMatch) {
+          logRegistryOperation(
+            "success",
+            `Found formatter by context matcher for: ${id}`
+          );
+          return entry.formatter;
+        }
       }
-
-      const matchTypeForPattern: "id" | "name" | "dataPath" =
-        lookupType ?? "id";
-      const patternFormatter = tryPatternMatch(
-        scopedKey ?? id,
-        context,
-        matchTypeForPattern
-      );
-      if (patternFormatter) return patternFormatter;
-      const patternFormatterId = tryPatternMatch(
-        id,
-        context,
-        matchTypeForPattern
-      );
-      if (patternFormatterId) return patternFormatterId;
 
       logRegistryOperation(
         "error",
@@ -466,31 +432,39 @@ export function ComponentHandlerRegistryProvider({
       );
       return undefined;
     },
-    [tryPatternMatch]
+    []
   );
 
   const value: ComponentHandlerRegistry = React.useMemo(
     () => ({
-      onRowClickHandlers: onRowClickHandlers.current,
+      onItemClickHandlers: onItemClickHandlers.current,
       formatters: formatters.current,
-      registerRowClick,
-      unregisterRowClick,
-      getRowClick,
+      registerItemClick,
+      unregisterItemClick,
+      getItemClick,
+      registerFormatter,
       unregisterFormatter,
       registerFormatterById,
       registerFormatterByName,
       registerFormatterByDataPath,
+      unregisterFormatterById,
+      unregisterFormatterByName,
+      unregisterFormatterByDataPath,
       getFormatter,
       isActive: () => true,
     }),
     [
-      registerRowClick,
-      unregisterRowClick,
-      getRowClick,
+      registerItemClick,
+      unregisterItemClick,
+      getItemClick,
+      registerFormatter,
       unregisterFormatter,
       registerFormatterById,
       registerFormatterByName,
       registerFormatterByDataPath,
+      unregisterFormatterById,
+      unregisterFormatterByName,
+      unregisterFormatterByDataPath,
       getFormatter,
     ]
   );
@@ -510,15 +484,19 @@ export function useComponentHandlerRegistry(): ComponentHandlerRegistry {
   if (!context) {
     // Return a no-op registry if context is not available
     return {
-      onRowClickHandlers: new Map(),
+      onItemClickHandlers: new Map(),
       formatters: new Map(),
-      registerRowClick: () => {},
-      unregisterRowClick: () => {},
-      getRowClick: () => undefined,
+      registerItemClick: () => {},
+      unregisterItemClick: () => {},
+      getItemClick: () => undefined,
+      registerFormatter: () => {},
       unregisterFormatter: () => {},
       registerFormatterById: () => {},
       registerFormatterByName: () => {},
       registerFormatterByDataPath: () => {},
+      unregisterFormatterById: () => {},
+      unregisterFormatterByName: () => {},
+      unregisterFormatterByDataPath: () => {},
       getFormatter: () => undefined,
       isActive: () => false,
     };

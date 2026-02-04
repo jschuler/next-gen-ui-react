@@ -11,9 +11,11 @@ import { Link } from "react-router-dom";
 import { componentRegistry } from "../config/componentRegistry";
 
 export default function Sidebar() {
-  // Separate DynamicComponents from other components
   const dynamicComponent = componentRegistry.find((c) => c.id === "dynamic");
-  const regularComponents = componentRegistry.filter((c) => c.id !== "dynamic");
+  const registryComponent = componentRegistry.find((c) => c.id === "registry");
+  const regularComponents = componentRegistry.filter(
+    (c) => c.id !== "dynamic" && c.id !== "registry"
+  );
 
   const nav = (
     <Nav aria-label="Main navigation">
@@ -32,6 +34,15 @@ export default function Sidebar() {
             <Link to={component.path}>{component.name}</Link>
           </NavItem>
         ))}
+        <Divider />
+        {registryComponent && (
+          <NavItem itemId="registry">
+            <Link to={registryComponent.path}>{registryComponent.name}</Link>
+          </NavItem>
+        )}
+        <NavItem itemId="performance">
+          <Link to="/performance">HandlerRegistry demo</Link>
+        </NavItem>
       </NavList>
     </Nav>
   );

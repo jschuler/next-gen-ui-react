@@ -150,9 +150,9 @@ function App() {
 
 #### Advanced Features
 
-**Row Click Handler (`onRowClick`)**
+**Item Click Handler (`onItemClick`)**
 
-You can add a click handler to make rows interactive. When provided, rows become clickable with hover styling:
+You can add a click handler to make rows (or items) interactive. When provided, rows become clickable with hover styling:
 
 ```jsx
 import DataViewWrapper from "@rhngui/patternfly-react-renderer";
@@ -178,9 +178,9 @@ function App() {
   return (
     <DataViewWrapper
       {...dataViewConfig}
-      onRowClick={(event, rowData) => {
-        console.log("Row clicked:", rowData);
-        // rowData contains all column values as key-value pairs
+      onItemClick={(event, itemData) => {
+        console.log("Item clicked:", itemData);
+        // itemData contains all column values as key-value pairs
       }}
     />
   );
@@ -189,48 +189,85 @@ function App() {
 
 **Column Formatters**
 
-You can customize how cell values are displayed using formatter functions. Formatters receive the cell value and can return strings, numbers, or React elements:
+You can customize how cell values are displayed using the **Component Handler Registry** and **built-in formatters**. Formatters are registered in the registry (by field id, name, or data path); types are detected automatically so no formatter is required in your field definitions.
+
+**Registry + built-in formatters (auto by type)**
+
+Wrap your app with `ComponentHandlerRegistryProvider`, call `registerAutoFormatters(registry)` once, and pass fields with `id`, `name`, `data_path`, and `data` only. The resolver detects each value’s type and applies a built-in formatter (ISO date, boolean → Yes/No, number, percent for 0–1, empty → —).
 
 ```jsx
-import DataViewWrapper from "@rhngui/patternfly-react-renderer";
-import { Icon } from "@patternfly/react-core";
-import { CheckCircleIcon } from "@patternfly/react-icons";
+import { useMemo } from "react";
+import {
+  ComponentHandlerRegistryProvider,
+  useComponentHandlerRegistry,
+  registerAutoFormatters,
+  DataViewWrapper,
+} from "@rhngui/patternfly-react-renderer";
 
-const dataViewConfig = {
-  component: "data-view",
-  id: "formatted-table",
-  fields: [
+function TableWithBuiltIns() {
+  const registry = useComponentHandlerRegistry();
+  useMemo(() => {
+    registerAutoFormatters(registry);
+  }, [registry]);
+
+  const fields = [
     {
-      id: "product-name",
-      name: "Product",
-      data_path: "products.name",
-      data: ["Laptop", "Mouse", "Keyboard"],
+      id: "col-date",
+      name: "Date",
+      data_path: "row.date",
+      data: ["2025-01-15", "2024-12-31"],
     },
     {
-      id: "status",
-      name: "Status",
-      data_path: "products.status",
+      id: "col-active",
+      name: "Active",
+      data_path: "row.active",
       data: [true, false, true],
-      formatter: (value) => {
-        return value ? (
-          <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <Icon status="success">
-              <CheckCircleIcon />
-            </Icon>
-            Active
-          </span>
-        ) : (
-          <span>Inactive</span>
-        );
-      },
     },
-  ],
-};
+    {
+      id: "col-count",
+      name: "Count",
+      data_path: "row.count",
+      data: [1234.5, 42],
+    },
+  ];
+
+  return (
+    <DataViewWrapper
+      id="my-table"
+      inputDataType="built-in-formatters"
+      fields={fields}
+    />
+  );
+}
 
 function App() {
-  return <DataViewWrapper {...dataViewConfig} />;
+  return (
+    <ComponentHandlerRegistryProvider>
+      <TableWithBuiltIns />
+    </ComponentHandlerRegistryProvider>
+  );
 }
 ```
+
+**Customization:** You can opt out of some built-ins or override them:
+
+```jsx
+// Exclude percent and currency-usd
+registerAutoFormatters(registry, { exclude: ["boolean", "number"] });
+
+// Override boolean to show Y/N
+registerAutoFormatters(registry, {
+  overrides: { boolean: (v) => (v ? "Y" : "N") },
+});
+
+// Combine: exclude one, override another
+registerAutoFormatters(registry, {
+  exclude: ["number"],
+  overrides: { "iso-date": myDateFormatter },
+});
+```
+
+Built-in ids: `iso-date`, `boolean`, `number`, `currency-usd`, `percent`, `empty`. See the [Registry Demo](https://redhat-ux.github.io/next-gen-ui-react/) for more examples.
 
 **CSS Classes for Customization**
 

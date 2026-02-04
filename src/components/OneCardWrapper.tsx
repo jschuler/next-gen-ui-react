@@ -11,7 +11,6 @@ import {
   Title,
 } from "@patternfly/react-core";
 import React, { useState, useMemo } from "react";
-import type { ReactNode } from "react";
 
 import { useComponentHandlerRegistry } from "./ComponentHandlerRegistry";
 import ErrorPlaceholder from "./ErrorPlaceholder";
@@ -24,11 +23,6 @@ interface DataField {
   data_path: string;
   data: (string | number | boolean | null)[];
   id?: string;
-  formatter?:
-    | string
-    | ((
-        value: string | number | boolean | null | (string | number)[]
-      ) => ReactNode);
 }
 
 export interface OneCardProps {

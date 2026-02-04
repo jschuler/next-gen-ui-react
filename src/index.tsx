@@ -15,17 +15,23 @@ export {
   type ComponentHandlerRegistry,
   type HandlerResolver,
   type FormatterContext,
+  type FormatterContextMatcher,
   type CellFormatter,
-  type RowClickHandler,
+  type ItemClickHandler,
 } from "./components/ComponentHandlerRegistry";
 
 // Re-export built-in formatters
 export {
+  autoFormatters,
   builtInFormatters,
+  BUILT_IN_FORMATTER_IDS,
+  createCurrencyFormatter,
   isoDateFormatter,
   ISO_DATE_PATTERN,
   ISO_DATE_PATTERN_SORT,
   isISODate,
-  registerBuiltInFormatters,
+  registerAutoFormatters,
+  type AutoFormatterId,
   type BuiltInFormatterId,
+  type RegisterAutoFormattersOptions,
 } from "./utils/builtInFormatters";

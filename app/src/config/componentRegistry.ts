@@ -20,7 +20,7 @@ import {
   dataViewMinimal,
   dataViewMinimalSmall,
   dataViewNumericSort,
-  dataViewRowClick,
+  dataViewItemClick,
   dataViewServers,
   dataViewSubscriptions,
   dataViewWithIcons,
@@ -89,14 +89,14 @@ export const componentRegistry: ComponentConfig[] = [
       },
       { title: "Numeric Sorting Demo", data: dataViewNumericSort },
       { title: "ISO Date/Time Sorting Demo", data: dataViewDateSort },
-      { title: "Row Click Handler Demo", data: dataViewRowClick },
+      { title: "Item Click Handler Demo", data: dataViewItemClick },
       {
         title: "Column Formatters",
         data: dataViewWithIcons,
         description:
           "Status, Health, and CPU Usage columns are formatted with icons. Formatters are registered by field id; DataViewWrapper resolves them automatically when rendered inside a registry provider.",
         setupDescription:
-          "Wrap your app (or the subtree that contains the table) with ComponentHandlerRegistryProvider. Where you have access to the tree (e.g. a layout or parent component), call useComponentHandlerRegistry() and register formatters by field id. Each table field has a matching id (server-status, server-health, server-cpu). DataViewWrapper resolves formatters via the registry when rendered inside the provider, so no formatter property is needed on the field definitions.",
+          "Wrap your app (or the subtree that contains the table) with ComponentHandlerRegistryProvider. Where you have access to the tree (e.g. a layout or parent component), call useComponentHandlerRegistry() and register formatters by field id. Each table field has a matching id (server-status, server-health, server-cpu). DataViewWrapper resolves formatters via the registry when rendered inside the provider; field definitions do not include a formatter property.",
         setupCode: `// 1. Wrap your app (or subtree) with ComponentHandlerRegistryProvider
 <ComponentHandlerRegistryProvider>
   <App />
@@ -107,7 +107,7 @@ function MyLayout() {
   const registry = useComponentHandlerRegistry();
 
   useMemo(() => {
-    registry.registerFormatterById("server-status", (value) => {
+    registry.registerFormatter({ id: "server-status" }, (value) => {
       const status = String(value);
       return (
         <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -116,8 +116,8 @@ function MyLayout() {
         </span>
       );
     });
-    registry.registerFormatterById("server-health", (value) => { ... });
-    registry.registerFormatterById("server-cpu", (value) => { ... });
+    registry.registerFormatter({ id: "server-health" }, (value) => { ... });
+    registry.registerFormatter({ id: "server-cpu" }, (value) => { ... });
   }, [registry]);
 
   return <DataViewWrapper id="dataview-with-icons" fields={fields} />;

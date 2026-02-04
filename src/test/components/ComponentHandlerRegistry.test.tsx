@@ -4,7 +4,7 @@ import {
   ComponentHandlerRegistryProvider,
   useComponentHandlerRegistry,
   type CellFormatter,
-  type RowClickHandler,
+  type ItemClickHandler,
 } from "../../components/ComponentHandlerRegistry";
 
 // Test component that uses the hook
@@ -39,7 +39,7 @@ describe("ComponentHandlerRegistry", () => {
 
       expect(capturedRegistry).not.toBeNull();
       expect(capturedRegistry?.formatters).toBeInstanceOf(Map);
-      expect(capturedRegistry?.onRowClickHandlers).toBeInstanceOf(Map);
+      expect(capturedRegistry?.onItemClickHandlers).toBeInstanceOf(Map);
     });
 
     it("should provide registry methods", () => {
@@ -58,12 +58,12 @@ describe("ComponentHandlerRegistry", () => {
       );
 
       expect(capturedRegistry).not.toBeNull();
-      expect(typeof capturedRegistry?.registerFormatterById).toBe("function");
+      expect(typeof capturedRegistry?.registerFormatter).toBe("function");
       expect(typeof capturedRegistry?.unregisterFormatter).toBe("function");
       expect(typeof capturedRegistry?.getFormatter).toBe("function");
-      expect(typeof capturedRegistry?.registerRowClick).toBe("function");
-      expect(typeof capturedRegistry?.unregisterRowClick).toBe("function");
-      expect(typeof capturedRegistry?.getRowClick).toBe("function");
+      expect(typeof capturedRegistry?.registerItemClick).toBe("function");
+      expect(typeof capturedRegistry?.unregisterItemClick).toBe("function");
+      expect(typeof capturedRegistry?.getItemClick).toBe("function");
     });
   });
 
@@ -83,10 +83,10 @@ describe("ComponentHandlerRegistry", () => {
 
       expect(capturedRegistry).not.toBeNull();
       expect(capturedRegistry?.formatters).toBeInstanceOf(Map);
-      expect(capturedRegistry?.onRowClickHandlers).toBeInstanceOf(Map);
+      expect(capturedRegistry?.onItemClickHandlers).toBeInstanceOf(Map);
       // Should return undefined for getters
       expect(capturedRegistry?.getFormatter("test")).toBeUndefined();
-      expect(capturedRegistry?.getRowClick("test")).toBeUndefined();
+      expect(capturedRegistry?.getItemClick("test")).toBeUndefined();
     });
 
     it("should return functional registry when used with provider", () => {
@@ -107,7 +107,7 @@ describe("ComponentHandlerRegistry", () => {
       expect(capturedRegistry).not.toBeNull();
       // Should be able to register and retrieve formatters
       const formatter: CellFormatter = (value) => `formatted: ${value}`;
-      capturedRegistry?.registerFormatterById("test", formatter);
+      capturedRegistry?.registerFormatter({ id: "test" }, formatter);
       expect(capturedRegistry?.getFormatter("test", { fieldId: "test" })).toBe(
         formatter
       );
@@ -164,7 +164,7 @@ describe("ComponentHandlerRegistry", () => {
       );
 
       const formatter: CellFormatter = (value) => `formatted: ${value}`;
-      registry?.registerFormatterById("status", formatter);
+      registry?.registerFormatter({ id: "status" }, formatter);
 
       const retrieved = registry?.getFormatter("status", { fieldId: "status" });
       expect(retrieved).toBe(formatter);
@@ -186,12 +186,12 @@ describe("ComponentHandlerRegistry", () => {
       );
 
       const formatter: CellFormatter = (value) => `formatted: ${value}`;
-      registry?.registerFormatterById("status", formatter);
+      registry?.registerFormatter({ id: "status" }, formatter);
       expect(registry?.getFormatter("status", { fieldId: "status" })).toBe(
         formatter
       );
 
-      registry?.unregisterFormatter("status");
+      registry?.unregisterFormatter({ id: "status" });
       expect(
         registry?.getFormatter("status", { fieldId: "status" })
       ).toBeUndefined();
@@ -232,6 +232,69 @@ describe("ComponentHandlerRegistry", () => {
       expect(registry?.getFormatter(undefined)).toBeUndefined();
     });
 
+    describe("convenience methods (registerFormatterById, ByName, ByDataPath)", () => {
+      it("registerFormatterById should behave like registerFormatter({ id }, formatter)", () => {
+        let registry: ReturnType<typeof useComponentHandlerRegistry> | null =
+          null;
+        render(
+          <ComponentHandlerRegistryProvider>
+            <TestComponent onRegistryReady={(r) => (registry = r)} />
+          </ComponentHandlerRegistryProvider>
+        );
+        const formatter: CellFormatter = (v) => `by-id: ${v}`;
+        registry?.registerFormatterById("status", formatter);
+        expect(registry?.getFormatter("status", { fieldId: "status" })).toBe(
+          formatter
+        );
+        registry?.unregisterFormatterById("status");
+        expect(
+          registry?.getFormatter("status", { fieldId: "status" })
+        ).toBeUndefined();
+      });
+
+      it("registerFormatterByName should behave like registerFormatter({ name }, formatter)", () => {
+        let registry: ReturnType<typeof useComponentHandlerRegistry> | null =
+          null;
+        render(
+          <ComponentHandlerRegistryProvider>
+            <TestComponent onRegistryReady={(r) => (registry = r)} />
+          </ComponentHandlerRegistryProvider>
+        );
+        const formatter: CellFormatter = (v) => `by-name: ${v}`;
+        registry?.registerFormatterByName("Status", formatter);
+        expect(registry?.getFormatter("Status", { fieldName: "Status" })).toBe(
+          formatter
+        );
+        registry?.unregisterFormatterByName("Status");
+        expect(
+          registry?.getFormatter("Status", { fieldName: "Status" })
+        ).toBeUndefined();
+      });
+
+      it("registerFormatterByDataPath should behave like registerFormatter({ dataPath }, formatter)", () => {
+        let registry: ReturnType<typeof useComponentHandlerRegistry> | null =
+          null;
+        render(
+          <ComponentHandlerRegistryProvider>
+            <TestComponent onRegistryReady={(r) => (registry = r)} />
+          </ComponentHandlerRegistryProvider>
+        );
+        const formatter: CellFormatter = (v) => `by-path: ${v}`;
+        registry?.registerFormatterByDataPath("products.price", formatter);
+        expect(
+          registry?.getFormatter("products.price", {
+            dataPath: "products.price",
+          })
+        ).toBe(formatter);
+        registry?.unregisterFormatterByDataPath("products.price");
+        expect(
+          registry?.getFormatter("products.price", {
+            dataPath: "products.price",
+          })
+        ).toBeUndefined();
+      });
+    });
+
     it("should find formatter registered by RegExp pattern (by id)", () => {
       let registry: ReturnType<typeof useComponentHandlerRegistry> | null =
         null;
@@ -247,7 +310,7 @@ describe("ComponentHandlerRegistry", () => {
       );
 
       const formatter: CellFormatter = () => "regex-matched";
-      registry?.registerFormatterById(/.*-status$/, formatter);
+      registry?.registerFormatter({ id: /.*-status$/ }, formatter);
 
       const result = registry?.getFormatter("server-status", {
         fieldId: "server-status",
@@ -276,12 +339,12 @@ describe("ComponentHandlerRegistry", () => {
 
       const formatter: CellFormatter = () => "regex";
       const pattern = /.*-status$/;
-      registry?.registerFormatterById(pattern, formatter);
+      registry?.registerFormatter({ id: pattern }, formatter);
       expect(
         registry?.getFormatter("server-status", { fieldId: "server-status" })
       ).toBe(formatter);
 
-      registry?.unregisterFormatter(pattern);
+      registry?.unregisterFormatter({ id: pattern });
       expect(
         registry?.getFormatter("server-status", { fieldId: "server-status" })
       ).toBeUndefined();
@@ -302,16 +365,17 @@ describe("ComponentHandlerRegistry", () => {
       );
 
       const formatter: CellFormatter = () => "by-id-only";
-      registry?.registerFormatterById("Status", formatter);
+      registry?.registerFormatter({ id: "Status" }, formatter);
 
-      // Lookup by name: id "Status" matches context.fieldName "Status" -> we check name map only
+      // Lookup by name: identifier "Status" with context.fieldId "product-status", fieldName "Status"
+      // Entry matches on id; value used is context.fieldId ?? id = "product-status". "Status" !== "product-status" -> no match
       const result = registry?.getFormatter("Status", {
         fieldId: "product-status",
         fieldName: "Status",
       });
       expect(result).toBeUndefined();
 
-      // Lookup by id: context.fieldId "Status" -> we check id map and find it
+      // Lookup by id: context.fieldId "Status" -> matchers.id "Status" matches
       const resultById = registry?.getFormatter("Status", {
         fieldId: "Status",
         fieldName: "Status",
@@ -337,7 +401,11 @@ describe("ComponentHandlerRegistry", () => {
 
       const dataTypeFormatter: CellFormatter = () => "data-type-specific";
 
-      registry?.registerFormatterById("status", dataTypeFormatter, "products");
+      registry?.registerFormatter(
+        { id: "status" },
+        dataTypeFormatter,
+        "products"
+      );
 
       const result = registry?.getFormatter("status", {
         inputDataType: "products",
@@ -363,8 +431,8 @@ describe("ComponentHandlerRegistry", () => {
 
       const fieldNameFormatter: CellFormatter = () => "field-name-specific";
 
-      registry?.registerFormatterByName(
-        "CPU Usage",
+      registry?.registerFormatter(
+        { name: "CPU Usage" },
         fieldNameFormatter,
         "products"
       );
@@ -393,8 +461,8 @@ describe("ComponentHandlerRegistry", () => {
 
       const fieldIdFormatter: CellFormatter = () => "field-id-specific";
 
-      registry?.registerFormatterById(
-        "products-status",
+      registry?.registerFormatter(
+        { id: "products-status" },
         fieldIdFormatter,
         "products"
       );
@@ -423,8 +491,8 @@ describe("ComponentHandlerRegistry", () => {
 
       const dataPathFormatter: CellFormatter = () => "data-path-specific";
 
-      registry?.registerFormatterByDataPath(
-        "products.status",
+      registry?.registerFormatter(
+        { dataPath: "products.status" },
         dataPathFormatter,
         "products"
       );
@@ -453,7 +521,7 @@ describe("ComponentHandlerRegistry", () => {
 
       const genericFormatter: CellFormatter = () => "generic";
 
-      registry?.registerFormatterById("status", genericFormatter);
+      registry?.registerFormatter({ id: "status" }, genericFormatter);
 
       const result = registry?.getFormatter("status", {
         inputDataType: "products",
@@ -479,7 +547,7 @@ describe("ComponentHandlerRegistry", () => {
 
       const fieldNameFormatter: CellFormatter = () => "field-name-direct";
 
-      registry?.registerFormatterByName("CPU Usage", fieldNameFormatter);
+      registry?.registerFormatter({ name: "CPU Usage" }, fieldNameFormatter);
 
       const result = registry?.getFormatter("CPU Usage", {
         inputDataType: "products",
@@ -505,7 +573,7 @@ describe("ComponentHandlerRegistry", () => {
 
       const fieldIdFormatter: CellFormatter = () => "field-id-direct";
 
-      registry?.registerFormatterById("server-status", fieldIdFormatter);
+      registry?.registerFormatter({ id: "server-status" }, fieldIdFormatter);
 
       const result = registry?.getFormatter("server-status", {
         inputDataType: "products",
@@ -531,8 +599,8 @@ describe("ComponentHandlerRegistry", () => {
 
       const dataPathFormatter: CellFormatter = () => "data-path-direct";
 
-      registry?.registerFormatterByDataPath(
-        "products.status",
+      registry?.registerFormatter(
+        { dataPath: "products.status" },
         dataPathFormatter
       );
 
@@ -563,11 +631,11 @@ describe("ComponentHandlerRegistry", () => {
       const fieldIdFormatter: CellFormatter = () => "field-id-direct";
       const dataPathFormatter: CellFormatter = () => "data-path-direct";
 
-      registry?.registerFormatterById("status", idFormatter);
-      registry?.registerFormatterByName("CPU Usage", fieldNameFormatter);
-      registry?.registerFormatterById("server-status", fieldIdFormatter);
-      registry?.registerFormatterByDataPath(
-        "products.status",
+      registry?.registerFormatter({ id: "status" }, idFormatter);
+      registry?.registerFormatter({ name: "CPU Usage" }, fieldNameFormatter);
+      registry?.registerFormatter({ id: "server-status" }, fieldIdFormatter);
+      registry?.registerFormatter(
+        { dataPath: "products.status" },
         dataPathFormatter
       );
 
@@ -613,8 +681,12 @@ describe("ComponentHandlerRegistry", () => {
       const globalFormatter: CellFormatter = () => "global";
       const scopedFormatter: CellFormatter = () => "scoped";
 
-      registry?.registerFormatterById("status", globalFormatter);
-      registry?.registerFormatterById("status", scopedFormatter, "products");
+      registry?.registerFormatter({ id: "status" }, globalFormatter);
+      registry?.registerFormatter(
+        { id: "status" },
+        scopedFormatter,
+        "products"
+      );
 
       const result = registry?.getFormatter("status", {
         inputDataType: "products",
@@ -630,7 +702,7 @@ describe("ComponentHandlerRegistry", () => {
   });
 
   describe("Row click handler registration", () => {
-    it("should register and retrieve a row click handler", () => {
+    it("should register and retrieve an item click handler", () => {
       let registry: ReturnType<typeof useComponentHandlerRegistry> | null =
         null;
 
@@ -644,17 +716,17 @@ describe("ComponentHandlerRegistry", () => {
         </ComponentHandlerRegistryProvider>
       );
 
-      const handler: RowClickHandler = (event, rowData) => {
+      const handler: ItemClickHandler = (event, rowData) => {
         console.log("clicked", rowData);
       };
 
-      registry?.registerRowClick("table-1", handler);
-      const retrieved = registry?.getRowClick("table-1");
+      registry?.registerItemClick("table-1", handler);
+      const retrieved = registry?.getItemClick("table-1");
 
       expect(retrieved).toBe(handler);
     });
 
-    it("should unregister a row click handler", () => {
+    it("should unregister an item click handler", () => {
       let registry: ReturnType<typeof useComponentHandlerRegistry> | null =
         null;
 
@@ -668,18 +740,18 @@ describe("ComponentHandlerRegistry", () => {
         </ComponentHandlerRegistryProvider>
       );
 
-      const handler: RowClickHandler = (event, rowData) => {
+      const handler: ItemClickHandler = (event, rowData) => {
         console.log("clicked", rowData);
       };
 
-      registry?.registerRowClick("table-1", handler);
-      expect(registry?.getRowClick("table-1")).toBe(handler);
+      registry?.registerItemClick("table-1", handler);
+      expect(registry?.getItemClick("table-1")).toBe(handler);
 
-      registry?.unregisterRowClick("table-1");
-      expect(registry?.getRowClick("table-1")).toBeUndefined();
+      registry?.unregisterItemClick("table-1");
+      expect(registry?.getItemClick("table-1")).toBeUndefined();
     });
 
-    it("should return undefined for non-existent row click handler", () => {
+    it("should return undefined for non-existent item click handler", () => {
       let registry: ReturnType<typeof useComponentHandlerRegistry> | null =
         null;
 
@@ -693,10 +765,10 @@ describe("ComponentHandlerRegistry", () => {
         </ComponentHandlerRegistryProvider>
       );
 
-      expect(registry?.getRowClick("non-existent")).toBeUndefined();
+      expect(registry?.getItemClick("non-existent")).toBeUndefined();
     });
 
-    it("should return undefined for null or undefined id", () => {
+    it("should return undefined for null or undefined inputDataType", () => {
       let registry: ReturnType<typeof useComponentHandlerRegistry> | null =
         null;
 
@@ -710,11 +782,11 @@ describe("ComponentHandlerRegistry", () => {
         </ComponentHandlerRegistryProvider>
       );
 
-      expect(registry?.getRowClick(null)).toBeUndefined();
-      expect(registry?.getRowClick(undefined)).toBeUndefined();
+      expect(registry?.getItemClick(null)).toBeUndefined();
+      expect(registry?.getItemClick(undefined)).toBeUndefined();
     });
 
-    it("should find row click handler with inputDataType (scoped)", () => {
+    it("should find item click handler by inputDataType", () => {
       let registry: ReturnType<typeof useComponentHandlerRegistry> | null =
         null;
 
@@ -728,14 +800,13 @@ describe("ComponentHandlerRegistry", () => {
         </ComponentHandlerRegistryProvider>
       );
 
-      const handler: RowClickHandler = () => {};
-      registry?.registerRowClick("my-handler", handler, "catalog");
+      const handler: ItemClickHandler = () => {};
+      registry?.registerItemClick("catalog", handler);
 
-      expect(registry?.getRowClick("my-handler", "catalog")).toBe(handler);
-      expect(registry?.getRowClick("my-handler")).toBe(handler);
+      expect(registry?.getItemClick("catalog")).toBe(handler);
     });
 
-    it('should find row click handler registered with id="*" for inputDataType', () => {
+    it("should find item click handler by RegExp pattern", () => {
       let registry: ReturnType<typeof useComponentHandlerRegistry> | null =
         null;
 
@@ -749,12 +820,12 @@ describe("ComponentHandlerRegistry", () => {
         </ComponentHandlerRegistryProvider>
       );
 
-      const handler: RowClickHandler = () => {};
-      registry?.registerRowClick("*", handler, "catalog");
+      const handler: ItemClickHandler = () => {};
+      registry?.registerItemClick(/catalog|inventory/, handler);
 
-      expect(registry?.getRowClick("any-component-id", "catalog")).toBe(
-        handler
-      );
+      expect(registry?.getItemClick("catalog")).toBe(handler);
+      expect(registry?.getItemClick("inventory")).toBe(handler);
+      expect(registry?.getItemClick("other")).toBeUndefined();
     });
   });
 
@@ -777,9 +848,9 @@ describe("ComponentHandlerRegistry", () => {
       const formatter2: CellFormatter = () => "formatter2";
       const formatter3: CellFormatter = () => "formatter3";
 
-      registry?.registerFormatterById("status", formatter1);
-      registry?.registerFormatterById("priority", formatter2);
-      registry?.registerFormatterById("type", formatter3);
+      registry?.registerFormatter({ id: "status" }, formatter1);
+      registry?.registerFormatter({ id: "priority" }, formatter2);
+      registry?.registerFormatter({ id: "type" }, formatter3);
 
       expect(registry?.getFormatter("status", { fieldId: "status" })).toBe(
         formatter1
@@ -792,7 +863,7 @@ describe("ComponentHandlerRegistry", () => {
       );
     });
 
-    it("should handle multiple row click handlers simultaneously", () => {
+    it("should handle multiple item click handlers simultaneously", () => {
       let registry: ReturnType<typeof useComponentHandlerRegistry> | null =
         null;
 
@@ -806,17 +877,17 @@ describe("ComponentHandlerRegistry", () => {
         </ComponentHandlerRegistryProvider>
       );
 
-      const handler1: RowClickHandler = () => {};
-      const handler2: RowClickHandler = () => {};
-      const handler3: RowClickHandler = () => {};
+      const handler1: ItemClickHandler = () => {};
+      const handler2: ItemClickHandler = () => {};
+      const handler3: ItemClickHandler = () => {};
 
-      registry?.registerRowClick("table-1", handler1);
-      registry?.registerRowClick("table-2", handler2);
-      registry?.registerRowClick("table-3", handler3);
+      registry?.registerItemClick("catalog", handler1);
+      registry?.registerItemClick("inventory", handler2);
+      registry?.registerItemClick("products", handler3);
 
-      expect(registry?.getRowClick("table-1")).toBe(handler1);
-      expect(registry?.getRowClick("table-2")).toBe(handler2);
-      expect(registry?.getRowClick("table-3")).toBe(handler3);
+      expect(registry?.getItemClick("catalog")).toBe(handler1);
+      expect(registry?.getItemClick("inventory")).toBe(handler2);
+      expect(registry?.getItemClick("products")).toBe(handler3);
     });
   });
 
@@ -837,7 +908,11 @@ describe("ComponentHandlerRegistry", () => {
 
       const formatter: CellFormatter = () => "context-specific";
 
-      registry?.registerFormatterById("products-status", formatter, "products");
+      registry?.registerFormatter(
+        { id: "products-status" },
+        formatter,
+        "products"
+      );
 
       const result = registry?.getFormatter("products-status", {
         inputDataType: "products",
@@ -866,8 +941,8 @@ describe("ComponentHandlerRegistry", () => {
 
       const formatter: CellFormatter = () => "partial-context";
 
-      registry?.registerFormatterByDataPath(
-        "products.status",
+      registry?.registerFormatter(
+        { dataPath: "products.status" },
         formatter,
         "products"
       );
@@ -896,7 +971,7 @@ describe("ComponentHandlerRegistry", () => {
 
       const formatter: CellFormatter = () => "no-context";
 
-      registry?.registerFormatterById("status", formatter);
+      registry?.registerFormatter({ id: "status" }, formatter);
 
       const result = registry?.getFormatter("status", { fieldId: "status" });
 

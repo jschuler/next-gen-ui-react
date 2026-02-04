@@ -31,11 +31,6 @@ interface FieldData {
   name: string;
   data_path: string;
   data: (string | number | boolean | null | (string | number)[])[];
-  formatter?:
-    | string
-    | ((
-        value: string | number | boolean | null | (string | number)[]
-      ) => ReactNode);
 }
 
 interface DataViewColumn {
@@ -62,9 +57,9 @@ export interface DataViewWrapperProps {
   enableSort?: boolean;
   emptyStateMessage?: string;
   inputDataType?: string;
-  onRowClick?: (
+  onItemClick?: (
     event: React.MouseEvent | React.KeyboardEvent,
-    rowData: Record<string, string | number>
+    itemData: Record<string, string | number>
   ) => void;
 }
 
@@ -85,57 +80,33 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
   enableSort = true,
   emptyStateMessage = "No data available",
   inputDataType,
-  onRowClick,
+  onItemClick,
 }) => {
   // Check for missing or invalid data
   const hasNoFields = !fields || fields.length === 0;
   const registry = useComponentHandlerRegistry();
 
-  // Resolve onRowClick from registry or props
-  const resolvedOnRowClick = useMemo(() => {
-    // If onRowClick is a function, use it directly
-    if (typeof onRowClick === "function") {
-      debugLog(`[DataViewWrapper] Using onRowClick from props for id: ${id}`);
-      return onRowClick;
+  // Resolve onItemClick from registry or props
+  const resolvedOnItemClick = useMemo(() => {
+    // If onItemClick is a function, use it directly
+    if (typeof onItemClick === "function") {
+      debugLog(`[DataViewWrapper] Using onItemClick from props for id: ${id}`);
+      return onItemClick;
     }
 
-    // If onRowClick is a string (handler ID), look it up from registry
-    if (typeof onRowClick === "string") {
-      const handler = registry.getRowClick(onRowClick, inputDataType);
+    // Resolve by inputDataType from registry
+    if (inputDataType && registry.isActive()) {
+      const handler = registry.getItemClick(inputDataType);
       if (handler) {
         debugLog(
-          `[DataViewWrapper] ✅ Resolved onRowClick handler '${onRowClick}' from registry`
-        );
-        return handler;
-      }
-      // Fallback: try component id when explicit handler ID was not found
-      const fallbackHandler = registry.getRowClick(id, inputDataType);
-      if (fallbackHandler) {
-        debugLog(
-          `[DataViewWrapper] ✅ Resolved onRowClick from registry for id: ${id} (fallback)`
-        );
-        return fallbackHandler;
-      }
-      debugLog(
-        `[DataViewWrapper] ❌ No onRowClick handler found in registry for handler ID: ${onRowClick} or id: ${id}`
-      );
-      return undefined;
-    }
-
-    // When onRowClick is not provided, try to resolve by component id from registry
-    // (e.g. row click example: handler registered as "registry-demo-rowclick", component id is same)
-    if (registry.isActive()) {
-      const handler = registry.getRowClick(id, inputDataType);
-      if (handler) {
-        debugLog(
-          `[DataViewWrapper] ✅ Resolved onRowClick from registry for id: ${id}`
+          `[DataViewWrapper] ✅ Resolved onItemClick from registry for inputDataType: ${inputDataType}`
         );
         return handler;
       }
     }
 
     return undefined;
-  }, [onRowClick, registry, id, inputDataType]);
+  }, [onItemClick, registry, id, inputDataType]);
 
   // Transform fields data into table format
   const { columns, rows, filterableFields } = useMemo(() => {
@@ -346,17 +317,18 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
         return displayValue;
       });
 
-      // Build row props, including onRowClick if provided or resolved from registry
-      if (resolvedOnRowClick) {
+      // Build row props, including onItemClick if provided or resolved from registry.
+      // PatternFly Tr expects onRowClick, so we pass our handler as onRowClick.
+      if (resolvedOnItemClick) {
         return {
           row: rowCells,
           props: {
             onRowClick: (event?: MouseEvent | KeyboardEvent) => {
               debugLog(
-                `[DataViewWrapper] onRowClick called with event:`,
+                `[DataViewWrapper] onItemClick called with event:`,
                 event,
                 `handler:`,
-                resolvedOnRowClick
+                resolvedOnItemClick
               );
               // Create a clean row data object without internal sorting keys
               const rowData: Record<string, string | number> = {};
@@ -367,7 +339,7 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
               // KeyboardEvent doesn't have 'button', so we skip it for now
               // The handler expects MouseEvent, so we only call it with MouseEvent
               if (event && "button" in event) {
-                resolvedOnRowClick(
+                resolvedOnItemClick(
                   event as unknown as React.MouseEvent,
                   rowData
                 );
@@ -375,7 +347,7 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
                 // No event provided, but handler exists - call it with a minimal event
                 // This handles cases where DataView might not pass an event
                 const minimalEvent = {} as unknown as React.MouseEvent;
-                resolvedOnRowClick(minimalEvent, rowData);
+                resolvedOnItemClick(minimalEvent, rowData);
               }
             },
             isClickable: true,
@@ -388,7 +360,7 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
         row: rowCells,
       };
     });
-  }, [sortedData, page, perPage, columns, resolvedOnRowClick]);
+  }, [sortedData, page, perPage, columns, resolvedOnItemClick]);
 
   const emptyState = (
     <Tbody>

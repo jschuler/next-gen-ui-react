@@ -52,10 +52,6 @@ const DynamicComponent = ({
       newProps.inputDataType = newProps.input_data_type;
       delete newProps.input_data_type;
     }
-    if (newProps.on_row_click !== undefined && newProps.on_row_click !== null) {
-      newProps.onRowClick = newProps.on_row_click;
-      delete newProps.on_row_click;
-    }
 
     if (componentKey && customProps[componentKey]) {
       Object.entries(customProps[componentKey]).forEach(([key, value]) => {

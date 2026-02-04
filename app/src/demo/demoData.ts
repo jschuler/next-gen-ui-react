@@ -1093,10 +1093,10 @@ export const dataViewDateSort = {
   // 2024-12-20 < 2025-01-15 < 2025-02-10 < 2025-03-05 < 2025-04-01 < 2025-04-15
 };
 
-// DataView demonstrating row click functionality
-export const dataViewRowClick = {
+// DataView demonstrating item click functionality
+export const dataViewItemClick = {
   component: "data-view" as const,
-  id: "dataview-row-click",
+  id: "dataview-item-click",
   fields: [
     {
       id: "product-name",

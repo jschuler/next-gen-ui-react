@@ -4,6 +4,7 @@ import {
 } from "@local-lib/components/ComponentHandlerRegistry";
 import DataViewWrapper from "@local-lib/components/DataViewWrapper";
 import OneCardWrapper from "@local-lib/components/OneCardWrapper";
+import { registerAutoFormatters } from "@local-lib/utils/builtInFormatters";
 import {
   Alert,
   AlertVariant,
@@ -27,9 +28,11 @@ import {
   registryDemoById,
   registryDemoByName,
   registryDemoByDataPath,
-  registryDemoRowClick,
+  registryDemoMultiMatch,
+  registryDemoItemClick,
   registryDemoPatternMatching,
   registryDemoCssClasses,
+  registryDemoBuiltInFormatters,
   registryDemoOneCard,
 } from "../demo/registryDemoData";
 
@@ -151,7 +154,7 @@ function RegistrySetup() {
       "servers"
     );
 
-    // Example 5 (OneCardWrapper, inputDataType "servers"): Register by ID for Status and Health
+    // Example 8 (OneCardWrapper, inputDataType "servers"): Register by ID for Status and Health
     registry.registerFormatterById(
       "server-status",
       (value) => {
@@ -255,7 +258,34 @@ function RegistrySetup() {
       "inventory"
     );
 
-    // Example 5 (inputDataType "pattern-demo"): Register by ID with RegExp — match multiple field ids
+    // Example 4 (inputDataType "context-matcher"): registerFormatter with multiple criteria — dataPath /products/ + name "Status" so only Status column is formatted
+    registry.registerFormatter(
+      { dataPath: /products/, name: "Status" },
+      (value) => {
+        const status = String(value);
+        const isRunning = status === "Running";
+        let borderColor = "#6a6e73";
+        if (isRunning) borderColor = "#2d5016";
+        else if (status === "Maintenance") borderColor = "#f0ab00";
+        return (
+          <span
+            style={{
+              display: "inline-block",
+              padding: "2px 8px",
+              borderRadius: "4px",
+              fontWeight: 600,
+              borderLeft: `4px solid ${borderColor}`,
+              paddingLeft: "8px",
+            }}
+          >
+            {status}
+          </span>
+        );
+      },
+      "context-matcher"
+    );
+
+    // Example 6 (inputDataType "pattern-demo"): Register by ID with RegExp — match multiple field ids
     patternDemoRegexRef.current = /^product-(name|status)$/;
     registry.registerFormatterById(
       patternDemoRegexRef.current,
@@ -273,10 +303,13 @@ function RegistrySetup() {
       "pattern-demo"
     );
 
-    // Example 4: Row click handler
-    registry.registerRowClick("registry-demo-rowclick", (event, rowData) => {
+    // Register all built-in formatters in the registry; auto formatters (empty, iso-date, boolean, number) apply by type when no formatter is resolved.
+    registerAutoFormatters(registry);
+
+    // Example 5: Item click handler
+    registry.registerItemClick("catalog", (event, itemData) => {
       alert(
-        `Row clicked!\n\nProduct: ${rowData["Product"]}\nStatus: ${rowData["Status"]}\nPrice: ${rowData["Price"]}\nCategory: ${rowData["Category"]}`
+        `Item clicked!\n\nProduct: ${itemData["Product"]}\nStatus: ${itemData["Status"]}\nPrice: ${itemData["Price"]}\nCategory: ${itemData["Category"]}`
       );
     });
   }, [registry]);
@@ -284,20 +317,26 @@ function RegistrySetup() {
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      // Unregister all formatters (keys are inputDataType.pattern when registered with inputDataType)
-      registry.unregisterFormatter("products.product-name");
-      registry.unregisterFormatter("products.product-status");
-      registry.unregisterFormatter("servers.Status");
-      registry.unregisterFormatter("servers.Price");
-      registry.unregisterFormatter("servers.server-status");
-      registry.unregisterFormatter("servers.server-health");
-      registry.unregisterFormatter("inventory.products.price");
-      registry.unregisterFormatter("inventory.products.category");
+      registry.unregisterFormatterById("product-name", "products");
+      registry.unregisterFormatterById("product-status", "products");
+      registry.unregisterFormatterByName("Status", "servers");
+      registry.unregisterFormatterByName("Price", "servers");
+      registry.unregisterFormatterById("server-status", "servers");
+      registry.unregisterFormatterById("server-health", "servers");
+      registry.unregisterFormatterByDataPath("products.price", "inventory");
+      registry.unregisterFormatterByDataPath("products.category", "inventory");
+      registry.unregisterFormatter(
+        { dataPath: /products/, name: "Status" },
+        "context-matcher"
+      );
       if (patternDemoRegexRef.current) {
-        registry.unregisterFormatter(patternDemoRegexRef.current);
+        registry.unregisterFormatterById(
+          patternDemoRegexRef.current,
+          "pattern-demo"
+        );
         patternDemoRegexRef.current = null;
       }
-      registry.unregisterRowClick("registry-demo-rowclick");
+      registry.unregisterItemClick("catalog");
     };
   }, [registry]);
 
@@ -309,11 +348,13 @@ const examples = [
     title: "Example 1: Register by ID",
     data: registryDemoById,
     description:
-      'Table has inputDataType="products". Formatters are registered with registerFormatterById using inputDataType "products", so the Product and Status columns are formatted.',
+      'Formatters are registered by field id. Product and Status columns are formatted; the table is scoped to inputDataType "products" so only those formatters apply.',
     strategyDetails: (
       <>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
-          <strong>Registered formatters (inputDataType \"products\"):</strong>
+          <strong>Register by field id.</strong>{" "}
+          <code>registerFormatterById</code> is a convenience for{" "}
+          <code>registerFormatter({`{ id }`}, formatter, …)</code>.
         </Content>
         <CodeBlock>
           <CodeBlockCode>{`registry.registerFormatterById("product-name", (value) => (
@@ -324,11 +365,6 @@ registry.registerFormatterById("product-status", (value) => (
   <span>{/* status with icon */}</span>
 ), "products");`}</CodeBlockCode>
         </CodeBlock>
-        <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
-          Because this table uses inputDataType=\"products\", only formatters
-          registered with \"products\" match. Product and Status columns are
-          formatted.
-        </Content>
       </>
     ),
   },
@@ -336,11 +372,13 @@ registry.registerFormatterById("product-status", (value) => (
     title: "Example 2: Register by Name",
     data: registryDemoByName,
     description:
-      'Table has inputDataType="servers". Formatters are registered with registerFormatterByName using inputDataType "servers", so the Status and Price columns are formatted.',
+      'Formatters are registered by field name. Status and Price columns are formatted; the table is scoped to inputDataType "servers" so only those formatters apply.',
     strategyDetails: (
       <>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
-          <strong>Registered formatters (inputDataType \"servers\"):</strong>
+          <strong>Register by field name.</strong>{" "}
+          <code>registerFormatterByName</code> is a convenience for{" "}
+          <code>registerFormatter({`{ name }`}, formatter, …)</code>.
         </Content>
         <CodeBlock>
           <CodeBlockCode>{`registry.registerFormatterByName("Status", (value) => (
@@ -351,11 +389,6 @@ registry.registerFormatterByName("Price", (value) => (
   <span>{/* currency formatted */}</span>
 ), "servers");`}</CodeBlockCode>
         </CodeBlock>
-        <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
-          Because this table uses inputDataType=\"servers\", only formatters
-          registered with \"servers\" match. Status and Price columns are
-          formatted.
-        </Content>
       </>
     ),
   },
@@ -363,11 +396,13 @@ registry.registerFormatterByName("Price", (value) => (
     title: "Example 3: Register by DataPath",
     data: registryDemoByDataPath,
     description:
-      'Table has inputDataType="inventory". Formatters are registered with registerFormatterByDataPath using inputDataType "inventory", so the Price and Category columns are formatted (data paths products.price and products.category).',
+      'Formatters are registered by data path (e.g. products.price, products.category). Price and Category columns are formatted; the table is scoped to inputDataType "inventory".',
     strategyDetails: (
       <>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
-          <strong>Registered formatters (inputDataType \"inventory\"):</strong>
+          <strong>Register by data path.</strong>{" "}
+          <code>registerFormatterByDataPath</code> is a convenience for{" "}
+          <code>registerFormatter({`{ dataPath }`}, formatter, …)</code>.
         </Content>
         <CodeBlock>
           <CodeBlockCode>{`registry.registerFormatterByDataPath("products.price", (value) => (
@@ -378,47 +413,163 @@ registry.registerFormatterByDataPath("products.category", (value) => (
   <span>{/* amber badge */}</span>
 ), "inventory");`}</CodeBlockCode>
         </CodeBlock>
+      </>
+    ),
+  },
+  {
+    title: "Example 4: registerFormatter (multiple criteria)",
+    data: registryDemoMultiMatch,
+    description:
+      'One formatter matches on both dataPath and name, so only the Status column is formatted. Using dataPath alone would match Product and Status; adding name "Status" narrows the match.',
+    strategyDetails: (
+      <>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
-          Because this table uses inputDataType=\"inventory\", only formatters
-          registered with \"inventory\" match. Price and Category columns are
-          formatted.
+          <strong>Multiple criteria (dataPath + name).</strong> Use{" "}
+          <code>registerFormatter</code> when you need more than one matcher.
+          Here, <code>/products/</code> and name <code>"Status"</code> must both
+          match, so only the Status column gets the formatter.
+        </Content>
+        <CodeBlock>
+          <CodeBlockCode>{`// dataPath /products/ AND name "Status" → only Status column
+registry.registerFormatter(
+  { dataPath: /products/, name: "Status" },
+  (value) => (
+    <span style={{ borderLeft: "4px solid ...", paddingLeft: "8px" }}>
+      ${"{" + "String(value)}"}
+    </span>
+  ),
+  "context-matcher"
+);`}</CodeBlockCode>
+        </CodeBlock>
+        <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
+          Use <code>registerFormatter</code> when a single pattern matches too
+          many columns and you want to narrow by combining <code>id</code>,{" "}
+          <code>name</code>, or <code>dataPath</code>.
         </Content>
       </>
     ),
   },
   {
-    title: "Example 4: Row Click Handler",
-    data: registryDemoRowClick,
+    title: "Example 5: Auto formatters",
+    data: registryDemoBuiltInFormatters,
     description:
-      'Table has inputDataType="catalog". Same table structure; click any row to see the registered row click handler.',
+      "When no formatter is registered for a field, the resolver detects the value type and applies an auto formatter (empty, iso-date, boolean, number).",
+    strategyDetails: (
+      <>
+        <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
+          <strong>How to use it:</strong> Call{" "}
+          <code>registerAutoFormatters(registry)</code> once (e.g. in a layout
+          or parent). Type is detected from each value.
+        </Content>
+        <CodeBlock>
+          <CodeBlockCode>{`import { useComponentHandlerRegistry, registerAutoFormatters } from '@rhngui/patternfly-react-renderer';
+import DataViewWrapper from '@rhngui/patternfly-react-renderer';
+
+function MyTable() {
+  const registry = useComponentHandlerRegistry();
+  useMemo(() => {
+    registerAutoFormatters(registry);  // opt-in once
+  }, [registry]);
+
+  return (
+    <DataViewWrapper
+      id="my-table"
+      inputDataType="built-in-formatters"
+      fields={[
+        { id: "col-date",   name: "Date",    data_path: "row.date",   data: ["2025-01-15", "2024-12-31T14:30:00", "2025-06-01"] },
+        { id: "col-active", name: "Active",  data_path: "row.active", data: [true, false, true] },
+        { id: "col-count",  name: "Count",   data_path: "row.count",  data: [1234.5, 42_000, 1_000_000] },
+        { id: "col-amount", name: "Amount",  data_path: "row.amount", data: [99.99, 1250, 0.5] },
+        { id: "col-label",  name: "Label",   data_path: "row.label",  data: ["Alpha", "Beta", "Gamma"] },
+        { id: "col-notes",  name: "Notes",   data_path: "row.notes",  data: ["Has value", null, ""] },
+      ]}
+    />
+  );
+}`}</CodeBlockCode>
+        </CodeBlock>
+        <Content component={ContentVariants.p} style={{ marginTop: "12px" }}>
+          <strong>How it works:</strong> For each cell, the resolver tries the
+          registry (data_path, id, name). If none match, it uses{" "}
+          <code>autoFormatter</code>, which detects type and applies an auto
+          formatter:
+        </Content>
+        <Content component={ContentVariants.ul} style={{ marginTop: "8px" }}>
+          <li>
+            null / undefined / empty string → <code>empty</code> (—)
+          </li>
+          <li>
+            ISO date string → <code>iso-date</code>
+          </li>
+          <li>
+            true/false or &quot;true&quot;/&quot;false&quot; →{" "}
+            <code>boolean</code> (Yes/No)
+          </li>
+          <li>
+            Other number → <code>number</code> (locale)
+          </li>
+          <li>Other → string as-is</li>
+        </Content>
+        <Content component={ContentVariants.p} style={{ marginTop: "12px" }}>
+          <strong>Optional:</strong>
+        </Content>
+        <Content component={ContentVariants.ul} style={{ marginTop: "8px" }}>
+          <li>
+            Call <code>registerAutoFormatters(registry)</code> to register all
+            built-in formatters; auto formatters apply by type when no formatter
+            is resolved.
+          </li>
+          <li>
+            Pass a second argument to <strong>exclude</strong> ids or{" "}
+            <strong>override</strong> with custom formatters:
+          </li>
+        </Content>
+        <CodeBlock style={{ marginTop: "4px" }}>
+          <CodeBlockCode>{`registerAutoFormatters(registry, {
+  exclude: ['boolean'],
+  overrides: { boolean: (v) => v ? 'Y' : 'N' }
+})`}</CodeBlockCode>
+        </CodeBlock>
+        <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
+          <code>exclude</code> accepts only auto formatter ids (iso-date,
+          boolean, number, empty). <code>overrides</code> accepts any{" "}
+          <code>BUILT_IN_FORMATTER_IDS</code>.
+        </Content>
+      </>
+    ),
+  },
+  {
+    title: "Example 6: Item Click Handler",
+    data: registryDemoItemClick,
+    description:
+      'Table has inputDataType="catalog". Same table structure; click any row to see the registered item click handler.',
     strategyDetails: (
       <>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
           <strong>Registered handler:</strong>
         </Content>
         <CodeBlock>
-          <CodeBlockCode>{`registry.registerRowClick("registry-demo-rowclick", (event, rowData) => {
-  alert(\`Row clicked!\\n\\nProduct: \${rowData["Product"]}\\nStatus: \${rowData["Status"]}\\nPrice: \${rowData["Price"]}\\nCategory: \${rowData["Category"]}\\nRole: \${rowData["Role"]}\\nEmail: \${rowData["Email"]}\`);
+          <CodeBlockCode>{`registry.registerItemClick("catalog", (event, itemData) => {
+  alert(\`Item clicked!\\n\\nProduct: \${itemData["Product"]}\\nStatus: \${itemData["Status"]}\\nPrice: \${itemData["Price"]}\\nCategory: \${itemData["Category"]}\\nRole: \${itemData["Role"]}\\nEmail: \${itemData["Email"]}\`);
 });`}</CodeBlockCode>
         </CodeBlock>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
           <strong>Usage:</strong> The DataViewWrapper with{" "}
-          <code>id: "registry-demo-rowclick"</code> automatically uses the
+          <code>inputDataType: "catalog"</code> is used to resolve the
           registered handler. Click any row to see it in action!
         </Content>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
-          <code>id</code> can be <code>"*"</code> to register a handler for all
-          components with a given <code>inputDataType</code> (e.g.{" "}
-          <code>registerRowClick("*", handler, "catalog")</code>).
+          The first argument can be a string (exact <code>inputDataType</code>)
+          or a RegExp to match multiple types (e.g.{" "}
+          <code>registerItemClick(/catalog|inventory/, handler)</code>).
         </Content>
       </>
     ),
   },
   {
-    title: "Example 5: Pattern matching (RegExp)",
+    title: "Example 7: Pattern matching (RegExp)",
     data: registryDemoPatternMatching,
     description:
-      'The first parameter of registerFormatterById, registerFormatterByName, and registerFormatterByDataPath can be a RegExp. Any field whose id (or name, or data_path) matches the pattern uses that formatter. This example uses inputDataType="pattern-demo" and a single RegExp to format both Product and Status columns.',
+      'Matcher values (e.g. in registerFormatterById) can be a RegExp. Any field whose id matches the pattern uses that formatter. This example uses inputDataType="pattern-demo" and a single RegExp to format both Product and Status columns.',
     strategyDetails: (
       <>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
@@ -437,17 +588,16 @@ registry.registerFormatterById(
 );`}</CodeBlockCode>
         </CodeBlock>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
-          The same works for <code>registerFormatterByName</code> (pattern
-          matched against field <code>name</code>) and{" "}
-          <code>registerFormatterByDataPath</code> (pattern matched against{" "}
-          <code>data_path</code>). To unregister, pass the same RegExp instance
-          to <code>unregisterFormatter</code>.
+          You can use RegExp in <code>id</code>, <code>name</code>, or{" "}
+          <code>dataPath</code> matchers. To unregister, pass the same matchers
+          (and <code>inputDataType</code> if used) to{" "}
+          <code>unregisterFormatter</code>.
         </Content>
       </>
     ),
   },
   {
-    title: "Example 6: CSS Classes",
+    title: "Example 8: CSS Classes",
     data: registryDemoCssClasses,
     description:
       "DataViewWrapper automatically adds CSS classes to the table wrapper and to each cell so you can target them in your styles. The wrapper gets a data-type class; each cell gets a field-id class.",
@@ -501,7 +651,7 @@ registry.registerFormatterById(
     ),
   },
   {
-    title: "Example 7: OneCardWrapper",
+    title: "Example 9: OneCardWrapper",
     data: registryDemoOneCard,
     description:
       "Demonstrates that the ComponentHandlerRegistry works with other components too, not just DataViewWrapper. OneCardWrapper can use the same formatters registered in the registry.",
@@ -623,7 +773,7 @@ export default function RegistryDemo() {
             margin: 12px 0;
             border-radius: 4px;
           }
-          /* Example 6: demonstrate auto-generated data-view CSS classes */
+          /* Example 7: demonstrate auto-generated data-view CSS classes */
           #registry-demo-css-classes.data-view-table-styling {
             border: 2px solid #0066cc;
             border-radius: 8px;
@@ -650,10 +800,10 @@ export default function RegistryDemo() {
           style={{ fontSize: "1.1em", lineHeight: "1.6" }}
         >
           The ComponentHandlerRegistry provides a centralized way to register
-          and resolve formatters and row click handlers for supported components
-          like DataViewWrapper and OneCardWrapper. This enables data-aware
-          formatter selection and reusable handler logic across your entire
-          application.
+          and resolve formatters and item click handlers for supported
+          components like DataViewWrapper and OneCardWrapper. This enables
+          data-aware formatter selection and reusable handler logic across your
+          entire application.
         </Content>
       </div>
 
@@ -682,12 +832,18 @@ function App() {
           2. Register formatters and handlers
         </Content>
         <CodeBlock>
-          <CodeBlockCode>{`import { useComponentHandlerRegistry } from '@rhngui/patternfly-react-renderer';
+          <CodeBlockCode>{`import {
+  useComponentHandlerRegistry,
+  registerAutoFormatters,
+} from '@rhngui/patternfly-react-renderer';
 
 function MyComponent() {
   const registry = useComponentHandlerRegistry();
 
   useEffect(() => {
+    // Register all built-in formatters. When no formatter is resolved, type is detected and an auto formatter (empty, iso-date, boolean, number) is applied.
+    registerAutoFormatters(registry);
+
     // Register formatter by field id
     registry.registerFormatterById('subscriptions-endDate', (value) => {
       return formatDate(value);
@@ -699,9 +855,12 @@ function MyComponent() {
     });
 
     // Register formatter by data path
-    registry.registerFormatterByDataPath('$..subscriptions[*].endDate', (value) => {
-      return formatDate(value);
-    });
+    registry.registerFormatterByDataPath(
+      '$..subscriptions[*].endDate',
+      (value) => {
+        return formatDate(value);
+      }
+    );
 
     // Register with inputDataType for data-type specific matching
     registry.registerFormatterById(
@@ -711,14 +870,28 @@ function MyComponent() {
     );
 
     // Register with regex pattern
-    registry.registerFormatterById(/.*-endDate$/, (value) => {
+    const endDatePattern = /.*-endDate$/;
+    registry.registerFormatterById(endDatePattern, (value) => {
       return formatDate(value);
     });
 
-    // Register a row click handler
-    registry.registerRowClick('my-table', (event, rowData) => {
-      console.log('Row clicked:', rowData);
+    // Register an item click handler
+    registry.registerItemClick('catalog', (event, itemData) => {
+      console.log('Item clicked:', itemData);
     });
+
+    // Cleanup on unmount: pass same matchers (and inputDataType if used) as at registration
+    return () => {
+      registry.unregisterFormatterById('subscriptions-endDate');
+      registry.unregisterFormatterById(
+        'subscriptions-endDate',
+        'table.dataset'
+      );
+      registry.unregisterFormatterByName('End Date');
+      registry.unregisterFormatterByDataPath('$..subscriptions[*].endDate');
+      registry.unregisterFormatterById(endDatePattern);
+      registry.unregisterItemClick('catalog');
+    };
   }, [registry]);
 
   return <DataViewWrapper
@@ -842,10 +1015,6 @@ function MyComponent() {
             Provider and Hook
           </Content>
 
-          <Content component={ContentVariants.h3} style={{ marginTop: "24px" }}>
-            Provider and Hook
-          </Content>
-
           <div className="registry-demo-method">
             <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
               ComponentHandlerRegistryProvider
@@ -891,13 +1060,13 @@ const registry = useComponentHandlerRegistry();`}</CodeBlockCode>
 
           <div className="registry-demo-method">
             <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
-              registerFormatterById
+              registerFormatter
             </Content>
             <CodeBlock>
-              <CodeBlockCode>{`registry.registerFormatterById(
-  id: string | RegExp,
+              <CodeBlockCode>{`registry.registerFormatter(
+  matchers: FormatterContextMatcher,
   formatter: CellFormatter,
-  inputDataType?: string
+  inputDataType?: string | RegExp
 ): void`}</CodeBlockCode>
             </CodeBlock>
             <Content
@@ -908,145 +1077,58 @@ const registry = useComponentHandlerRegistry();`}</CodeBlockCode>
             </Content>
             <ul>
               <li>
-                <code>id</code> - The field id to match against (string or
-                RegExp pattern)
+                <code>matchers</code> - Object with one or more of{" "}
+                <code>id</code>, <code>name</code>, <code>dataPath</code>{" "}
+                (string or RegExp). All provided criteria must match.
               </li>
               <li>
                 <code>formatter</code> - Function that takes a value and returns
                 a ReactNode
               </li>
               <li>
-                <code>inputDataType</code> - Optional: If provided, formatter
-                will only match when input_data_type matches
+                <code>inputDataType</code> - Optional (string or RegExp).
+                Formatter only matches when input_data_type matches.
               </li>
             </ul>
-            <div className="registry-demo-note">
-              <Content component={ContentVariants.p} style={{ margin: "0" }}>
-                <strong>Note:</strong> Formatters registered with this method
-                will <strong>only</strong> match when the registry checks the
-                field <code>id</code> property. They will not match when
-                checking <code>name</code> or <code>data_path</code> properties.
-              </Content>
-            </div>
+            <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
+              <strong>Convenience:</strong>{" "}
+              <code>registerFormatterById(id, formatter, inputDataType?)</code>,{" "}
+              <code>
+                registerFormatterByName(name, formatter, inputDataType?)
+              </code>
+              ,{" "}
+              <code>
+                registerFormatterByDataPath(dataPath, formatter, inputDataType?)
+              </code>{" "}
+              wrap single-matcher registration. Use{" "}
+              <code>unregisterFormatterById</code> / <code>ByName</code> /{" "}
+              <code>ByDataPath</code> for cleanup.
+            </Content>
             <CodeBlock style={{ marginTop: "12px" }}>
-              <CodeBlockCode>{`// Register by exact field id
+              <CodeBlockCode>{`// Convenience: match by field id
 registry.registerFormatterById("product-name", (value) => (
   <strong>{String(value)}</strong>
-));
+), "products");
 
-// Register with data type scoping
-registry.registerFormatterById("server-status", (value) => (
-  <span>{/* formatted value */}</span>
+// Convenience: match by field name
+registry.registerFormatterByName("Status", (value) => (
+  <span>{/* formatted */}</span>
 ), "servers");
 
-// Register with regex pattern
-registry.registerFormatterById(/.*-endDate$/, (value) => (
-  formatDate(value)
-));`}</CodeBlockCode>
-            </CodeBlock>
-          </div>
+// Convenience: match by data path
+registry.registerFormatterByDataPath("products.price", (value) => (
+  <span>{/* currency */}</span>
+), "inventory");
 
-          <div className="registry-demo-method">
-            <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
-              registerFormatterByName
-            </Content>
-            <CodeBlock>
-              <CodeBlockCode>{`registry.registerFormatterByName(
-  name: string | RegExp,
-  formatter: CellFormatter,
-  inputDataType?: string
-): void`}</CodeBlockCode>
-            </CodeBlock>
-            <Content
-              component={ContentVariants.p}
-              style={{ marginTop: "12px" }}
-            >
-              <strong>Parameters:</strong>
-            </Content>
-            <ul>
-              <li>
-                <code>name</code> - The field name to match against (string or
-                RegExp pattern)
-              </li>
-              <li>
-                <code>formatter</code> - Function that takes a value and returns
-                a ReactNode
-              </li>
-              <li>
-                <code>inputDataType</code> - Optional: If provided, formatter
-                will only match when input_data_type matches
-              </li>
-            </ul>
-            <div className="registry-demo-note">
-              <Content component={ContentVariants.p} style={{ margin: "0" }}>
-                <strong>Note:</strong> Formatters registered with this method
-                will <strong>only</strong> match when the registry checks the
-                field <code>name</code> property. They will not match when
-                checking <code>id</code> or <code>data_path</code> properties.
-              </Content>
-            </div>
-            <CodeBlock style={{ marginTop: "12px" }}>
-              <CodeBlockCode>{`// Register by field name
-registry.registerFormatterByName("Status", (value) => (
-  <span>{/* formatted value */}</span>
-));
+// Multiple criteria: use registerFormatter(matchers, formatter, inputDataType)
+registry.registerFormatter(
+  { dataPath: /products/, name: "Status" },
+  (value) => <span>{String(value)}</span>,
+  "context-matcher"
+);
 
-// Register with data type scoping
-registry.registerFormatterByName("CPU Usage", (value) => (
-  <span>{/* formatted value */}</span>
-), "pods");`}</CodeBlockCode>
-            </CodeBlock>
-          </div>
-
-          <div className="registry-demo-method">
-            <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
-              registerFormatterByDataPath
-            </Content>
-            <CodeBlock>
-              <CodeBlockCode>{`registry.registerFormatterByDataPath(
-  dataPath: string | RegExp,
-  formatter: CellFormatter,
-  inputDataType?: string
-): void`}</CodeBlockCode>
-            </CodeBlock>
-            <Content
-              component={ContentVariants.p}
-              style={{ marginTop: "12px" }}
-            >
-              <strong>Parameters:</strong>
-            </Content>
-            <ul>
-              <li>
-                <code>dataPath</code> - The field data_path to match against
-                (string or RegExp pattern)
-              </li>
-              <li>
-                <code>formatter</code> - Function that takes a value and returns
-                a ReactNode
-              </li>
-              <li>
-                <code>inputDataType</code> - Optional: If provided, formatter
-                will only match when input_data_type matches
-              </li>
-            </ul>
-            <div className="registry-demo-note">
-              <Content component={ContentVariants.p} style={{ margin: "0" }}>
-                <strong>Note:</strong> Formatters registered with this method
-                will <strong>only</strong> match when the registry checks the
-                field <code>data_path</code> property. They will not match when
-                checking <code>id</code> or <code>name</code> properties.
-              </Content>
-            </div>
-            <CodeBlock style={{ marginTop: "12px" }}>
-              <CodeBlockCode>{`// Register by data path
-registry.registerFormatterByDataPath("users.name", (value) => (
-  <span>{/* formatted value */}</span>
-));
-
-// Register with data type scoping
-registry.registerFormatterByDataPath("inventory.items.status", (value) => (
-  <span>{/* formatted value */}</span>
-), "inventory");`}</CodeBlockCode>
+// RegExp in convenience method
+registry.registerFormatterById(/.*-endDate$/, (value) => formatDate(value));`}</CodeBlockCode>
             </CodeBlock>
           </div>
 
@@ -1056,31 +1138,74 @@ registry.registerFormatterByDataPath("inventory.items.status", (value) => (
             </Content>
             <CodeBlock>
               <CodeBlockCode>{`registry.unregisterFormatter(
-  id: string | RegExp
+  matchers: FormatterContextMatcher,
+  inputDataType?: string | RegExp
 ): void`}</CodeBlockCode>
             </CodeBlock>
             <Content
               component={ContentVariants.p}
               style={{ marginTop: "12px", marginBottom: "0" }}
             >
-              Removes a previously registered formatter. Accepts either a string
-              id or RegExp pattern that was used during registration.
+              Removes a formatter that was registered with{" "}
+              <code>registerFormatter</code>. Pass the same matchers (and{" "}
+              <code>inputDataType</code> if used) as at registration.
             </Content>
           </div>
 
+          <div className="registry-demo-method">
+            <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
+              registerAutoFormatters
+            </Content>
+            <CodeBlock>
+              <CodeBlockCode>{`registerAutoFormatters(
+  registry: ComponentHandlerRegistry,
+  options?: RegisterAutoFormattersOptions
+): void`}</CodeBlockCode>
+            </CodeBlock>
+            <Content
+              component={ContentVariants.p}
+              style={{ marginTop: "12px" }}
+            >
+              Registers all built-in formatters (iso-date, boolean, number,
+              currency-usd, percent, empty) in the registry so fields can match
+              them by id/name/dataPath. When no formatter is resolved, the
+              resolver uses autoFormatter (auto formatters: empty, iso-date,
+              boolean, number).
+            </Content>
+            <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
+              <strong>Options:</strong>
+            </Content>
+            <ul>
+              <li>
+                <code>exclude</code> — Auto formatter ids to skip registering
+                (e.g. <code>["boolean"]</code>). Only iso-date, boolean, number,
+                empty.
+              </li>
+              <li>
+                <code>overrides</code> — Object mapping id to custom formatter
+                (replaces the built-in for that id).
+              </li>
+            </ul>
+            <CodeBlock style={{ marginTop: "12px" }}>
+              <CodeBlockCode>{`registerAutoFormatters(registry);
+registerAutoFormatters(registry, { exclude: ["boolean"] });
+registerAutoFormatters(registry, { overrides: { boolean: (v) => v ? "Y" : "N" } });
+registerAutoFormatters(registry, { exclude: ["number"], overrides: { "iso-date": myDateFn } });`}</CodeBlockCode>
+            </CodeBlock>
+          </div>
+
           <Content component={ContentVariants.h3} style={{ marginTop: "32px" }}>
-            Row Click Handler Methods
+            Item Click Handler Methods
           </Content>
 
           <div className="registry-demo-method">
             <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
-              registerRowClick
+              registerItemClick
             </Content>
             <CodeBlock>
-              <CodeBlockCode>{`registry.registerRowClick(
-  id: string,
-  handler: RowClickHandler,
-  inputDataType?: string
+              <CodeBlockCode>{`registry.registerItemClick(
+  inputDataType: string | RegExp,
+  handler: ItemClickHandler
 ): void`}</CodeBlockCode>
             </CodeBlock>
             <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
@@ -1088,88 +1213,66 @@ registry.registerFormatterByDataPath("inventory.items.status", (value) => (
             </Content>
             <ul>
               <li>
-                <code>id</code> - The component ID to associate the handler
-                with. Use <code>"*"</code> to register a handler for all
-                components with the specified <code>inputDataType</code>.
+                <code>inputDataType</code> - String for exact match (e.g.{" "}
+                <code>"catalog"</code>) or RegExp to match multiple types.
               </li>
               <li>
                 <code>handler</code> - Function that receives the click event
-                and row data.
-              </li>
-              <li>
-                <code>inputDataType</code> - Optional: If provided, handler is
-                scoped to that data type. With <code>id="*"</code>, the handler
-                applies to all components with this <code>inputDataType</code>.
+                and item data.
               </li>
             </ul>
             <CodeBlock style={{ marginTop: "12px" }}>
-              <CodeBlockCode>{`// By component id only
-registry.registerRowClick("my-table", (event, rowData) => {
-  console.log("Row clicked:", rowData);
+              <CodeBlockCode>{`// By inputDataType (exact)
+registry.registerItemClick("catalog", (event, itemData) => {
+  console.log("Item clicked:", itemData);
 });
 
-// By component id + inputDataType
-registry.registerRowClick("my-table", (event, rowData) => {
-  console.log("Row clicked:", rowData);
-}, "products");
-
-// For all components with a specific inputDataType (id="*")
-registry.registerRowClick("*", (event, rowData) => {
-  console.log("Any catalog table row clicked:", rowData);
-}, "catalog");`}</CodeBlockCode>
+// By RegExp (match multiple types)
+registry.registerItemClick(/catalog|inventory/, (event, itemData) => {
+  console.log("Item clicked:", itemData);
+});`}</CodeBlockCode>
             </CodeBlock>
           </div>
 
           <div className="registry-demo-method">
             <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
-              unregisterRowClick
+              unregisterItemClick
             </Content>
             <CodeBlock>
-              <CodeBlockCode>{`registry.unregisterRowClick(
-  id: string,
-  inputDataType?: string
+              <CodeBlockCode>{`registry.unregisterItemClick(
+  inputDataType: string | RegExp
 ): void`}</CodeBlockCode>
             </CodeBlock>
             <Content
               component={ContentVariants.p}
               style={{ marginTop: "12px", marginBottom: "0" }}
             >
-              Removes a previously registered row click handler. Pass the same{" "}
-              <code>id</code> (and <code>inputDataType</code> if used) as at
-              registration. For inputDataType-only handlers use{" "}
-              <code>unregisterRowClick("*", inputDataType)</code>.
+              Removes a previously registered item click handler. Pass the same{" "}
+              <code>inputDataType</code> (string or RegExp) as at registration.
             </Content>
           </div>
 
           <div className="registry-demo-method">
             <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
-              getRowClick
+              getItemClick
             </Content>
             <CodeBlock>
-              <CodeBlockCode>{`registry.getRowClick(
-  id: string | null | undefined,
-  inputDataType?: string
-): RowClickHandler | undefined`}</CodeBlockCode>
+              <CodeBlockCode>{`registry.getItemClick(
+  inputDataType: string | null | undefined
+): ItemClickHandler | undefined`}</CodeBlockCode>
             </CodeBlock>
             <Content
               component={ContentVariants.p}
               style={{ marginTop: "12px", marginBottom: "0" }}
             >
-              Retrieves a row click handler by component ID. Tries multiple
-              lookup strategies in order:
+              Retrieves an item click handler by inputDataType. Lookup order:
               <ol>
                 <li>
-                  Data-type specific: <code>{"{inputDataType}.{id}"}</code>{" "}
-                  (e.g., "catalog.my-table")
+                  Exact string match for <code>inputDataType</code>
                 </li>
                 <li>
-                  InputDataType-only: <code>inputDataType</code> (handlers
-                  registered with <code>id="*"</code>)
+                  First RegExp pattern that matches <code>inputDataType</code>
                 </li>
-                <li>
-                  Direct lookup by <code>id</code> (e.g., "my-table")
-                </li>
-                <li>Extract suffix from prefixed ID and try generic lookup</li>
               </ol>
             </Content>
           </div>
@@ -1221,16 +1324,15 @@ registry.registerRowClick("*", (event, rowData) => {
               component={ContentVariants.p}
               style={{ marginTop: "12px", marginBottom: "0" }}
             >
-              Retrieves a formatter using the resolution strategy for the
-              registered formatter methods (<code>registerFormatterById</code>,{" "}
-              <code>registerFormatterByName</code>,{" "}
-              <code>registerFormatterByDataPath</code>). The registry
-              automatically infers which field property (<code>id</code>,{" "}
-              <code>name</code>, or <code>data_path</code>) the <code>id</code>{" "}
-              parameter represents by comparing it with the context properties.
-              It then only checks formatters registered for that specific field
-              property type (e.g., <code>registerFormatterById</code> formatters
-              only match when checking the <code>id</code> field).
+              Retrieves a formatter by matching the lookup identifier and
+              context against registered formatters (
+              <code>registerFormatter</code>
+              matchers). The registry automatically infers which field property
+              (<code>id</code>, <code>name</code>, or <code>data_path</code>)
+              the <code>id</code> parameter represents by comparing it with the
+              context properties. It then checks formatters registered for that
+              field property type, then pattern matches, then context matchers
+              from <code>registerFormatter</code>.
             </Content>
           </div>
 
@@ -1250,8 +1352,8 @@ registry.registerRowClick("*", (event, rowData) => {
               style={{ marginTop: "12px", marginBottom: "0" }}
             >
               Returns <code>true</code> if the registry is active (has a
-              provider),
-              <code>false</code> if it's a no-op (used outside provider).
+              provider), <code>false</code> if it's a no-op (used outside
+              provider).
             </Content>
           </div>
 
@@ -1279,20 +1381,20 @@ registry.registerRowClick("*", (event, rowData) => {
 
           <div className="registry-demo-method">
             <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
-              RowClickHandler
+              ItemClickHandler
             </Content>
             <CodeBlock>
-              <CodeBlockCode>{`type RowClickHandler = (
+              <CodeBlockCode>{`type ItemClickHandler = (
   event: React.MouseEvent | React.KeyboardEvent,
-  rowData: Record<string, string | number | boolean | null>
+  itemData: Record<string, string | number | boolean | null>
 ) => void;`}</CodeBlockCode>
             </CodeBlock>
             <Content
               component={ContentVariants.p}
               style={{ marginTop: "12px", marginBottom: "0" }}
             >
-              Function type for handling row click events. Receives the click
-              event and the row data object.
+              Function type for handling item click events. Receives the click
+              event and the item data object.
             </Content>
           </div>
 
@@ -1315,6 +1417,28 @@ registry.registerRowClick("*", (event, rowData) => {
             >
               Context object passed to <code>getFormatter</code> to enable
               data-aware formatter selection.
+            </Content>
+          </div>
+
+          <div className="registry-demo-method">
+            <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
+              FormatterContextMatcher
+            </Content>
+            <CodeBlock>
+              <CodeBlockCode>{`interface FormatterContextMatcher {
+  id?: string | RegExp;
+  name?: string | RegExp;
+  dataPath?: string | RegExp;
+}`}</CodeBlockCode>
+            </CodeBlock>
+            <Content
+              component={ContentVariants.p}
+              style={{ marginTop: "12px", marginBottom: "0" }}
+            >
+              Matchers for <code>registerFormatter</code>. All provided criteria
+              must match. Use when a single pattern is too broad and you want to
+              narrow by id, name, or dataPath (e.g. dataPath{" "}
+              <code>/products/</code> and name <code>"Status"</code>).
             </Content>
           </div>
         </div>
