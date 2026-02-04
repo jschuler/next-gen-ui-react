@@ -81,8 +81,12 @@ describe("OneCardWrapper", () => {
     expect(screen.getByText("Toy Story")).toBeInTheDocument();
     expect(screen.getByText("1,995")).toBeInTheDocument();
     expect(screen.getByText("8.3")).toBeInTheDocument();
-    // Date string with space not matched as ISO; parsed as number 2022 → "2,022"
-    expect(screen.getByText("2,022")).toBeInTheDocument();
+    // "2022-11-02 00:00:00" is matched by relaxed ISO and formatted as date (e.g. "Nov 2, 2022, 12:00 AM")
+    expect(
+      screen.getByText(
+        (content) => content.includes("Nov") && content.includes("2022")
+      )
+    ).toBeInTheDocument();
     expect(
       screen.getByText("Jim Varney, Tim Allen, Tom Hanks, Don Rickles")
     ).toBeInTheDocument();

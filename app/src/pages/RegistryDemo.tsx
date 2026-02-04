@@ -303,7 +303,7 @@ function RegistrySetup() {
       "pattern-demo"
     );
 
-    // Register all built-in formatters in the registry; auto formatters (empty, iso-date, boolean, number) apply by type when no formatter is resolved.
+    // Register all built-in formatters in the registry; auto formatters (empty, datetime, boolean, number, url) apply by type when no formatter is resolved.
     registerAutoFormatters(registry);
 
     // Example 5: Item click handler
@@ -453,7 +453,7 @@ registry.registerFormatter(
     title: "Example 5: Auto formatters",
     data: registryDemoBuiltInFormatters,
     description:
-      "When no formatter is registered for a field, the resolver detects the value type and applies an auto formatter (empty, iso-date, boolean, number).",
+      "When no formatter is registered for a field, the resolver detects the value type and applies an auto formatter (empty, datetime, boolean, number, url).",
     strategyDetails: (
       <>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
@@ -476,12 +476,14 @@ function MyTable() {
       id="my-table"
       inputDataType="built-in-formatters"
       fields={[
-        { id: "col-date",   name: "Date",    data_path: "row.date",   data: ["2025-01-15", "2024-12-31T14:30:00", "2025-06-01"] },
-        { id: "col-active", name: "Active",  data_path: "row.active", data: [true, false, true] },
-        { id: "col-count",  name: "Count",   data_path: "row.count",  data: [1234.5, 42_000, 1_000_000] },
-        { id: "col-amount", name: "Amount",  data_path: "row.amount", data: [99.99, 1250, 0.5] },
-        { id: "col-label",  name: "Label",   data_path: "row.label",  data: ["Alpha", "Beta", "Gamma"] },
-        { id: "col-notes",  name: "Notes",   data_path: "row.notes",  data: ["Has value", null, ""] },
+        { id: "col-date", name: "Date", data_path: "row.date", data: ["2025-01-15", "2024-12-31T14:30:00", "2025-06-01"] },
+        { id: "col-timestamp", name: "Timestamp", data_path: "row.timestamp", data: [1735689600, 1704067200000, 1743465600] },
+        { id: "col-active", name: "Active", data_path: "row.active", data: [true, false, true] },
+        { id: "col-count", name: "Count", data_path: "row.count", data: [1234.5, 42_000, 1_000_000] },
+        { id: "col-amount", name: "Amount", data_path: "row.amount", data: [99.99, 1250, 0.5] },
+        { id: "col-link", name: "Link", data_path: "row.link", data: ["https://example.com/docs", "http://github.com", "https://patternfly.org"] },
+        { id: "col-label", name: "Label", data_path: "row.label", data: ["Alpha", "Beta", "Gamma"] },
+        { id: "col-notes", name: "Notes", data_path: "row.notes", data: ["Has value", null, ""] },
       ]}
     />
   );
@@ -498,7 +500,8 @@ function MyTable() {
             null / undefined / empty string → <code>empty</code> (—)
           </li>
           <li>
-            ISO date string → <code>iso-date</code>
+            ISO date string or Unix timestamp (10/13-digit) →{" "}
+            <code>datetime</code>
           </li>
           <li>
             true/false or &quot;true&quot;/&quot;false&quot; →{" "}
@@ -506,6 +509,9 @@ function MyTable() {
           </li>
           <li>
             Other number → <code>number</code> (locale)
+          </li>
+          <li>
+            http/https URL → <code>url</code> (clickable link, opens in new tab)
           </li>
           <li>Other → string as-is</li>
         </Content>
@@ -530,8 +536,8 @@ function MyTable() {
 })`}</CodeBlockCode>
         </CodeBlock>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
-          <code>exclude</code> accepts only auto formatter ids (iso-date,
-          boolean, number, empty). <code>overrides</code> accepts any{" "}
+          <code>exclude</code> accepts only auto formatter ids (datetime,
+          boolean, number, url, empty). <code>overrides</code> accepts any{" "}
           <code>BUILT_IN_FORMATTER_IDS</code>.
         </Content>
       </>
@@ -841,7 +847,7 @@ function MyComponent() {
   const registry = useComponentHandlerRegistry();
 
   useEffect(() => {
-    // Register all built-in formatters. When no formatter is resolved, type is detected and an auto formatter (empty, iso-date, boolean, number) is applied.
+    // Register all built-in formatters. When no formatter is resolved, type is detected and an auto formatter (empty, datetime, boolean, number, url) is applied.
     registerAutoFormatters(registry);
 
     // Register formatter by field id
@@ -1166,11 +1172,11 @@ registry.registerFormatterById(/.*-endDate$/, (value) => formatDate(value));`}</
               component={ContentVariants.p}
               style={{ marginTop: "12px" }}
             >
-              Registers all built-in formatters (iso-date, boolean, number,
+              Registers all built-in formatters (datetime, boolean, number, url,
               currency-usd, percent, empty) in the registry so fields can match
               them by id/name/dataPath. When no formatter is resolved, the
-              resolver uses autoFormatter (auto formatters: empty, iso-date,
-              boolean, number).
+              resolver uses autoFormatter (auto formatters: empty, datetime,
+              boolean, number, url).
             </Content>
             <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
               <strong>Options:</strong>
@@ -1178,8 +1184,8 @@ registry.registerFormatterById(/.*-endDate$/, (value) => formatDate(value));`}</
             <ul>
               <li>
                 <code>exclude</code> — Auto formatter ids to skip registering
-                (e.g. <code>["boolean"]</code>). Only iso-date, boolean, number,
-                empty.
+                (e.g. <code>["boolean"]</code>). Only datetime, boolean, number,
+                url, empty.
               </li>
               <li>
                 <code>overrides</code> — Object mapping id to custom formatter
@@ -1190,7 +1196,7 @@ registry.registerFormatterById(/.*-endDate$/, (value) => formatDate(value));`}</
               <CodeBlockCode>{`registerAutoFormatters(registry);
 registerAutoFormatters(registry, { exclude: ["boolean"] });
 registerAutoFormatters(registry, { overrides: { boolean: (v) => v ? "Y" : "N" } });
-registerAutoFormatters(registry, { exclude: ["number"], overrides: { "iso-date": myDateFn } });`}</CodeBlockCode>
+registerAutoFormatters(registry, { exclude: ["number"], overrides: { "datetime": myDateFn } });`}</CodeBlockCode>
             </CodeBlock>
           </div>
 

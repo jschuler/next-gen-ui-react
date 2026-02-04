@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 
 import type { ComponentHandlerRegistry } from "../../components/ComponentHandlerRegistry";
 import {
-  isoDateFormatter,
+  datetimeFormatter,
+  urlFormatter,
   isISODate,
   ISO_DATE_PATTERN,
   ISO_DATE_PATTERN_SORT,
@@ -12,9 +13,9 @@ import {
 } from "../../utils/builtInFormatters";
 
 describe("builtInFormatters", () => {
-  describe("isoDateFormatter", () => {
+  describe("datetimeFormatter", () => {
     it("should format ISO date string (YYYY-MM-DD)", () => {
-      const result = isoDateFormatter("2025-12-31");
+      const result = datetimeFormatter("2025-12-31");
       expect(result).toBeTruthy();
       expect(typeof result).toBe("string");
       // Should be formatted, not the raw ISO string
@@ -24,7 +25,7 @@ describe("builtInFormatters", () => {
     });
 
     it("should format ISO datetime string (YYYY-MM-DDTHH:mm:ss)", () => {
-      const result = isoDateFormatter("2025-12-31T14:30:00");
+      const result = datetimeFormatter("2025-12-31T14:30:00");
       expect(result).toBeTruthy();
       expect(typeof result).toBe("string");
       // Should be formatted with date and time
@@ -33,76 +34,137 @@ describe("builtInFormatters", () => {
     });
 
     it("should format ISO datetime string with milliseconds", () => {
-      const result = isoDateFormatter("2025-12-31T14:30:00.123");
+      const result = datetimeFormatter("2025-12-31T14:30:00.123");
       expect(result).toBeTruthy();
       expect(typeof result).toBe("string");
       expect(result).not.toBe("2025-12-31T14:30:00.123");
     });
 
     it("should format ISO datetime string with timezone (Z)", () => {
-      const result = isoDateFormatter("2025-12-31T14:30:00Z");
+      const result = datetimeFormatter("2025-12-31T14:30:00Z");
       expect(result).toBeTruthy();
       expect(typeof result).toBe("string");
       expect(result).not.toBe("2025-12-31T14:30:00Z");
     });
 
     it("should format ISO datetime string with milliseconds and timezone", () => {
-      const result = isoDateFormatter("2025-12-31T14:30:00.123Z");
+      const result = datetimeFormatter("2025-12-31T14:30:00.123Z");
       expect(result).toBeTruthy();
       expect(typeof result).toBe("string");
       expect(result).not.toBe("2025-12-31T14:30:00.123Z");
     });
 
     it("should return empty string for null", () => {
-      const result = isoDateFormatter(null);
+      const result = datetimeFormatter(null);
       expect(result).toBe("");
     });
 
     it("should return empty string for undefined", () => {
-      const result = isoDateFormatter(undefined);
+      const result = datetimeFormatter(undefined);
       expect(result).toBe("");
     });
 
     it("should return value as-is for non-ISO date strings", () => {
-      const result = isoDateFormatter("not a date");
+      const result = datetimeFormatter("not a date");
       expect(result).toBe("not a date");
     });
 
-    it("should return value as-is for numbers", () => {
-      const result = isoDateFormatter(12345);
+    it("should return value as-is for small numbers (not in timestamp range)", () => {
+      const result = datetimeFormatter(12345);
       expect(result).toBe("12345");
     });
 
+    it("should format numeric Unix timestamps (seconds)", () => {
+      const result = datetimeFormatter(1735689600);
+      expect(result).toBeTruthy();
+      expect(typeof result).toBe("string");
+      expect(result).toMatch(/Jan|2025|1/);
+    });
+
+    it("should format numeric Unix timestamps (milliseconds)", () => {
+      const result = datetimeFormatter(1735689600000);
+      expect(result).toBeTruthy();
+      expect(typeof result).toBe("string");
+      expect(result).toMatch(/Jan|2025|1/);
+    });
+
+    it("should format string Unix timestamps (10-digit seconds)", () => {
+      const result = datetimeFormatter("1735689600");
+      expect(result).toBeTruthy();
+      expect(typeof result).toBe("string");
+      expect(result).toMatch(/Jan|2025|1/);
+    });
+
     it("should return value as-is for boolean", () => {
-      const result = isoDateFormatter(true);
+      const result = datetimeFormatter(true);
       expect(result).toBe("true");
     });
 
     it("should return value as-is for invalid date strings", () => {
-      const result = isoDateFormatter("2025-13-45"); // Invalid month/day
+      const result = datetimeFormatter("2025-13-45"); // Invalid month/day
       expect(result).toBe("2025-13-45");
     });
 
     it("should handle dates from different years", () => {
-      const result2020 = isoDateFormatter("2020-01-01");
-      const result2025 = isoDateFormatter("2025-12-31");
+      const result2020 = datetimeFormatter("2020-01-01");
+      const result2025 = datetimeFormatter("2025-12-31");
       expect(result2020).toBeTruthy();
       expect(result2025).toBeTruthy();
       expect(result2020).not.toBe(result2025);
     });
 
     it("should handle dates from different months", () => {
-      const jan = isoDateFormatter("2025-01-15");
-      const dec = isoDateFormatter("2025-12-15");
+      const jan = datetimeFormatter("2025-01-15");
+      const dec = datetimeFormatter("2025-12-15");
       expect(jan).toBeTruthy();
       expect(dec).toBeTruthy();
       expect(jan).not.toBe(dec);
     });
 
     it("should format dates consistently", () => {
-      const result1 = isoDateFormatter("2025-12-31");
-      const result2 = isoDateFormatter("2025-12-31");
+      const result1 = datetimeFormatter("2025-12-31");
+      const result2 = datetimeFormatter("2025-12-31");
       expect(result1).toBe(result2);
+    });
+  });
+
+  describe("urlFormatter", () => {
+    it("should return an anchor element for http URL", () => {
+      const result = urlFormatter("http://example.com/path");
+      expect(result).not.toBe("http://example.com/path");
+      expect(result).toBeTruthy();
+      if (typeof result !== "string" && result != null && "type" in result) {
+        expect((result as { type: string }).type).toBe("a");
+        expect((result as { props: { href: string } }).props.href).toBe(
+          "http://example.com/path"
+        );
+        expect((result as { props: { target: string } }).props.target).toBe(
+          "_blank"
+        );
+        expect((result as { props: { rel: string } }).props.rel).toBe(
+          "noopener noreferrer"
+        );
+      }
+    });
+
+    it("should return an anchor element for https URL", () => {
+      const result = urlFormatter("https://example.org");
+      expect(result).toBeTruthy();
+      if (typeof result !== "string" && result != null && "props" in result) {
+        expect((result as { props: { href: string } }).props.href).toBe(
+          "https://example.org"
+        );
+      }
+    });
+
+    it("should return value as-is for non-URL strings", () => {
+      expect(urlFormatter("not a url")).toBe("not a url");
+      expect(urlFormatter("ftp://example.com")).toBe("ftp://example.com");
+    });
+
+    it("should return empty string for null/undefined", () => {
+      expect(urlFormatter(null)).toBe("");
+      expect(urlFormatter(undefined)).toBe("");
     });
   });
 
@@ -213,17 +275,17 @@ describe("builtInFormatters", () => {
   });
 
   describe("builtInFormatters", () => {
-    it("should contain iso-date formatter", () => {
-      expect(builtInFormatters["iso-date"]).toBeDefined();
-      expect(typeof builtInFormatters["iso-date"]).toBe("function");
+    it("should contain datetime formatter", () => {
+      expect(builtInFormatters.datetime).toBeDefined();
+      expect(typeof builtInFormatters.datetime).toBe("function");
     });
 
-    it("should have iso-date formatter that matches isoDateFormatter", () => {
-      expect(builtInFormatters["iso-date"]).toBe(isoDateFormatter);
+    it("should have datetime formatter that matches datetimeFormatter", () => {
+      expect(builtInFormatters.datetime).toBe(datetimeFormatter);
     });
 
     it("should have correct type for BuiltInFormatterId", () => {
-      const id: BuiltInFormatterId = "iso-date";
+      const id: BuiltInFormatterId = "datetime";
       expect(builtInFormatters[id]).toBeDefined();
     });
   });
@@ -244,8 +306,8 @@ describe("builtInFormatters", () => {
 
       expect(mockRegistry.registerFormatter).toHaveBeenCalled();
       expect(mockRegistry.registerFormatter).toHaveBeenCalledWith(
-        { id: "iso-date" },
-        isoDateFormatter
+        { id: "datetime" },
+        datetimeFormatter
       );
     });
 
@@ -263,19 +325,19 @@ describe("builtInFormatters", () => {
       const calls = mockRegistry.registerFormatter.mock.calls;
       const registeredIds = calls.map((call) => (call[0] as { id: string }).id);
 
-      expect(registeredIds).toContain("iso-date");
+      expect(registeredIds).toContain("datetime");
     });
 
     it("should register formatters with correct functions", () => {
       registerAutoFormatters(mockRegistry);
 
       const calls = mockRegistry.registerFormatter.mock.calls;
-      const isoDateCall = calls.find(
-        (call) => (call[0] as { id: string }).id === "iso-date"
+      const datetimeCall = calls.find(
+        (call) => (call[0] as { id: string }).id === "datetime"
       );
 
-      expect(isoDateCall).toBeDefined();
-      expect(isoDateCall?.[1]).toBe(isoDateFormatter);
+      expect(datetimeCall).toBeDefined();
+      expect(datetimeCall?.[1]).toBe(datetimeFormatter);
     });
 
     it("should work with ComponentHandlerRegistry interface", () => {
@@ -295,8 +357,8 @@ describe("builtInFormatters", () => {
 
       expect(registry.registerFormatter).toHaveBeenCalled();
       expect(registry.registerFormatter).toHaveBeenCalledWith(
-        { id: "iso-date" },
-        isoDateFormatter
+        { id: "datetime" },
+        datetimeFormatter
       );
     });
 
@@ -310,7 +372,7 @@ describe("builtInFormatters", () => {
 
       expect(registeredIds).not.toContain("boolean");
       expect(registeredIds).not.toContain("number");
-      expect(registeredIds).toContain("iso-date");
+      expect(registeredIds).toContain("datetime");
       expect(registeredIds).toContain("empty");
       expect(registeredIds).toContain("currency-usd");
       expect(registeredIds).toContain("percent");

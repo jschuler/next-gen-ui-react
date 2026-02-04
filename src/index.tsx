@@ -26,7 +26,7 @@ export {
   builtInFormatters,
   BUILT_IN_FORMATTER_IDS,
   createCurrencyFormatter,
-  isoDateFormatter,
+  datetimeFormatter,
   ISO_DATE_PATTERN,
   ISO_DATE_PATTERN_SORT,
   isISODate,

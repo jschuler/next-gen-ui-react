@@ -85,7 +85,7 @@ export const registryDemoCssClasses = {
   fields: commonTableFields,
 };
 
-// Example 5: Auto formatters — type is detected from values (empty, iso-date, boolean, number); other → string. No formatter in JSON.
+// Example 5: Auto formatters — type is detected from values (empty, datetime, boolean, number, url); other → string. datetime accepts ISO strings and Unix timestamps. No formatter in JSON.
 export const registryDemoBuiltInFormatters = {
   component: "data-view" as const,
   id: "registry-demo-builtin-formatters",
@@ -96,6 +96,12 @@ export const registryDemoBuiltInFormatters = {
       name: "Date",
       data_path: "row.date",
       data: ["2025-01-15", "2024-12-31T14:30:00", "2025-06-01"],
+    },
+    {
+      id: "col-timestamp",
+      name: "Timestamp",
+      data_path: "row.timestamp",
+      data: [1735689600, 1704067200000, 1743465600], // seconds, ms, seconds
     },
     {
       id: "col-active",
@@ -114,6 +120,16 @@ export const registryDemoBuiltInFormatters = {
       name: "Amount",
       data_path: "row.amount",
       data: [99.99, 1250, 0.5],
+    },
+    {
+      id: "col-link",
+      name: "Link",
+      data_path: "row.link",
+      data: [
+        "https://example.com/docs",
+        "http://github.com",
+        "https://patternfly.org",
+      ],
     },
     {
       id: "col-label",

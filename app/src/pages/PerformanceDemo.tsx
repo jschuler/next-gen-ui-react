@@ -27,6 +27,14 @@ const ROW_COUNT = 2000;
 
 const STATUSES = ["Running", "Stopped", "Maintenance"] as const;
 
+const SAMPLE_URLS = [
+  "https://example.com/docs",
+  "http://github.com/repo",
+  "https://patternfly.org",
+  "https://www.redhat.com",
+  "https://developer.mozilla.org",
+];
+
 function buildPerformanceData() {
   const ids = Array.from({ length: ROW_COUNT }, (_, i) => i + 1);
   const dates: string[] = [];
@@ -39,15 +47,15 @@ function buildPerformanceData() {
   const quantities: number[] = [];
   const prices: number[] = [];
   const rates: number[] = [];
+  const links: string[] = [];
 
   const startDate = new Date("2024-01-01").getTime();
   const endDate = new Date("2025-02-01").getTime();
   const span = endDate - startDate;
 
   for (let i = 0; i < ROW_COUNT; i++) {
-    dates.push(
-      new Date(startDate + (span * i) / ROW_COUNT).toISOString().slice(0, 19)
-    );
+    const t = startDate + (span * i) / ROW_COUNT;
+    dates.push(new Date(t).toISOString().slice(0, 19));
     counts.push(Math.floor(Math.random() * 10000));
     amounts.push(Math.round(Math.random() * 1000 * 100) / 100);
     labels.push(`Item ${i + 1}`);
@@ -57,6 +65,7 @@ function buildPerformanceData() {
     quantities.push(Math.floor(Math.random() * 90000) + 1000);
     prices.push(Math.round(Math.random() * 200 * 100) / 100);
     rates.push(Math.round(Math.random() * 100) / 100);
+    links.push(SAMPLE_URLS[i % SAMPLE_URLS.length]);
   }
 
   return {
@@ -98,6 +107,12 @@ function buildPerformanceData() {
         name: "Label",
         data_path: "row.label",
         data: labels,
+      },
+      {
+        id: "perf-link",
+        name: "Link",
+        data_path: "row.link",
+        data: links,
       },
       {
         id: "perf-empty",
@@ -283,7 +298,7 @@ export default function PerformanceDemo() {
     <>
       <PageSection>
         <Content component={ContentVariants.p}>
-          Large data-view table with {ROW_COUNT} rows and 11 columns to test
+          Large data-view table with {ROW_COUNT} rows and 12 columns to test
           performance. Formatter per column (left to right):
         </Content>
         <Content component={ContentVariants.ul} style={{ marginTop: "8px" }}>
@@ -291,7 +306,7 @@ export default function PerformanceDemo() {
             <strong>Id</strong> — custom
           </li>
           <li>
-            <strong>Date</strong> — auto (iso-date)
+            <strong>Date</strong> — auto (datetime)
           </li>
           <li>
             <strong>Count</strong> — custom
@@ -301,6 +316,9 @@ export default function PerformanceDemo() {
           </li>
           <li>
             <strong>Label</strong> — auto (string)
+          </li>
+          <li>
+            <strong>Link</strong> — auto (url, clickable)
           </li>
           <li>
             <strong>Empty</strong> — auto (empty)
@@ -366,8 +384,8 @@ registry.registerFormatterById("perf-price", builtInFormatters["currency-usd"]);
 registry.registerFormatterById("perf-rate", builtInFormatters.percent);
 registry.registerFormatterById("perf-status", (value) => ...);  // badge + icon
 
-// No formatter registered → auto by type: Date (iso-date), Enabled (boolean),
-// Quantity (number), Label (string), Empty (empty)`}</CodeBlockCode>
+// No formatter registered → auto by type: Date (datetime), Enabled (boolean),
+// Quantity (number), Label (string), Link (url), Empty (empty)`}</CodeBlockCode>
               </CodeBlock>
             </ExpandableSection>
           </div>

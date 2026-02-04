@@ -1,6 +1,9 @@
-import type { ReactNode } from "react";
+import React, { type ReactNode } from "react";
 
 import type { CellFormatter } from "../components/ComponentHandlerRegistry";
+
+/** Pattern for a string that is a single URL (http or https). */
+const URL_PATTERN = /^https?:\/\/\S+$/;
 
 /**
  * Built-in formatters that can be registered in the ComponentHandlerRegistry.
@@ -8,46 +11,75 @@ import type { CellFormatter } from "../components/ComponentHandlerRegistry";
  */
 
 /**
- * ISO Date Formatter
- * Automatically detects and formats ISO date strings (YYYY-MM-DD or ISO 8601 with time)
- * into a user-friendly format using Intl.DateTimeFormat.
+ * DateTime formatter (ISO date strings + Unix timestamps)
+ * Accepts ISO date strings (YYYY-MM-DD or ISO 8601 with time, including relaxed
+ * patterns like space before time or timezone offset) and Unix timestamps
+ * (10-digit seconds or 13-digit milliseconds). Renders with Intl.DateTimeFormat
+ * (medium date; short time when a time component is present).
  */
-export const isoDateFormatter: CellFormatter = (value): string | ReactNode => {
-  if (value === null || value === undefined) {
-    return "";
-  }
+export const datetimeFormatter: CellFormatter = (value): string | ReactNode => {
+  if (value === null || value === undefined) return "";
 
-  const strValue = String(value);
+  const strValue = String(value).trim();
+  let date: Date | null = null;
+  let hasTime = false;
 
-  // Check for ISO date format and auto-format for display
-  const isoDatePattern = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/;
-  if (isoDatePattern.test(strValue)) {
-    const date = new Date(strValue);
-    if (!isNaN(date.getTime())) {
-      // Format date based on whether it has time component
-      const hasTime = strValue.includes("T");
-      try {
-        if (hasTime) {
-          // Format with date and time
-          return new Intl.DateTimeFormat(undefined, {
-            dateStyle: "medium",
-            timeStyle: "short",
-          }).format(date);
-        } else {
-          // Format date only
-          return new Intl.DateTimeFormat(undefined, {
-            dateStyle: "medium",
-          }).format(date);
-        }
-      } catch {
-        // Fallback if Intl formatting fails
-        return strValue;
-      }
+  // 1) Unix timestamp (number or string in valid range)
+  if (isUnixTimestamp(value)) {
+    if (typeof value === "number") {
+      date =
+        value >= 1e9 && value < 1e10 ? new Date(value * 1000) : new Date(value);
+    } else {
+      const num = Number(strValue);
+      date = strValue.length <= 10 ? new Date(num * 1000) : new Date(num);
     }
+    hasTime = true;
+  }
+  // 2) ISO date string (strict or relaxed)
+  else if (
+    ISO_DATE_PATTERN.test(strValue) ||
+    ISO_DATE_PATTERN_RELAXED.test(strValue)
+  ) {
+    date = new Date(strValue);
+    hasTime = strValue.includes("T") || /\d{2}:\d{2}/.test(strValue);
   }
 
-  // Not an ISO date, return as-is
-  return strValue;
+  if (date == null || isNaN(date.getTime())) return strValue;
+
+  try {
+    if (hasTime) {
+      return new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short",
+      }).format(date);
+    }
+    return new Intl.DateTimeFormat(undefined, {
+      dateStyle: "medium",
+    }).format(date);
+  } catch {
+    return strValue;
+  }
+};
+
+/**
+ * URL formatter
+ * Renders strings that look like a single URL (http:// or https://) as a clickable
+ * link that opens in a new tab (target="_blank", rel="noopener noreferrer").
+ * Non-URL values are returned as-is.
+ */
+export const urlFormatter: CellFormatter = (value): string | ReactNode => {
+  if (value === null || value === undefined) return "";
+  const s = String(value).trim();
+  if (s === "" || !URL_PATTERN.test(s)) return s;
+  return React.createElement(
+    "a",
+    {
+      href: s,
+      target: "_blank",
+      rel: "noopener noreferrer",
+    },
+    s
+  );
 };
 
 /**
@@ -55,6 +87,13 @@ export const isoDateFormatter: CellFormatter = (value): string | ReactNode => {
  */
 export const ISO_DATE_PATTERN =
   /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/;
+
+/**
+ * Relaxed ISO/date pattern: space or T before time, optional timezone offset (e.g. +00:00).
+ * Used by datetimeFormatter for strings like "2023-11-02 12:00:00" or "2023-11-02T12:00:00+00:00".
+ */
+const ISO_DATE_PATTERN_RELAXED =
+  /^\d{4}-\d{2}-\d{2}([T\s]\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[+-]\d{2}:?\d{2})?)?$/;
 
 /**
  * ISO Date Pattern for sorting (less strict - allows partial matches)
@@ -165,24 +204,42 @@ export const emptyFormatter: CellFormatter = (value): string => {
   return s === "" ? "—" : s;
 };
 
+/** True if value looks like a Unix timestamp (seconds or ms in valid range). */
+function isUnixTimestamp(value: unknown): boolean {
+  if (typeof value !== "number" && typeof value !== "string") return false;
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return (value >= 1e9 && value < 1e10) || (value >= 1e12 && value < 1e14);
+  }
+  if (/^\d{10}$/.test(String(value).trim())) {
+    const n = Number(value);
+    return n >= 1e9;
+  }
+  if (/^\d{13}$/.test(String(value).trim())) {
+    const n = Number(value);
+    return n >= 1e12 && n < 1e14;
+  }
+  return false;
+}
+
 /**
  * Detects value type for auto-formatting. Used when no formatter is registered for a field.
  */
 function detectValueType(
   value: string | number | boolean | null | (string | number)[]
-): "empty" | "iso-date" | "boolean" | "number" | "string" {
+): "empty" | "datetime" | "boolean" | "number" | "url" | "string" {
   if (value === null || value === undefined) return "empty";
   if (Array.isArray(value)) return "string";
   const s = String(value).trim();
   if (s === "") return "empty";
-  if (ISO_DATE_PATTERN.test(s)) return "iso-date";
+  if (isUnixTimestamp(value)) return "datetime";
+  if (ISO_DATE_PATTERN.test(s) || ISO_DATE_PATTERN_RELAXED.test(s))
+    return "datetime";
   if (typeof value === "boolean") return "boolean";
   const lower = s.toLowerCase();
   if (lower === "true" || lower === "false") return "boolean";
   const num = typeof value === "number" ? value : parseFloat(s);
-  if (!Number.isNaN(num)) {
-    return "number";
-  }
+  if (!Number.isNaN(num)) return "number";
+  if (URL_PATTERN.test(s)) return "url";
   return "string";
 }
 
@@ -208,9 +265,10 @@ export const autoFormatter: CellFormatter = (value): string | ReactNode => {
  * is resolved from the registry. Keys match the return values of detectValueType.
  */
 export const autoFormatters = {
-  "iso-date": isoDateFormatter,
+  datetime: datetimeFormatter,
   boolean: booleanFormatter,
   number: numberFormatter,
+  url: urlFormatter,
   empty: emptyFormatter,
 } as const;
 
@@ -224,7 +282,7 @@ export type AutoFormatterId = keyof typeof autoFormatters;
 //
 // 1. AUTO BY TYPE (no registration)
 //    When no formatter is resolved for a field, the resolver uses autoFormatter,
-//    which uses autoFormatters (empty, iso-date, boolean, number).
+//    which uses autoFormatters (empty, datetime, boolean, number).
 //
 // 2. BY NAME (after registration)
 //    Call registerAutoFormatters(registry) once. Then the registry has
@@ -254,7 +312,7 @@ export const BUILT_IN_FORMATTER_IDS: BuiltInFormatterId[] = Object.keys(
  * Options for registerAutoFormatters.
  */
 export interface RegisterAutoFormattersOptions {
-  /** Auto formatter ids to skip registering (e.g. `['boolean']`). Only auto formatters (iso-date, boolean, number, empty) can be excluded. */
+  /** Auto formatter ids to skip registering (e.g. `['boolean']`). Only auto formatters (datetime, boolean, number, url, empty) can be excluded. */
   exclude?: AutoFormatterId[];
   /** Custom formatter per id; replaces the built-in for that id. */
   overrides?: Partial<Record<BuiltInFormatterId, CellFormatter>>;
@@ -269,13 +327,13 @@ export interface RegisterAutoFormattersOptions {
  *    `registerAutoFormatters(registry)`.
  *
  * **Behavior:**
- * - With no options: registers all six built-ins (iso-date, boolean, number,
+ * - With no options: registers all six built-ins (datetime, boolean, number,
  *   currency-usd, percent, empty) under those ids in the registry.
  * - When no formatter is resolved (by data_path, id, name), the resolver uses
  *   autoFormatter (type detection + built-ins).
  *
  * **Options (second argument):**
- * - `exclude`: do not register these auto formatter ids (iso-date, boolean, number, empty).
+ * - `exclude`: do not register these auto formatter ids (datetime, boolean, number, url, empty).
  * - `overrides`: use these functions instead of the built-in for that id.
  *
  * @param registry - From `useComponentHandlerRegistry()`.
@@ -307,7 +365,7 @@ export interface RegisterAutoFormattersOptions {
  * ```tsx
  * registerAutoFormatters(registry, {
  *   exclude: ['number'],
- *   overrides: { 'iso-date': myDateFormatter },
+ *   overrides: { 'datetime': myDateFormatter },
  * });
  * ```
  */

@@ -1,9 +1,9 @@
-import { isoDateFormatter } from "./builtInFormatters";
+import { datetimeFormatter } from "./builtInFormatters";
 
 /**
  * Formats a value for display in UI components.
  * Handles arrays, null values, and basic type conversion.
- * ISO date formatting is now handled by builtInFormatters.isoDateFormatter
+ * DateTime formatting is now handled by builtInFormatters.datetimeFormatter
  * and should be registered in ComponentHandlerRegistry for better reusability.
  *
  * @param value - The value to format (string, number, boolean, null, or array)
@@ -23,7 +23,7 @@ export const formatValue = (
 
   // Try ISO date formatting (using built-in formatter)
   // This maintains backward compatibility for components that don't use the registry
-  const formatted = isoDateFormatter(strValue);
+  const formatted = datetimeFormatter(strValue);
   if (formatted !== strValue) {
     return String(formatted);
   }

@@ -263,11 +263,11 @@ registerAutoFormatters(registry, {
 // Combine: exclude one, override another
 registerAutoFormatters(registry, {
   exclude: ["number"],
-  overrides: { "iso-date": myDateFormatter },
+  overrides: { datetime: myDateFormatter },
 });
 ```
 
-Built-in ids: `iso-date`, `boolean`, `number`, `currency-usd`, `percent`, `empty`. See the [Registry Demo](https://redhat-ux.github.io/next-gen-ui-react/) for more examples.
+Built-in ids: `datetime`, `boolean`, `number`, `currency-usd`, `percent`, `empty`. See the [Registry Demo](https://redhat-ux.github.io/next-gen-ui-react/) for more examples.
 
 **CSS Classes for Customization**
 
