@@ -11,11 +11,12 @@ interface SetOfCardsWrapperProps {
   id: string;
   title: string;
   fields: FieldData[];
+  images?: (string | null)[] | null;
   className?: string;
 }
 
 const SetOfCardsWrapper = (props: SetOfCardsWrapperProps) => {
-  const { title, id, fields, className } = props;
+  const { title, id, fields, images, className } = props;
 
   // Transform fields data into individual card data
   const transformFieldsToCardsData = () => {
@@ -42,6 +43,7 @@ const SetOfCardsWrapper = (props: SetOfCardsWrapperProps) => {
         title: `${title} ${i + 1}`,
         fields: cardFields,
         id: `${id}-card-${i}`,
+        image: images?.[i] ?? null,
       });
     }
 
