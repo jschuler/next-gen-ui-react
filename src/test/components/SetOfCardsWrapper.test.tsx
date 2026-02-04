@@ -150,4 +150,76 @@ describe("SetOfCardsWrapper", () => {
     const gridElement = container.querySelector(".set-of-cards-grid");
     expect(gridElement).toBeInTheDocument();
   });
+
+  it("renders images per card when images array is provided [url, null, url]", () => {
+    const images = [
+      "https://example.com/img1.jpg",
+      null,
+      "https://example.com/img3.jpg",
+    ];
+    const props = {
+      ...mockProps,
+      // Extend to 3 cards so we can test [url, null, url]
+      fields: [
+        { name: "Title", data_path: "movie.title", data: ["A", "B", "C"] },
+      ],
+      images,
+    };
+    render(<SetOfCardsWrapper {...props} />);
+
+    // Card 1 should have image
+    const img1 = screen.getByRole("img", { name: "Test Movies 1" });
+    expect(img1).toBeInTheDocument();
+    expect(img1).toHaveAttribute("src", images[0] as string);
+
+    // Card 2 should not have image
+    expect(screen.queryByRole("img", { name: "Test Movies 2" })).toBeNull();
+
+    // Card 3 should have image
+    const img3 = screen.getByRole("img", { name: "Test Movies 3" });
+    expect(img3).toBeInTheDocument();
+    expect(img3).toHaveAttribute("src", images[2] as string);
+  });
+
+  it("renders no images when images prop is not provided", () => {
+    render(<SetOfCardsWrapper {...mockProps} />);
+    expect(screen.queryByRole("img")).toBeNull();
+  });
+
+  it("renders no images when images is null", () => {
+    const props = {
+      ...mockProps,
+      fields: [
+        {
+          name: "Title",
+          data_path: "movie.title",
+          data: ["A", "B"],
+        },
+      ],
+      images: null,
+    };
+    render(<SetOfCardsWrapper {...props} />);
+    expect(screen.queryByRole("img")).toBeNull();
+  });
+
+  it("aligns images with items by index; missing indices render no image", () => {
+    const images = ["https://example.com/img1.jpg"]; // Only first image
+    const props = {
+      ...mockProps,
+      fields: [
+        { name: "Title", data_path: "movie.title", data: ["A", "B", "C"] },
+      ],
+      images,
+    };
+    render(<SetOfCardsWrapper {...props} />);
+
+    // First card has image
+    const img1 = screen.getByRole("img", { name: "Test Movies 1" });
+    expect(img1).toBeInTheDocument();
+    expect(img1).toHaveAttribute("src", images[0] as string);
+
+    // Next cards do not
+    expect(screen.queryByRole("img", { name: "Test Movies 2" })).toBeNull();
+    expect(screen.queryByRole("img", { name: "Test Movies 3" })).toBeNull();
+  });
 });

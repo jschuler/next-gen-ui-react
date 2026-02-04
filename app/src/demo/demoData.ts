@@ -454,6 +454,7 @@ export const setOfCardsDemoWithImages = {
       data: [5, 3, 4, 7],
     },
   ],
+  images: [oneCardDemo.image, null, oneCardDemo.image, oneCardDemo.image],
 };
 
 export const tableDemoServerMetrics = {
