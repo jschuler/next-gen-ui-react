@@ -205,169 +205,173 @@ export default function ComponentDemo() {
   }
 
   return (
-    <ComponentHandlerRegistryProvider>
-      <FormatterSetup />
-      <div>
-        {componentId === "dynamic" && (
-          <Alert
-            variant={AlertVariant.info}
-            isInline
-            title="Dynamic Component Renderer"
-            style={{ marginBottom: 24 }}
-          >
-            <p>
-              The <strong>DynamicComponents</strong> component is a special
-              renderer that accepts a configuration object and dynamically
-              renders the appropriate component based on the{" "}
-              <code>component</code> field in the config. This allows you to
-              render any of the available components (charts, data views, cards,
-              images, etc.) using a single component with different
-              configuration objects.
-            </p>
-            <p style={{ marginTop: 8, marginBottom: 0 }}>
-              This is useful when you have component configurations coming from
-              an API or configuration file, and you want to render them
-              dynamically without having to conditionally render different
-              components in your code.
-            </p>
-          </Alert>
-        )}
-        {config.examples.map((example, index) => {
-          const exampleSlug = createSlug(example.title);
-          const exampleId = `${componentId}-${exampleSlug}`;
-          return (
-            <div
-              key={index}
-              id={exampleId}
-              ref={(el) => {
-                exampleRefs.current[exampleId] = el;
-              }}
+    <>
+      <ComponentHandlerRegistryProvider>
+        <FormatterSetup />
+        <div>
+          {componentId === "dynamic" && (
+            <Alert
+              variant={AlertVariant.info}
+              isInline
+              title="Dynamic Component Renderer"
+              style={{ marginBottom: 24 }}
             >
-              {index > 0 && (
-                <Divider style={{ marginTop: 32, marginBottom: 32 }} />
-              )}
+              <p>
+                The <strong>DynamicComponents</strong> component is a special
+                renderer that accepts a configuration object and dynamically
+                renders the appropriate component based on the{" "}
+                <code>component</code> field in the config. This allows you to
+                render any of the available components (charts, data views,
+                cards, images, etc.) using a single component with different
+                configuration objects.
+              </p>
+              <p style={{ marginTop: 8, marginBottom: 0 }}>
+                This is useful when you have component configurations coming
+                from an API or configuration file, and you want to render them
+                dynamically without having to conditionally render different
+                components in your code.
+              </p>
+            </Alert>
+          )}
+          {config.examples.map((example, index) => {
+            const exampleSlug = createSlug(example.title);
+            const exampleId = `${componentId}-${exampleSlug}`;
+            return (
+              <div
+                key={index}
+                id={exampleId}
+                ref={(el) => {
+                  exampleRefs.current[exampleId] = el;
+                }}
+              >
+                {index > 0 && (
+                  <Divider style={{ marginTop: 32, marginBottom: 32 }} />
+                )}
 
-              <Content component={ContentVariants.h3}>
-                <a
-                  href={`#${exampleId}`}
-                  style={{
-                    color: "inherit",
-                    textDecoration: "none",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "8px",
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.textDecoration = "underline";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.textDecoration = "none";
-                  }}
-                >
-                  {example.title}
-                </a>
-              </Content>
-
-              {example.description && (
-                <Content
-                  component={ContentVariants.p}
-                  style={{ marginTop: 8, marginBottom: 16 }}
-                >
-                  {example.description}
+                <Content component={ContentVariants.h3}>
+                  <a
+                    href={`#${exampleId}`}
+                    style={{
+                      color: "inherit",
+                      textDecoration: "none",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.textDecoration = "underline";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.textDecoration = "none";
+                    }}
+                  >
+                    {example.title}
+                  </a>
                 </Content>
-              )}
 
-              {/* Render the component with its data */}
-              <Suspense fallback={<div>Loading component...</div>}>
-                <div
-                  style={
-                    componentId === "chart"
-                      ? { maxWidth: "900px", overflow: "visible" }
-                      : undefined
-                  }
-                >
-                  {componentId === "dynamic" ? (
-                    <Component
-                      config={example.data as Record<string, unknown>}
-                    />
-                  ) : componentId === "dataview" &&
-                    (example.data as Record<string, unknown>).id ===
-                      "dataview-item-click" ? (
-                    <Component
-                      {...(example.data as Record<string, unknown>)}
-                      onItemClick={(
-                        event: MouseEvent | KeyboardEvent,
-                        itemData: Record<string, string | number>
-                      ) => {
-                        // Demo: Show an alert with the clicked item data
-                        const itemInfo = Object.entries(itemData)
-                          .map(([key, value]) => `${key}: ${value}`)
-                          .join(", ");
-                        alert(
-                          `Item clicked!\n\nItem data:\n${itemInfo}\n\nCheck the browser console for more details.`
-                        );
-                        console.log("Item clicked:", {
-                          event,
-                          itemData,
-                          timestamp: new Date().toISOString(),
-                        });
-                      }}
-                    />
-                  ) : (
-                    <Component {...(example.data as Record<string, unknown>)} />
-                  )}
-                </div>
-              </Suspense>
+                {example.description && (
+                  <Content
+                    component={ContentVariants.p}
+                    style={{ marginTop: 8, marginBottom: 16 }}
+                  >
+                    {example.description}
+                  </Content>
+                )}
 
-              {(example.setupDescription || example.setupCode) && (
+                {/* Render the component with its data */}
+                <Suspense fallback={<div>Loading component...</div>}>
+                  <div
+                    style={
+                      componentId === "chart"
+                        ? { maxWidth: "900px", overflow: "visible" }
+                        : undefined
+                    }
+                  >
+                    {componentId === "dynamic" ? (
+                      <Component
+                        config={example.data as Record<string, unknown>}
+                      />
+                    ) : componentId === "dataview" &&
+                      (example.data as Record<string, unknown>).id ===
+                        "dataview-item-click" ? (
+                      <Component
+                        {...(example.data as Record<string, unknown>)}
+                        onItemClick={(
+                          event: MouseEvent | KeyboardEvent,
+                          itemData: Record<string, string | number>
+                        ) => {
+                          // Demo: Show an alert with the clicked item data
+                          const itemInfo = Object.entries(itemData)
+                            .map(([key, value]) => `${key}: ${value}`)
+                            .join(", ");
+                          alert(
+                            `Item clicked!\n\nItem data:\n${itemInfo}\n\nCheck the browser console for more details.`
+                          );
+                          console.log("Item clicked:", {
+                            event,
+                            itemData,
+                            timestamp: new Date().toISOString(),
+                          });
+                        }}
+                      />
+                    ) : (
+                      <Component
+                        {...(example.data as Record<string, unknown>)}
+                      />
+                    )}
+                  </div>
+                </Suspense>
+
+                {(example.setupDescription || example.setupCode) && (
+                  <ExpandableSection
+                    toggleText="How this was set up"
+                    isExpanded={expandedSections[`${index}-setup`] ?? false}
+                    onToggle={() =>
+                      setExpandedSections((prev) => ({
+                        ...prev,
+                        [`${index}-setup`]: !prev[`${index}-setup`],
+                      }))
+                    }
+                    style={{ marginTop: 16 }}
+                  >
+                    {example.setupDescription && (
+                      <Content
+                        component={ContentVariants.p}
+                        style={{ marginBottom: example.setupCode ? 12 : 0 }}
+                      >
+                        {example.setupDescription}
+                      </Content>
+                    )}
+                    {example.setupCode && (
+                      <CodeBlock>
+                        <CodeBlockCode>{example.setupCode}</CodeBlockCode>
+                      </CodeBlock>
+                    )}
+                  </ExpandableSection>
+                )}
+
                 <ExpandableSection
-                  toggleText="How this was set up"
-                  isExpanded={expandedSections[`${index}-setup`] ?? false}
+                  toggleText="Configuration"
+                  isExpanded={expandedSections[index] || false}
                   onToggle={() =>
                     setExpandedSections((prev) => ({
                       ...prev,
-                      [`${index}-setup`]: !prev[`${index}-setup`],
+                      [index]: !prev[index],
                     }))
                   }
                   style={{ marginTop: 16 }}
                 >
-                  {example.setupDescription && (
-                    <Content
-                      component={ContentVariants.p}
-                      style={{ marginBottom: example.setupCode ? 12 : 0 }}
-                    >
-                      {example.setupDescription}
-                    </Content>
-                  )}
-                  {example.setupCode && (
-                    <CodeBlock>
-                      <CodeBlockCode>{example.setupCode}</CodeBlockCode>
-                    </CodeBlock>
-                  )}
+                  <CodeBlock>
+                    <CodeBlockCode>
+                      {JSON.stringify(example.data, null, 2)}
+                    </CodeBlockCode>
+                  </CodeBlock>
                 </ExpandableSection>
-              )}
-
-              <ExpandableSection
-                toggleText="Configuration"
-                isExpanded={expandedSections[index] || false}
-                onToggle={() =>
-                  setExpandedSections((prev) => ({
-                    ...prev,
-                    [index]: !prev[index],
-                  }))
-                }
-                style={{ marginTop: 16 }}
-              >
-                <CodeBlock>
-                  <CodeBlockCode>
-                    {JSON.stringify(example.data, null, 2)}
-                  </CodeBlockCode>
-                </CodeBlock>
-              </ExpandableSection>
-            </div>
-          );
-        })}
-      </div>
-    </ComponentHandlerRegistryProvider>
+              </div>
+            );
+          })}
+        </div>
+      </ComponentHandlerRegistryProvider>
+    </>
   );
 }

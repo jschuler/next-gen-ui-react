@@ -112,14 +112,15 @@ export const isISODate = (value: string | number | boolean | null): boolean => {
 
 /**
  * Boolean formatter
- * Renders true/false as "Yes"/"No". Accepts boolean or string "true"/"false".
+ * Renders true/false as "Yes"/"No". Accepts only boolean or string "true"/"false"
+ * (not "1"/"0", to avoid misformatting numeric codes).
  */
 export const booleanFormatter: CellFormatter = (value): string => {
   if (value === null || value === undefined) return "";
   if (typeof value === "boolean") return value ? "Yes" : "No";
   const s = String(value).toLowerCase();
-  if (s === "true" || s === "1") return "Yes";
-  if (s === "false" || s === "0") return "No";
+  if (s === "true") return "Yes";
+  if (s === "false") return "No";
   return String(value);
 };
 
@@ -256,6 +257,37 @@ export const autoFormatter: CellFormatter = (value): string | ReactNode => {
   return formatter ? formatter(value) : String(value);
 };
 
+/**
+ * Options to opt out of or override auto formatters. Pass to
+ * ComponentHandlerRegistryProvider as the autoFormatterOptions prop.
+ */
+export interface AutoFormatterOptions {
+  /** Auto formatter ids to skip (e.g. ["boolean", "number"]). Excluded types are rendered as String(value). */
+  exclude?: AutoFormatterId[];
+  /** Custom formatter per auto type, replacing the built-in (e.g. { boolean: (v) => v ? "Y" : "N" }). */
+  overrides?: Partial<Record<AutoFormatterId, CellFormatter>>;
+}
+
+/**
+ * Returns a formatter that behaves like autoFormatter but respects exclude and overrides.
+ * Used by the resolver when the provider has autoFormatterOptions set.
+ */
+export function getAutoFormatter(options: AutoFormatterOptions): CellFormatter {
+  const excludeSet = new Set(options.exclude ?? []);
+  const overrides = options.overrides ?? {};
+  return (value): string | ReactNode => {
+    const type = detectValueType(value);
+    if (excludeSet.has(type as AutoFormatterId)) return String(value);
+    const override = overrides[type as AutoFormatterId];
+    if (override) return override(value);
+    const formatter =
+      type in autoFormatters
+        ? autoFormatters[type as keyof typeof autoFormatters]
+        : undefined;
+    return formatter ? formatter(value) : String(value);
+  };
+}
+
 // =============================================================================
 // Auto formatters (applied automatically when no formatter is resolved)
 // =============================================================================
@@ -282,17 +314,16 @@ export type AutoFormatterId = keyof typeof autoFormatters;
 //
 // 1. AUTO BY TYPE (no registration)
 //    When no formatter is resolved for a field, the resolver uses autoFormatter,
-//    which uses autoFormatters (empty, datetime, boolean, number).
+//    which uses autoFormatters (datetime, boolean, number, url, empty).
 //
-// 2. BY NAME (after registration)
-//    Call registerAutoFormatters(registry) once. Then the registry has
-//    all built-in ids for lookup by id/name/data_path. currency-usd and percent
-//    are built-in but not auto-applied; register them for a field to use them.
+// 2. CURRENCY / PERCENT (opt-in only)
+//    currency-usd and percent are not registered. Use builtInFormatters and
+//    register under your own keys, e.g. registerFormatterById("price", builtInFormatters["currency-usd"]).
 
 /**
  * Map of built-in formatter id → formatter function. Includes autoFormatters
  * plus formatters that are only applied when registered (currency-usd, percent).
- * Used by registerAutoFormatters and for lookup by name.
+ * Use with registerFormatterById for custom keys (e.g. "price" → currency-usd).
  */
 export const builtInFormatters = {
   ...autoFormatters,
@@ -300,92 +331,10 @@ export const builtInFormatters = {
   percent: percentFormatter,
 } as const;
 
-/** Union type of built-in formatter ids (for exclude/overrides options). */
+/** Union type of built-in formatter ids. */
 export type BuiltInFormatterId = keyof typeof builtInFormatters;
 
-/** List of built-in formatter ids (for exclude/overrides and docs). */
+/** List of built-in formatter ids. */
 export const BUILT_IN_FORMATTER_IDS: BuiltInFormatterId[] = Object.keys(
   builtInFormatters
 ) as BuiltInFormatterId[];
-
-/**
- * Options for registerAutoFormatters.
- */
-export interface RegisterAutoFormattersOptions {
-  /** Auto formatter ids to skip registering (e.g. `['boolean']`). Only auto formatters (datetime, boolean, number, url, empty) can be excluded. */
-  exclude?: AutoFormatterId[];
-  /** Custom formatter per id; replaces the built-in for that id. */
-  overrides?: Partial<Record<BuiltInFormatterId, CellFormatter>>;
-}
-
-/**
- * Registers built-in formatters in the registry so fields can use them by name.
- *
- * **Setup (two steps):**
- * 1. Wrap your app with `ComponentHandlerRegistryProvider`.
- * 2. Inside the provider, call this once (e.g. in a layout):
- *    `registerAutoFormatters(registry)`.
- *
- * **Behavior:**
- * - With no options: registers all six built-ins (datetime, boolean, number,
- *   currency-usd, percent, empty) under those ids in the registry.
- * - When no formatter is resolved (by data_path, id, name), the resolver uses
- *   autoFormatter (type detection + built-ins).
- *
- * **Options (second argument):**
- * - `exclude`: do not register these auto formatter ids (datetime, boolean, number, url, empty).
- * - `overrides`: use these functions instead of the built-in for that id.
- *
- * @param registry - From `useComponentHandlerRegistry()`.
- * @param options - Optional { exclude?, overrides? }.
- *
- * @example
- * Register all built-ins
- * ```tsx
- * const registry = useComponentHandlerRegistry();
- * useMemo(() => registerAutoFormatters(registry), [registry]);
- * ```
- *
- * @example
- * Opt-out of registering some auto formatters
- * ```tsx
- * registerAutoFormatters(registry, { exclude: ['boolean'] });
- * ```
- *
- * @example
- * Override one
- * ```tsx
- * registerAutoFormatters(registry, {
- *   overrides: { boolean: (v) => (v ? 'Y' : 'N') },
- * });
- * ```
- *
- * @example
- * Exclude and override
- * ```tsx
- * registerAutoFormatters(registry, {
- *   exclude: ['number'],
- *   overrides: { 'datetime': myDateFormatter },
- * });
- * ```
- */
-
-export function registerAutoFormatters(
-  registry: {
-    registerFormatter: (
-      matchers: { id: string },
-      formatter: CellFormatter,
-      inputDataType?: string
-    ) => void;
-  },
-  options?: RegisterAutoFormattersOptions
-): void {
-  const { exclude = [], overrides = {} } = options ?? {};
-  const excludeSet = new Set(exclude);
-
-  Object.entries(builtInFormatters).forEach(([id, formatter]) => {
-    if (excludeSet.has(id as AutoFormatterId)) return;
-    const resolved = overrides[id as BuiltInFormatterId] ?? formatter;
-    registry.registerFormatter({ id }, resolved);
-  });
-}

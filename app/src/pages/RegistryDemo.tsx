@@ -4,7 +4,6 @@ import {
 } from "@local-lib/components/ComponentHandlerRegistry";
 import DataViewWrapper from "@local-lib/components/DataViewWrapper";
 import OneCardWrapper from "@local-lib/components/OneCardWrapper";
-import { registerAutoFormatters } from "@local-lib/utils/builtInFormatters";
 import {
   Alert,
   AlertVariant,
@@ -303,9 +302,6 @@ function RegistrySetup() {
       "pattern-demo"
     );
 
-    // Register all built-in formatters in the registry; auto formatters (empty, datetime, boolean, number, url) apply by type when no formatter is resolved.
-    registerAutoFormatters(registry);
-
     // Example 5: Item click handler
     registry.registerItemClick("catalog", (event, itemData) => {
       alert(
@@ -457,20 +453,15 @@ registry.registerFormatter(
     strategyDetails: (
       <>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
-          <strong>How to use it:</strong> Call{" "}
-          <code>registerAutoFormatters(registry)</code> once (e.g. in a layout
-          or parent). Type is detected from each value.
+          <strong>How to use it:</strong> Wrap your table in{" "}
+          <code>ComponentHandlerRegistryProvider</code>. When no formatter is
+          found for a field, the resolver uses <code>autoFormatter</code> and
+          detects type from each value.
         </Content>
         <CodeBlock>
-          <CodeBlockCode>{`import { useComponentHandlerRegistry, registerAutoFormatters } from '@rhngui/patternfly-react-renderer';
-import DataViewWrapper from '@rhngui/patternfly-react-renderer';
+          <CodeBlockCode>{`import { ComponentHandlerRegistryProvider, DataViewWrapper } from '@rhngui/patternfly-react-renderer';
 
 function MyTable() {
-  const registry = useComponentHandlerRegistry();
-  useMemo(() => {
-    registerAutoFormatters(registry);  // opt-in once
-  }, [registry]);
-
   return (
     <DataViewWrapper
       id="my-table"
@@ -486,6 +477,14 @@ function MyTable() {
         { id: "col-notes", name: "Notes", data_path: "row.notes", data: ["Has value", null, ""] },
       ]}
     />
+  );
+}
+
+function App() {
+  return (
+    <ComponentHandlerRegistryProvider>
+      <MyTable />
+    </ComponentHandlerRegistryProvider>
   );
 }`}</CodeBlockCode>
         </CodeBlock>
@@ -516,30 +515,40 @@ function MyTable() {
           <li>Other → string as-is</li>
         </Content>
         <Content component={ContentVariants.p} style={{ marginTop: "12px" }}>
-          <strong>Optional:</strong>
+          Register custom formatters (e.g.{" "}
+          <code>
+            registerFormatterById("price", builtInFormatters["currency-usd"])
+          </code>
+          ) with the registry when you need them for specific fields.
         </Content>
-        <Content component={ContentVariants.ul} style={{ marginTop: "8px" }}>
-          <li>
-            Call <code>registerAutoFormatters(registry)</code> to register all
-            built-in formatters; auto formatters apply by type when no formatter
-            is resolved.
-          </li>
-          <li>
-            Pass a second argument to <strong>exclude</strong> ids or{" "}
-            <strong>override</strong> with custom formatters:
-          </li>
+        <Content
+          component={ContentVariants.h4}
+          style={{ marginTop: "20px", marginBottom: "8px" }}
+        >
+          Auto formatter options
         </Content>
-        <CodeBlock style={{ marginTop: "4px" }}>
-          <CodeBlockCode>{`registerAutoFormatters(registry, {
-  exclude: ['boolean'],
-  overrides: { boolean: (v) => v ? 'Y' : 'N' }
-})`}</CodeBlockCode>
+        <Content component={ContentVariants.p} style={{ marginBottom: "8px" }}>
+          You can opt out of specific types or override them by passing{" "}
+          <code>autoFormatterOptions</code> to{" "}
+          <code>ComponentHandlerRegistryProvider</code>.{" "}
+          <strong>exclude</strong> — ids to skip (excluded values render as{" "}
+          <code>String(value)</code>). <strong>overrides</strong> — custom
+          formatter per type. Valid ids: <code>datetime</code>,{" "}
+          <code>boolean</code>, <code>number</code>, <code>url</code>,{" "}
+          <code>empty</code>.
+        </Content>
+        <CodeBlock style={{ marginTop: "8px" }}>
+          <CodeBlockCode>{`<ComponentHandlerRegistryProvider
+  autoFormatterOptions={{
+    exclude: ["boolean"],
+    overrides: {
+      boolean: (v) => (v ? "Y" : "N"),
+    },
+  }}
+>
+  <MyTable />
+</ComponentHandlerRegistryProvider>`}</CodeBlockCode>
         </CodeBlock>
-        <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
-          <code>exclude</code> accepts only auto formatter ids (datetime,
-          boolean, number, url, empty). <code>overrides</code> accepts any{" "}
-          <code>BUILT_IN_FORMATTER_IDS</code>.
-        </Content>
       </>
     ),
   },
@@ -838,18 +847,13 @@ function App() {
           2. Register formatters and handlers
         </Content>
         <CodeBlock>
-          <CodeBlockCode>{`import {
-  useComponentHandlerRegistry,
-  registerAutoFormatters,
-} from '@rhngui/patternfly-react-renderer';
+          <CodeBlockCode>{`import { useComponentHandlerRegistry } from '@rhngui/patternfly-react-renderer';
 
 function MyComponent() {
   const registry = useComponentHandlerRegistry();
 
   useEffect(() => {
-    // Register all built-in formatters. When no formatter is resolved, type is detected and an auto formatter (empty, datetime, boolean, number, url) is applied.
-    registerAutoFormatters(registry);
-
+    // When no formatter is resolved, type is detected and an auto formatter (empty, datetime, boolean, number, url) is applied.
     // Register formatter by field id
     registry.registerFormatterById('subscriptions-endDate', (value) => {
       return formatDate(value);
@@ -1160,43 +1164,26 @@ registry.registerFormatterById(/.*-endDate$/, (value) => formatDate(value));`}</
 
           <div className="registry-demo-method">
             <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
-              registerAutoFormatters
+              ComponentHandlerRegistryProvider (autoFormatterOptions prop)
             </Content>
-            <CodeBlock>
-              <CodeBlockCode>{`registerAutoFormatters(
-  registry: ComponentHandlerRegistry,
-  options?: RegisterAutoFormattersOptions
-): void`}</CodeBlockCode>
-            </CodeBlock>
             <Content
               component={ContentVariants.p}
               style={{ marginTop: "12px" }}
             >
-              Registers all built-in formatters (datetime, boolean, number, url,
-              currency-usd, percent, empty) in the registry so fields can match
-              them by id/name/dataPath. When no formatter is resolved, the
-              resolver uses autoFormatter (auto formatters: empty, datetime,
-              boolean, number, url).
+              When no formatter is found for a field, the resolver falls back to{" "}
+              <code>autoFormatter</code> (datetime, boolean, number, url, empty
+              by value type). To exclude types or override a built-in, pass the{" "}
+              <code>autoFormatterOptions</code> prop to the provider.
             </Content>
-            <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
-              <strong>Options:</strong>
-            </Content>
-            <ul>
-              <li>
-                <code>exclude</code> — Auto formatter ids to skip registering
-                (e.g. <code>["boolean"]</code>). Only datetime, boolean, number,
-                url, empty.
-              </li>
-              <li>
-                <code>overrides</code> — Object mapping id to custom formatter
-                (replaces the built-in for that id).
-              </li>
-            </ul>
             <CodeBlock style={{ marginTop: "12px" }}>
-              <CodeBlockCode>{`registerAutoFormatters(registry);
-registerAutoFormatters(registry, { exclude: ["boolean"] });
-registerAutoFormatters(registry, { overrides: { boolean: (v) => v ? "Y" : "N" } });
-registerAutoFormatters(registry, { exclude: ["number"], overrides: { "datetime": myDateFn } });`}</CodeBlockCode>
+              <CodeBlockCode>{`<ComponentHandlerRegistryProvider
+  autoFormatterOptions={{
+    exclude: ["boolean"],
+    overrides: { boolean: (v) => (v ? "Y" : "N") },
+  }}
+>
+  <MyTable />
+</ComponentHandlerRegistryProvider>`}</CodeBlockCode>
             </CodeBlock>
           </div>
 

@@ -193,81 +193,49 @@ You can customize how cell values are displayed using the **Component Handler Re
 
 **Registry + built-in formatters (auto by type)**
 
-Wrap your app with `ComponentHandlerRegistryProvider`, call `registerAutoFormatters(registry)` once, and pass fields with `id`, `name`, `data_path`, and `data` only. The resolver detects each value’s type and applies a built-in formatter (ISO date, boolean → Yes/No, number, percent for 0–1, empty → —).
+Wrap your app with `ComponentHandlerRegistryProvider` and pass fields with `id`, `name`, `data_path`, and `data` only. When no formatter is found for a field, the resolver uses autoFormatter and applies a built-in by value type (datetime, boolean → Yes/No, number, url, empty → —).
 
 ```jsx
-import { useMemo } from "react";
 import {
   ComponentHandlerRegistryProvider,
-  useComponentHandlerRegistry,
-  registerAutoFormatters,
   DataViewWrapper,
 } from "@rhngui/patternfly-react-renderer";
-
-function TableWithBuiltIns() {
-  const registry = useComponentHandlerRegistry();
-  useMemo(() => {
-    registerAutoFormatters(registry);
-  }, [registry]);
-
-  const fields = [
-    {
-      id: "col-date",
-      name: "Date",
-      data_path: "row.date",
-      data: ["2025-01-15", "2024-12-31"],
-    },
-    {
-      id: "col-active",
-      name: "Active",
-      data_path: "row.active",
-      data: [true, false, true],
-    },
-    {
-      id: "col-count",
-      name: "Count",
-      data_path: "row.count",
-      data: [1234.5, 42],
-    },
-  ];
-
-  return (
-    <DataViewWrapper
-      id="my-table"
-      inputDataType="built-in-formatters"
-      fields={fields}
-    />
-  );
-}
 
 function App() {
   return (
     <ComponentHandlerRegistryProvider>
-      <TableWithBuiltIns />
+      <DataViewWrapper
+        id="my-table"
+        inputDataType="built-in-formatters"
+        fields={[
+          {
+            id: "col-date",
+            name: "Date",
+            data_path: "row.date",
+            data: ["2025-01-15", "2024-12-31"],
+          },
+          {
+            id: "col-active",
+            name: "Active",
+            data_path: "row.active",
+            data: [true, false, true],
+          },
+          {
+            id: "col-count",
+            name: "Count",
+            data_path: "row.count",
+            data: [1234.5, 42],
+          },
+        ]}
+      />
     </ComponentHandlerRegistryProvider>
   );
 }
 ```
 
-**Customization:** You can opt out of some built-ins or override them:
+**Customization:** Register custom formatters with the registry (e.g. `registry.registerFormatterById("price", builtInFormatters["currency-usd"])`). To opt out of or override auto formatters, pass the `autoFormatterOptions` prop to the provider: `autoFormatterOptions={{ exclude: ["boolean", "number"] }}` or `autoFormatterOptions={{ overrides: { boolean: (v) => v ? "Y" : "N" } }}`. Valid ids for `exclude` and `overrides` are: `datetime`, `boolean`, `number`, `url`, `empty`. Excluded types render as `String(value)`; overrides replace the built-in for that type. For TypeScript, use the exported type `AutoFormatterIdOption` to type your options.
 
-```jsx
-// Exclude percent and currency-usd
-registerAutoFormatters(registry, { exclude: ["boolean", "number"] });
-
-// Override boolean to show Y/N
-registerAutoFormatters(registry, {
-  overrides: { boolean: (v) => (v ? "Y" : "N") },
-});
-
-// Combine: exclude one, override another
-registerAutoFormatters(registry, {
-  exclude: ["number"],
-  overrides: { datetime: myDateFormatter },
-});
-```
-
-Built-in ids: `datetime`, `boolean`, `number`, `currency-usd`, `percent`, `empty`. See the [Registry Demo](https://redhat-ux.github.io/next-gen-ui-react/) for more examples.
+See the [Registry Demo](https://redhat-ux.github.io/next-gen-ui-react/) for more examples.
 
 **CSS Classes for Customization**
 

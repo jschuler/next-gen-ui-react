@@ -1,4 +1,8 @@
-import { autoFormatter } from "./builtInFormatters";
+import {
+  autoFormatter,
+  getAutoFormatter,
+  type AutoFormatterOptions,
+} from "./builtInFormatters";
 import type {
   ComponentHandlerRegistry,
   CellFormatter,
@@ -51,5 +55,11 @@ export function resolveFormatterForField(
     }
   }
 
-  return resolved ?? autoFormatter;
+  const options = registry.getAutoFormatterOptions?.();
+  return (
+    resolved ??
+    (options
+      ? getAutoFormatter(options as AutoFormatterOptions)
+      : autoFormatter)
+  );
 }

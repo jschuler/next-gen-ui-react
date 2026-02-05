@@ -16,7 +16,6 @@ import { useComponentHandlerRegistry } from "./ComponentHandlerRegistry";
 import ErrorPlaceholder from "./ErrorPlaceholder";
 import { getDataTypeClass } from "../utils/cssClassHelpers";
 import { resolveFormatterForField } from "../utils/formatterResolution";
-import { formatValue } from "../utils/valueFormatter";
 
 interface DataField {
   name: string;
@@ -155,12 +154,11 @@ const OneCardWrapper: React.FC<OneCardProps> = ({
                               </React.Fragment>
                             );
                           }
-                          // Use formatter if available, otherwise use default formatValue
-                          // formatValue handles arrays by joining them with commas
+                          // Formatter from registry or autoFormatter (resolveFormatterForField always returns a formatter)
                           const formatted =
                             typeof field.resolvedFormatter === "function"
                               ? field.resolvedFormatter(item)
-                              : formatValue(item);
+                              : String(item);
 
                           // Render formatted value (handles both ReactNode and primitive values)
                           return (

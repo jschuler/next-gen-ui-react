@@ -70,7 +70,8 @@ describe("DataViewWrapper Component", () => {
 
     render(<DataViewWrapper {...fieldsWithArray} />);
 
-    expect(screen.getByText("tag1, tag2, tag3")).toBeInTheDocument();
+    // Array is formatted via autoFormatter → String(array) is "tag1,tag2,tag3"
+    expect(screen.getByText("tag1,tag2,tag3")).toBeInTheDocument();
   });
 
   it("should handle null values correctly", () => {

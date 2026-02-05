@@ -24,7 +24,6 @@ import { ISO_DATE_PATTERN_SORT } from "../utils/builtInFormatters";
 import { getDataTypeClass, sanitizeClassName } from "../utils/cssClassHelpers";
 import { debugLog } from "../utils/debug";
 import { resolveFormatterForField } from "../utils/formatterResolution";
-import { formatValue } from "../utils/valueFormatter";
 
 interface FieldData {
   id?: string;
@@ -134,14 +133,14 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
     });
 
     // Create rows based on the maximum data length
-    // Store both display value and original value (for sorting)
-    const transformedRows: Record<string, string | number>[] = [];
+    // Store raw values so the column formatter (from registry) does the formatting
+    type CellValue = string | number | boolean | null | (string | number)[];
+    const transformedRows: Record<string, CellValue>[] = [];
     for (let i = 0; i < maxDataLength; i++) {
-      const row: Record<string, string | number> = {};
+      const row: Record<string, CellValue> = {};
       fields.forEach((field) => {
         const originalValue = field.data[i];
-        const displayValue = formatValue(originalValue);
-        row[field.name] = displayValue;
+        row[field.name] = originalValue as CellValue;
         // Store original value with a special key for sorting
         row[`__sort_${field.name}`] =
           originalValue === null || originalValue === undefined
@@ -330,10 +329,18 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
                 `handler:`,
                 resolvedOnItemClick
               );
-              // Create a clean row data object without internal sorting keys
+              // Create a clean row data object without internal sorting keys (coerce to string | number for handler API)
               const rowData: Record<string, string | number> = {};
               columns.forEach((col) => {
-                rowData[col.key] = row[col.key];
+                const v = row[col.key];
+                rowData[col.key] =
+                  typeof v === "string" || typeof v === "number"
+                    ? v
+                    : v == null
+                      ? ""
+                      : Array.isArray(v)
+                        ? v.join(", ")
+                        : String(v);
               });
               // Call handler - only if we have a MouseEvent (has 'button' property)
               // KeyboardEvent doesn't have 'button', so we skip it for now

@@ -1,6 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 
-import type { ComponentHandlerRegistry } from "../../components/ComponentHandlerRegistry";
 import {
   datetimeFormatter,
   urlFormatter,
@@ -8,7 +7,7 @@ import {
   ISO_DATE_PATTERN,
   ISO_DATE_PATTERN_SORT,
   builtInFormatters,
-  registerAutoFormatters,
+  getAutoFormatter,
   type BuiltInFormatterId,
 } from "../../utils/builtInFormatters";
 
@@ -290,127 +289,30 @@ describe("builtInFormatters", () => {
     });
   });
 
-  describe("registerAutoFormatters", () => {
-    let mockRegistry: {
-      registerFormatter: ReturnType<typeof vi.fn>;
-    };
-
-    beforeEach(() => {
-      mockRegistry = {
-        registerFormatter: vi.fn(),
-      };
+  describe("getAutoFormatter", () => {
+    it("excludes specified types (render as String(value))", () => {
+      const formatter = getAutoFormatter({ exclude: ["boolean"] });
+      expect(formatter(true)).toBe("true");
+      expect(formatter(false)).toBe("false");
+      // number not excluded → still locale-formatted (e.g. 1000 → "1,000")
+      expect(formatter(1000)).not.toBe("1000");
     });
 
-    it("should register all built-in formatters", () => {
-      registerAutoFormatters(mockRegistry);
-
-      expect(mockRegistry.registerFormatter).toHaveBeenCalled();
-      expect(mockRegistry.registerFormatter).toHaveBeenCalledWith(
-        { id: "datetime" },
-        datetimeFormatter
-      );
-    });
-
-    it("should register exactly the number of built-in formatters", () => {
-      registerAutoFormatters(mockRegistry);
-
-      const callCount = mockRegistry.registerFormatter.mock.calls.length;
-      const formatterCount = Object.keys(builtInFormatters).length;
-      expect(callCount).toBe(formatterCount);
-    });
-
-    it("should register formatters with correct IDs", () => {
-      registerAutoFormatters(mockRegistry);
-
-      const calls = mockRegistry.registerFormatter.mock.calls;
-      const registeredIds = calls.map((call) => (call[0] as { id: string }).id);
-
-      expect(registeredIds).toContain("datetime");
-    });
-
-    it("should register formatters with correct functions", () => {
-      registerAutoFormatters(mockRegistry);
-
-      const calls = mockRegistry.registerFormatter.mock.calls;
-      const datetimeCall = calls.find(
-        (call) => (call[0] as { id: string }).id === "datetime"
-      );
-
-      expect(datetimeCall).toBeDefined();
-      expect(datetimeCall?.[1]).toBe(datetimeFormatter);
-    });
-
-    it("should work with ComponentHandlerRegistry interface", () => {
-      const registry: ComponentHandlerRegistry = {
-        onItemClickHandlers: new Map(),
-        formatters: new Map(),
-        registerItemClick: vi.fn(),
-        unregisterItemClick: vi.fn(),
-        getItemClick: vi.fn(),
-        registerFormatter: vi.fn(),
-        unregisterFormatter: vi.fn(),
-        getFormatter: vi.fn(),
-        isActive: () => false,
-      };
-
-      registerAutoFormatters(registry);
-
-      expect(registry.registerFormatter).toHaveBeenCalled();
-      expect(registry.registerFormatter).toHaveBeenCalledWith(
-        { id: "datetime" },
-        datetimeFormatter
-      );
-    });
-
-    it("should exclude specified auto formatters when options.exclude is provided", () => {
-      registerAutoFormatters(mockRegistry, {
-        exclude: ["boolean", "number"],
+    it("uses overrides when provided", () => {
+      const formatter = getAutoFormatter({
+        overrides: { boolean: (v) => (v ? "Y" : "N") },
       });
-
-      const calls = mockRegistry.registerFormatter.mock.calls;
-      const registeredIds = calls.map((call) => (call[0] as { id: string }).id);
-
-      expect(registeredIds).not.toContain("boolean");
-      expect(registeredIds).not.toContain("number");
-      expect(registeredIds).toContain("datetime");
-      expect(registeredIds).toContain("empty");
-      expect(registeredIds).toContain("currency-usd");
-      expect(registeredIds).toContain("percent");
-      expect(calls.length).toBe(Object.keys(builtInFormatters).length - 2);
+      expect(formatter(true)).toBe("Y");
+      expect(formatter(false)).toBe("N");
     });
 
-    it("should use overrides when options.overrides is provided", () => {
-      const customBoolean = (v: string | number | boolean | null) =>
-        v ? "Y" : "N";
-      registerAutoFormatters(mockRegistry, {
-        overrides: { boolean: customBoolean },
+    it("applies both exclude and overrides", () => {
+      const formatter = getAutoFormatter({
+        exclude: ["number"],
+        overrides: { boolean: (v) => (v ? "Y" : "N") },
       });
-
-      const calls = mockRegistry.registerFormatter.mock.calls;
-      const booleanCall = calls.find(
-        (call) => (call[0] as { id: string }).id === "boolean"
-      );
-
-      expect(booleanCall).toBeDefined();
-      expect(booleanCall?.[1]).toBe(customBoolean);
-    });
-
-    it("should support both exclude and overrides", () => {
-      const customEmpty = () => "—";
-      registerAutoFormatters(mockRegistry, {
-        exclude: ["boolean"],
-        overrides: { empty: customEmpty },
-      });
-
-      const calls = mockRegistry.registerFormatter.mock.calls;
-      const registeredIds = calls.map((call) => (call[0] as { id: string }).id);
-
-      expect(registeredIds).not.toContain("boolean");
-      const emptyCall = calls.find(
-        (call) => (call[0] as { id: string }).id === "empty"
-      );
-      expect(emptyCall?.[1]).toBe(customEmpty);
-      expect(calls.length).toBe(Object.keys(builtInFormatters).length - 1);
+      expect(formatter(1000)).toBe("1000");
+      expect(formatter(true)).toBe("Y");
     });
   });
 });

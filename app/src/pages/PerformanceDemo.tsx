@@ -3,10 +3,7 @@ import {
   useComponentHandlerRegistry,
 } from "@local-lib/components/ComponentHandlerRegistry";
 import DataViewWrapper from "@local-lib/components/DataViewWrapper";
-import {
-  builtInFormatters,
-  registerAutoFormatters,
-} from "@local-lib/utils/builtInFormatters";
+import { builtInFormatters } from "@local-lib/utils/builtInFormatters";
 import {
   CodeBlock,
   CodeBlockCode,
@@ -161,7 +158,6 @@ function PerformanceSetup() {
   useMemo(() => {
     if (registeredRef.current) return;
     registeredRef.current = true;
-    registerAutoFormatters(registry);
 
     registry.registerFormatterById("perf-id", (value) => (
       <span
@@ -374,9 +370,7 @@ export default function PerformanceDemo() {
               onToggle={() => setFormattersExpanded(!formattersExpanded)}
             >
               <CodeBlock>
-                <CodeBlockCode>{`registerAutoFormatters(registry);
-
-// Custom formatters (by field id)
+                <CodeBlockCode>{`// Custom formatters (by field id)
 registry.registerFormatterById("perf-id", (value) => <span>#\${value}</span>);
 registry.registerFormatterById("perf-amount", (value) => ...);  // $ + locale number
 registry.registerFormatterById("perf-count", (value) => ...);    // tabular number

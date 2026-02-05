@@ -2,6 +2,7 @@ import React, {
   createContext,
   useContext,
   useCallback,
+  useEffect,
   ReactNode,
 } from "react";
 
@@ -131,6 +132,34 @@ export interface ComponentHandlerRegistry {
     id: string | null | undefined,
     context?: FormatterContext
   ) => CellFormatter | undefined;
+  /**
+   * Get current auto formatter options (from provider prop). Resolver uses this for the fallback formatter.
+   */
+  getAutoFormatterOptions?: () =>
+    | {
+        exclude?: AutoFormatterIdOption[];
+        overrides?: Partial<Record<AutoFormatterIdOption, CellFormatter>>;
+      }
+    | undefined;
+}
+
+/** Auto formatter ids (must match keys in builtInFormatters.autoFormatters). */
+export type AutoFormatterIdOption =
+  | "datetime"
+  | "boolean"
+  | "number"
+  | "url"
+  | "empty";
+
+/**
+ * Options for the auto formatter fallback. Pass to ComponentHandlerRegistryProvider
+ * as the autoFormatterOptions prop to exclude types and/or override formatters.
+ */
+export interface AutoFormatterProviderOptions {
+  /** Auto formatter ids to skip. Excluded types render as String(value). */
+  exclude?: AutoFormatterIdOption[];
+  /** Custom formatter per auto type (e.g. { boolean: (v) => v ? "Y" : "N" }). */
+  overrides?: Partial<Record<AutoFormatterIdOption, CellFormatter>>;
 }
 
 const ComponentHandlerRegistryContext =
@@ -205,8 +234,11 @@ function inputDataTypeMatches(
 
 export function ComponentHandlerRegistryProvider({
   children,
+  autoFormatterOptions,
 }: {
   children: ReactNode;
+  /** Optional. Configure the auto formatter fallback (exclude types and/or override formatters). */
+  autoFormatterOptions?: AutoFormatterProviderOptions;
 }) {
   const onItemClickHandlers = React.useRef<Map<string, ItemClickHandler>>(
     new Map()
@@ -215,6 +247,13 @@ export function ComponentHandlerRegistryProvider({
   const formatterContextEntries = React.useRef<FormatterContextEntry[]>([]);
   // Public API map: index-based keys, synced from formatterContextEntries
   const formatters = React.useRef<Map<string, CellFormatter>>(new Map());
+  const autoFormatterOptionsRef = React.useRef<
+    AutoFormatterProviderOptions | undefined
+  >(autoFormatterOptions);
+
+  useEffect(() => {
+    autoFormatterOptionsRef.current = autoFormatterOptions;
+  }, [autoFormatterOptions]);
 
   const syncFormattersMap = useCallback(() => {
     formatters.current.clear();
@@ -282,6 +321,10 @@ export function ComponentHandlerRegistryProvider({
     },
     []
   );
+
+  const getAutoFormatterOptions = useCallback(() => {
+    return autoFormatterOptionsRef.current;
+  }, []);
 
   const registerFormatter = useCallback(
     (
@@ -452,11 +495,13 @@ export function ComponentHandlerRegistryProvider({
       unregisterFormatterByDataPath,
       getFormatter,
       isActive: () => true,
+      getAutoFormatterOptions,
     }),
     [
       registerItemClick,
       unregisterItemClick,
       getItemClick,
+      getAutoFormatterOptions,
       registerFormatter,
       unregisterFormatter,
       registerFormatterById,
@@ -499,6 +544,7 @@ export function useComponentHandlerRegistry(): ComponentHandlerRegistry {
       unregisterFormatterByDataPath: () => {},
       getFormatter: () => undefined,
       isActive: () => false,
+      getAutoFormatterOptions: undefined,
     };
   }
   return context;

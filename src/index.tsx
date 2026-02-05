@@ -12,6 +12,8 @@ export type {
 export {
   ComponentHandlerRegistryProvider,
   useComponentHandlerRegistry,
+  type AutoFormatterIdOption,
+  type AutoFormatterProviderOptions,
   type ComponentHandlerRegistry,
   type HandlerResolver,
   type FormatterContext,
@@ -27,11 +29,11 @@ export {
   BUILT_IN_FORMATTER_IDS,
   createCurrencyFormatter,
   datetimeFormatter,
+  getAutoFormatter,
   ISO_DATE_PATTERN,
   ISO_DATE_PATTERN_SORT,
   isISODate,
-  registerAutoFormatters,
   type AutoFormatterId,
+  type AutoFormatterOptions,
   type BuiltInFormatterId,
-  type RegisterAutoFormattersOptions,
 } from "./utils/builtInFormatters";
