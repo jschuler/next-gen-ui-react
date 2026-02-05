@@ -8,9 +8,6 @@ import React, {
 
 import { debugLog } from "../utils/debug";
 
-/**
- * Type definitions for component handlers
- */
 export type ItemClickHandler = (
   event: React.MouseEvent | React.KeyboardEvent,
   itemData: Record<string, string | number | boolean | null>
@@ -19,9 +16,6 @@ export type CellFormatter = (
   value: string | number | boolean | null | (string | number)[]
 ) => React.ReactNode | string | number;
 
-/**
- * Context for data-aware formatter selection
- */
 export interface FormatterContext {
   fieldId?: string;
   fieldName?: string;
@@ -30,21 +24,13 @@ export interface FormatterContext {
   componentId?: string;
 }
 
-/**
- * Matchers for registerFormatter. All provided criteria must match.
- * Use when a single pattern (e.g. dataPath /products/) matches too many fields
- * and you want to narrow by name or id (e.g. dataPath /products/ AND name "Status").
- */
+/** id, name, and/or dataPath (string or RegExp). All provided criteria must match. */
 export interface FormatterContextMatcher {
   id?: string | RegExp;
   name?: string | RegExp;
   dataPath?: string | RegExp;
 }
 
-/**
- * Handler resolver interface for resolving formatter and onItemClick identifiers
- * This is used by DataViewWrapper to resolve string identifiers to functions
- */
 export interface HandlerResolver {
   getFormatter?: (
     id: string,
@@ -53,10 +39,6 @@ export interface HandlerResolver {
   getItemClick?: (inputDataType: string) => ItemClickHandler | undefined;
 }
 
-/**
- * Registry for component handlers (onItemClick, formatters, etc.)
- * Supports data-aware formatter selection based on context
- */
 export interface ComponentHandlerRegistry {
   onItemClickHandlers: Map<string, ItemClickHandler>;
   formatters: Map<string, CellFormatter>;
@@ -68,73 +50,48 @@ export interface ComponentHandlerRegistry {
   getItemClick: (
     inputDataType: string | null | undefined
   ) => ItemClickHandler | undefined;
-  /**
-   * Register a formatter that matches when all provided context criteria match.
-   * Use id, name, and/or dataPath (string or RegExp). All provided criteria must match.
-   * @param matchers - Criteria that must all match: id, name, and/or dataPath (string or RegExp)
-   * @param formatter - The formatter function
-   * @param inputDataType - Optional: If provided (string or RegExp), formatter will only match when input_data_type matches
-   */
+  /** Register formatter; matchers (id/name/dataPath) and optional inputDataType. */
   registerFormatter: (
     matchers: FormatterContextMatcher,
     formatter: CellFormatter,
     inputDataType?: string | RegExp
   ) => void;
-  /**
-   * Unregister a formatter that was registered with registerFormatter.
-   * Pass the same matchers (and optional inputDataType) used at registration to remove that entry.
-   */
   unregisterFormatter: (
     matchers: FormatterContextMatcher,
     inputDataType?: string | RegExp
   ) => void;
-  /** Convenience: register a formatter by field id. Wraps registerFormatter({ id }, formatter, inputDataType). */
   registerFormatterById: (
     id: string | RegExp,
     formatter: CellFormatter,
     inputDataType?: string | RegExp
   ) => void;
-  /** Convenience: register a formatter by field name. Wraps registerFormatter({ name }, formatter, inputDataType). */
   registerFormatterByName: (
     name: string | RegExp,
     formatter: CellFormatter,
     inputDataType?: string | RegExp
   ) => void;
-  /** Convenience: register a formatter by data path. Wraps registerFormatter({ dataPath }, formatter, inputDataType). */
   registerFormatterByDataPath: (
     dataPath: string | RegExp,
     formatter: CellFormatter,
     inputDataType?: string | RegExp
   ) => void;
-  /** Convenience: unregister a formatter by field id. Wraps unregisterFormatter({ id }, inputDataType). */
   unregisterFormatterById: (
     id: string | RegExp,
     inputDataType?: string | RegExp
   ) => void;
-  /** Convenience: unregister a formatter by field name. Wraps unregisterFormatter({ name }, inputDataType). */
   unregisterFormatterByName: (
     name: string | RegExp,
     inputDataType?: string | RegExp
   ) => void;
-  /** Convenience: unregister a formatter by data path. Wraps unregisterFormatter({ dataPath }, inputDataType). */
   unregisterFormatterByDataPath: (
     dataPath: string | RegExp,
     inputDataType?: string | RegExp
   ) => void;
-  /**
-   * Returns true if the registry is active (has a provider), false if it's a no-op
-   */
   isActive: () => boolean;
-  /**
-   * Get formatter by identifier, with optional context for data-aware selection.
-   */
   getFormatter: (
     id: string | null | undefined,
     context?: FormatterContext
   ) => CellFormatter | undefined;
-  /**
-   * Get current auto formatter options (from provider prop). Resolver uses this for the fallback formatter.
-   */
   getAutoFormatterOptions?: () =>
     | {
         exclude?: AutoFormatterIdOption[];
@@ -143,7 +100,6 @@ export interface ComponentHandlerRegistry {
     | undefined;
 }
 
-/** Auto formatter ids (must match keys in builtInFormatters.autoFormatters). */
 export type AutoFormatterIdOption =
   | "datetime"
   | "boolean"
@@ -151,23 +107,15 @@ export type AutoFormatterIdOption =
   | "url"
   | "empty";
 
-/**
- * Options for the auto formatter fallback. Pass to ComponentHandlerRegistryProvider
- * as the autoFormatterOptions prop to exclude types and/or override formatters.
- */
+/** Provider autoFormatterOptions prop. */
 export interface AutoFormatterProviderOptions {
-  /** Auto formatter ids to skip. Excluded types render as String(value). */
   exclude?: AutoFormatterIdOption[];
-  /** Custom formatter per auto type (e.g. { boolean: (v) => v ? "Y" : "N" }). */
   overrides?: Partial<Record<AutoFormatterIdOption, CellFormatter>>;
 }
 
 const ComponentHandlerRegistryContext =
   createContext<ComponentHandlerRegistry | null>(null);
 
-/**
- * Helper function to log registry operations (only when window.__REGISTRY_DEBUG__ is true)
- */
 function logRegistryOperation(
   level: "success" | "warning" | "error",
   message: string
@@ -219,7 +167,6 @@ function formatterContextMatchersEqual(
   return true;
 }
 
-/** Return true when both inputDataTypes are equal (for unregister filtering). */
 function inputDataTypeMatches(
   a: string | RegExp | undefined,
   b: string | RegExp | undefined
@@ -237,7 +184,7 @@ export function ComponentHandlerRegistryProvider({
   autoFormatterOptions,
 }: {
   children: ReactNode;
-  /** Optional. Configure the auto formatter fallback (exclude types and/or override formatters). */
+  /** Optional. Exclude/override auto formatters. */
   autoFormatterOptions?: AutoFormatterProviderOptions;
 }) {
   const onItemClickHandlers = React.useRef<Map<string, ItemClickHandler>>(
@@ -245,7 +192,6 @@ export function ComponentHandlerRegistryProvider({
   );
   const onItemClickPatterns = React.useRef<ItemClickEntry[]>([]);
   const formatterContextEntries = React.useRef<FormatterContextEntry[]>([]);
-  // Public API map: index-based keys, synced from formatterContextEntries
   const formatters = React.useRef<Map<string, CellFormatter>>(new Map());
   const autoFormatterOptionsRef = React.useRef<
     AutoFormatterProviderOptions | undefined
@@ -291,7 +237,6 @@ export function ComponentHandlerRegistryProvider({
     ): ItemClickHandler | undefined => {
       if (!inputDataType) return undefined;
 
-      // Strategy 1: Exact string lookup
       const exactHandler = onItemClickHandlers.current.get(inputDataType);
       if (exactHandler) {
         logRegistryOperation(
@@ -301,7 +246,6 @@ export function ComponentHandlerRegistryProvider({
         return exactHandler;
       }
 
-      // Strategy 2: Try regex patterns (first match wins)
       const patternEntry = onItemClickPatterns.current.find((entry) =>
         entry.pattern.test(inputDataType)
       );
@@ -425,7 +369,6 @@ export function ComponentHandlerRegistryProvider({
       if (!id) return undefined;
 
       const entries = formatterContextEntries.current;
-      // Prefer scoped formatters (matching inputDataType) over global
       const withScope: typeof entries = [];
       const withoutScope: typeof entries = [];
       for (const entry of entries) {
@@ -446,7 +389,6 @@ export function ComponentHandlerRegistryProvider({
       for (const entry of orderToTry) {
         const { matchers } = entry;
         let allMatch = true;
-        // Id matcher: match only by context.fieldId (or id when no context), not by lookup key alone (map isolation)
         if (matchers.id !== undefined) {
           const valueFromContext = context?.fieldId ?? id;
           if (!matchesContextValue(valueFromContext, matchers.id))
@@ -521,13 +463,9 @@ export function ComponentHandlerRegistryProvider({
   );
 }
 
-/**
- * Hook to access the component handler registry
- */
 export function useComponentHandlerRegistry(): ComponentHandlerRegistry {
   const context = useContext(ComponentHandlerRegistryContext);
   if (!context) {
-    // Return a no-op registry if context is not available
     return {
       onItemClickHandlers: new Map(),
       formatters: new Map(),

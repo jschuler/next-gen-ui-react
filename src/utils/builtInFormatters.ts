@@ -2,21 +2,9 @@ import React, { type ReactNode } from "react";
 
 import type { CellFormatter } from "../components/ComponentHandlerRegistry";
 
-/** Pattern for a string that is a single URL (http or https). */
 const URL_PATTERN = /^https?:\/\/\S+$/;
 
-/**
- * Built-in formatters that can be registered in the ComponentHandlerRegistry.
- * These provide common formatting functionality that can be reused across components.
- */
-
-/**
- * DateTime formatter (ISO date strings + Unix timestamps)
- * Accepts ISO date strings (YYYY-MM-DD or ISO 8601 with time, including relaxed
- * patterns like space before time or timezone offset) and Unix timestamps
- * (10-digit seconds or 13-digit milliseconds). Renders with Intl.DateTimeFormat
- * (medium date; short time when a time component is present).
- */
+/** ISO date strings (incl. relaxed) and Unix timestamps (10/13-digit). Renders via Intl.DateTimeFormat. */
 export const datetimeFormatter: CellFormatter = (value): string | ReactNode => {
   if (value === null || value === undefined) return "";
 
@@ -24,7 +12,6 @@ export const datetimeFormatter: CellFormatter = (value): string | ReactNode => {
   let date: Date | null = null;
   let hasTime = false;
 
-  // 1) Unix timestamp (number or string in valid range)
   if (isUnixTimestamp(value)) {
     if (typeof value === "number") {
       date =
@@ -34,9 +21,7 @@ export const datetimeFormatter: CellFormatter = (value): string | ReactNode => {
       date = strValue.length <= 10 ? new Date(num * 1000) : new Date(num);
     }
     hasTime = true;
-  }
-  // 2) ISO date string (strict or relaxed)
-  else if (
+  } else if (
     ISO_DATE_PATTERN.test(strValue) ||
     ISO_DATE_PATTERN_RELAXED.test(strValue)
   ) {
@@ -61,12 +46,7 @@ export const datetimeFormatter: CellFormatter = (value): string | ReactNode => {
   }
 };
 
-/**
- * URL formatter
- * Renders strings that look like a single URL (http:// or https://) as a clickable
- * link that opens in a new tab (target="_blank", rel="noopener noreferrer").
- * Non-URL values are returned as-is.
- */
+/** http/https strings → clickable link (new tab). Others as-is. */
 export const urlFormatter: CellFormatter = (value): string | ReactNode => {
   if (value === null || value === undefined) return "";
   const s = String(value).trim();
@@ -82,27 +62,18 @@ export const urlFormatter: CellFormatter = (value): string | ReactNode => {
   );
 };
 
-/**
- * ISO Date Pattern - exported for use in sorting/comparison logic
- */
+/** ISO date pattern (exported for sorting/comparison). */
 export const ISO_DATE_PATTERN =
   /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d{3})?Z?)?$/;
 
-/**
- * Relaxed ISO/date pattern: space or T before time, optional timezone offset (e.g. +00:00).
- * Used by datetimeFormatter for strings like "2023-11-02 12:00:00" or "2023-11-02T12:00:00+00:00".
- */
+/** Relaxed ISO: space or T before time, optional timezone. */
 const ISO_DATE_PATTERN_RELAXED =
   /^\d{4}-\d{2}-\d{2}([T\s]\d{2}:\d{2}:\d{2}(\.\d{3})?(Z|[+-]\d{2}:?\d{2})?)?$/;
 
-/**
- * ISO Date Pattern for sorting (less strict - allows partial matches)
- */
+/** ISO date pattern for sorting (partial match). */
 export const ISO_DATE_PATTERN_SORT = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2})?/;
 
-/**
- * Check if a value is an ISO date string
- */
+/** True if value matches ISO date pattern. */
 export const isISODate = (value: string | number | boolean | null): boolean => {
   if (value === null || value === undefined) {
     return false;
@@ -110,11 +81,7 @@ export const isISODate = (value: string | number | boolean | null): boolean => {
   return ISO_DATE_PATTERN.test(String(value));
 };
 
-/**
- * Boolean formatter
- * Renders true/false as "Yes"/"No". Accepts only boolean or string "true"/"false"
- * (not "1"/"0", to avoid misformatting numeric codes).
- */
+/** true/false or "true"/"false" → Yes/No (not "1"/"0"). */
 export const booleanFormatter: CellFormatter = (value): string => {
   if (value === null || value === undefined) return "";
   if (typeof value === "boolean") return value ? "Yes" : "No";
@@ -124,11 +91,7 @@ export const booleanFormatter: CellFormatter = (value): string => {
   return String(value);
 };
 
-/**
- * Number formatter
- * Uses Intl.NumberFormat for locale-aware number display (e.g. 1234.5 → "1,234.5").
- * Preserves integers as-is for decimals; uses up to 2 decimal places for floats.
- */
+/** Locale-aware number (Intl); up to 2 decimal places for floats. */
 export const numberFormatter: CellFormatter = (value): string => {
   if (value === null || value === undefined) return "";
   const num = typeof value === "number" ? value : parseFloat(String(value));
@@ -144,10 +107,7 @@ export const numberFormatter: CellFormatter = (value): string => {
   }
 };
 
-/**
- * Creates a currency formatter for a given ISO 4217 currency code (e.g. "USD", "EUR", "GBP").
- * Uses Intl.NumberFormat with the default locale; pass a locale as the second argument to override.
- */
+/** Currency formatter for ISO 4217 code (e.g. "USD"); optional locale. */
 export function createCurrencyFormatter(
   currency: string,
   locale?: string
@@ -169,16 +129,10 @@ export function createCurrencyFormatter(
   };
 }
 
-/**
- * Currency (USD) formatter. For other currencies use createCurrencyFormatter("EUR"), etc.
- */
 export const currencyUsdFormatter: CellFormatter =
   createCurrencyFormatter("USD");
 
-/**
- * Percent formatter
- * Treats value as a decimal (0–1) and displays as percentage (e.g. 0.85 → "85%", 1 → "100%").
- */
+/** Decimal 0–1 → percentage (e.g. 0.85 → "85%"). */
 export const percentFormatter: CellFormatter = (value): string => {
   if (value === null || value === undefined) return "";
   const num = typeof value === "number" ? value : parseFloat(String(value));
@@ -195,17 +149,13 @@ export const percentFormatter: CellFormatter = (value): string => {
   }
 };
 
-/**
- * Empty / null formatter
- * Renders null, undefined, or empty string as an em dash (—). Other values as string.
- */
+/** null/undefined/empty → —; else string. */
 export const emptyFormatter: CellFormatter = (value): string => {
   if (value === null || value === undefined) return "—";
   const s = String(value).trim();
   return s === "" ? "—" : s;
 };
 
-/** True if value looks like a Unix timestamp (seconds or ms in valid range). */
 function isUnixTimestamp(value: unknown): boolean {
   if (typeof value !== "number" && typeof value !== "string") return false;
   if (typeof value === "number" && Number.isFinite(value)) {
@@ -222,9 +172,6 @@ function isUnixTimestamp(value: unknown): boolean {
   return false;
 }
 
-/**
- * Detects value type for auto-formatting. Used when no formatter is registered for a field.
- */
 function detectValueType(
   value: string | number | boolean | null | (string | number)[]
 ): "empty" | "datetime" | "boolean" | "number" | "url" | "string" {
@@ -244,10 +191,7 @@ function detectValueType(
   return "string";
 }
 
-/**
- * Auto formatter: detects value type and applies the matching formatter from
- * autoFormatters. Used when no formatter is resolved from the registry.
- */
+/** Fallback: detect type and apply matching auto formatter. */
 export const autoFormatter: CellFormatter = (value): string | ReactNode => {
   const type = detectValueType(value);
   const formatter =
@@ -257,21 +201,15 @@ export const autoFormatter: CellFormatter = (value): string | ReactNode => {
   return formatter ? formatter(value) : String(value);
 };
 
-/**
- * Options to opt out of or override auto formatters. Pass to
- * ComponentHandlerRegistryProvider as the autoFormatterOptions prop.
- */
+/** Options for provider autoFormatterOptions prop. */
 export interface AutoFormatterOptions {
-  /** Auto formatter ids to skip (e.g. ["boolean", "number"]). Excluded types are rendered as String(value). */
+  /** Ids to skip; excluded → String(value). */
   exclude?: AutoFormatterId[];
-  /** Custom formatter per auto type, replacing the built-in (e.g. { boolean: (v) => v ? "Y" : "N" }). */
+  /** Custom formatter per type. */
   overrides?: Partial<Record<AutoFormatterId, CellFormatter>>;
 }
 
-/**
- * Returns a formatter that behaves like autoFormatter but respects exclude and overrides.
- * Used by the resolver when the provider has autoFormatterOptions set.
- */
+/** autoFormatter with exclude/overrides applied. */
 export function getAutoFormatter(options: AutoFormatterOptions): CellFormatter {
   const excludeSet = new Set(options.exclude ?? []);
   const overrides = options.overrides ?? {};
@@ -288,14 +226,7 @@ export function getAutoFormatter(options: AutoFormatterOptions): CellFormatter {
   };
 }
 
-// =============================================================================
-// Auto formatters (applied automatically when no formatter is resolved)
-// =============================================================================
-
-/**
- * Formatters that are applied automatically by autoFormatter when no formatter
- * is resolved from the registry. Keys match the return values of detectValueType.
- */
+/** Auto-applied when no formatter is resolved. Keys match detectValueType. */
 export const autoFormatters = {
   datetime: datetimeFormatter,
   boolean: booleanFormatter,
@@ -306,35 +237,15 @@ export const autoFormatters = {
 
 export type AutoFormatterId = keyof typeof autoFormatters;
 
-// =============================================================================
-// Built-in formatters (auto + register-only)
-// =============================================================================
-//
-// Two ways to use these formatters:
-//
-// 1. AUTO BY TYPE (no registration)
-//    When no formatter is resolved for a field, the resolver uses autoFormatter,
-//    which uses autoFormatters (datetime, boolean, number, url, empty).
-//
-// 2. CURRENCY / PERCENT (opt-in only)
-//    currency-usd and percent are not registered. Use builtInFormatters and
-//    register under your own keys, e.g. registerFormatterById("price", builtInFormatters["currency-usd"]).
-
-/**
- * Map of built-in formatter id → formatter function. Includes autoFormatters
- * plus formatters that are only applied when registered (currency-usd, percent).
- * Use with registerFormatterById for custom keys (e.g. "price" → currency-usd).
- */
+/** All built-ins: auto formatters + currency-usd, percent (use via registerFormatterById). */
 export const builtInFormatters = {
   ...autoFormatters,
   "currency-usd": currencyUsdFormatter,
   percent: percentFormatter,
 } as const;
 
-/** Union type of built-in formatter ids. */
 export type BuiltInFormatterId = keyof typeof builtInFormatters;
 
-/** List of built-in formatter ids. */
 export const BUILT_IN_FORMATTER_IDS: BuiltInFormatterId[] = Object.keys(
   builtInFormatters
 ) as BuiltInFormatterId[];

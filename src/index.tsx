@@ -8,7 +8,6 @@ export type {
 } from "./components/DynamicComponents";
 
 // Re-export registry items for consumers
-// Note: This triggers a Fast Refresh warning, but it's non-blocking
 export {
   ComponentHandlerRegistryProvider,
   useComponentHandlerRegistry,
