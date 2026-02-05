@@ -1033,16 +1033,29 @@ function MyComponent() {
               <CodeBlockCode>{`import { ComponentHandlerRegistryProvider } from '@rhngui/patternfly-react-renderer';
 
 <ComponentHandlerRegistryProvider>
-  {/* Your app content */}
+  {/* Your app */}
+</ComponentHandlerRegistryProvider>
+
+// Optional: exclude/override auto formatters
+<ComponentHandlerRegistryProvider
+  autoFormatterOptions={{
+    exclude: ["boolean"],
+    overrides: { boolean: (v) => (v ? "Y" : "N") },
+  }}
+>
+  <MyTable />
 </ComponentHandlerRegistryProvider>`}</CodeBlockCode>
             </CodeBlock>
             <Content
               component={ContentVariants.p}
               style={{ marginTop: "12px", marginBottom: "0" }}
             >
-              Wraps your application to provide the registry context. All
-              components that need to use the registry must be children of this
-              provider.
+              Wraps your app to provide the registry context. Optional{" "}
+              <code>autoFormatterOptions</code>: <code>exclude</code> (ids to
+              skip: datetime, boolean, number, url, empty),{" "}
+              <code>overrides</code> (custom formatter per id). When no
+              formatter is found for a field, the resolver uses the auto
+              formatter fallback (or this config).
             </Content>
           </div>
 
@@ -1160,31 +1173,6 @@ registry.registerFormatterById(/.*-endDate$/, (value) => formatDate(value));`}</
               <code>registerFormatter</code>. Pass the same matchers (and{" "}
               <code>inputDataType</code> if used) as at registration.
             </Content>
-          </div>
-
-          <div className="registry-demo-method">
-            <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
-              ComponentHandlerRegistryProvider (autoFormatterOptions prop)
-            </Content>
-            <Content
-              component={ContentVariants.p}
-              style={{ marginTop: "12px" }}
-            >
-              When no formatter is found for a field, the resolver falls back to{" "}
-              <code>autoFormatter</code> (datetime, boolean, number, url, empty
-              by value type). To exclude types or override a built-in, pass the{" "}
-              <code>autoFormatterOptions</code> prop to the provider.
-            </Content>
-            <CodeBlock style={{ marginTop: "12px" }}>
-              <CodeBlockCode>{`<ComponentHandlerRegistryProvider
-  autoFormatterOptions={{
-    exclude: ["boolean"],
-    overrides: { boolean: (v) => (v ? "Y" : "N") },
-  }}
->
-  <MyTable />
-</ComponentHandlerRegistryProvider>`}</CodeBlockCode>
-            </CodeBlock>
           </div>
 
           <Content component={ContentVariants.h3} style={{ marginTop: "32px" }}>
@@ -1317,15 +1305,11 @@ registry.registerItemClick(/catalog|inventory/, (event, itemData) => {
               component={ContentVariants.p}
               style={{ marginTop: "12px", marginBottom: "0" }}
             >
-              Retrieves a formatter by matching the lookup identifier and
-              context against registered formatters (
-              <code>registerFormatter</code>
-              matchers). The registry automatically infers which field property
-              (<code>id</code>, <code>name</code>, or <code>data_path</code>)
-              the <code>id</code> parameter represents by comparing it with the
-              context properties. It then checks formatters registered for that
-              field property type, then pattern matches, then context matchers
-              from <code>registerFormatter</code>.
+              Lookup order: <code>data_path</code> → <code>id</code> →{" "}
+              <code>name</code>. Each is matched against registered formatters
+              (matchers + optional <code>inputDataType</code>). Returns first
+              match or <code>undefined</code> (resolver then uses auto formatter
+              fallback).
             </Content>
           </div>
 
@@ -1428,10 +1412,29 @@ registry.registerItemClick(/catalog|inventory/, (event, itemData) => {
               component={ContentVariants.p}
               style={{ marginTop: "12px", marginBottom: "0" }}
             >
-              Matchers for <code>registerFormatter</code>. All provided criteria
-              must match. Use when a single pattern is too broad and you want to
-              narrow by id, name, or dataPath (e.g. dataPath{" "}
-              <code>/products/</code> and name <code>"Status"</code>).
+              id, name, and/or dataPath (string or RegExp). All provided
+              criteria must match.
+            </Content>
+          </div>
+
+          <div className="registry-demo-method">
+            <Content component={ContentVariants.h4} style={{ marginTop: "0" }}>
+              AutoFormatterProviderOptions
+            </Content>
+            <CodeBlock>
+              <CodeBlockCode>{`type AutoFormatterIdOption = "datetime" | "boolean" | "number" | "url" | "empty";
+
+interface AutoFormatterProviderOptions {
+  exclude?: AutoFormatterIdOption[];
+  overrides?: Partial<Record<AutoFormatterIdOption, CellFormatter>>;
+}`}</CodeBlockCode>
+            </CodeBlock>
+            <Content
+              component={ContentVariants.p}
+              style={{ marginTop: "12px", marginBottom: "0" }}
+            >
+              Optional provider prop. <code>exclude</code> disables built-in
+              auto formatters; <code>overrides</code> replaces them.
             </Content>
           </div>
         </div>
