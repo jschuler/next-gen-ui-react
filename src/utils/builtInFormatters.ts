@@ -81,7 +81,7 @@ export const isISODate = (value: string | number | boolean | null): boolean => {
   return ISO_DATE_PATTERN.test(String(value));
 };
 
-/** true/false or "true"/"false" → Yes/No (not "1"/"0"). */
+/** true/false or "true"/"false" → Yes/No. */
 export const booleanFormatter: CellFormatter = (value): string => {
   if (value === null || value === undefined) return "";
   if (typeof value === "boolean") return value ? "Yes" : "No";
