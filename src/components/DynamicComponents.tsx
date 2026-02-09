@@ -123,10 +123,11 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
   let propsToParse: Record<string, unknown>;
 
   if (isCustomComponent && config?.data !== undefined) {
-    // For HBC: pass data and other config fields (like id) as props
+    // For HBC: pass data, input_data_type, and other config fields (like id) as props
     propsToParse = {
       ...config,
       data: config.data,
+      input_data_type: config.input_data_type,
     };
   } else {
     // For standard components: use props or the entire config
