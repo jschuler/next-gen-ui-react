@@ -3,7 +3,16 @@ import dts from "vite-plugin-dts";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [react(), dts()],
+  plugins: [
+    react(),
+    dts({
+      tsconfigPath: "./tsconfig.build.json",
+      include: ["src/**/*.ts", "src/**/*.tsx"],
+      exclude: ["src/**/*.test.ts", "src/**/*.test.tsx", "src/test/**"],
+      outDir: "dist",
+      insertTypesEntry: false, // We manually set types in package.json
+    }),
+  ],
   build: {
     lib: {
       entry: "./src/index.tsx", // Ensure this exists

@@ -47,6 +47,8 @@ npm install @rhngui/patternfly-react-renderer
 
 ### OneCard Component
 
+One-card supports the same [Component Handler Registry](ADVANCED.md#column-formatters-and-registry) formatters as data-view for formatting field values (e.g. dates, numbers, booleans). Pass `input_data_type` in config when using the registry.
+
 ```jsx
 import DynamicComponent from "@rhngui/patternfly-react-renderer";
 
@@ -152,122 +154,7 @@ function App() {
 }
 ```
 
-#### Advanced Features
-
-**Row Click Handler (`onRowClick`)**
-
-You can add a click handler to make rows interactive. When provided, rows become clickable with hover styling:
-
-```jsx
-import DataViewWrapper from "@rhngui/patternfly-react-renderer";
-
-const dataViewConfig = {
-  component: "data-view",
-  id: "interactive-table",
-  fields: [
-    {
-      name: "Product",
-      data_path: "products.name",
-      data: ["Laptop", "Mouse", "Keyboard"],
-    },
-    {
-      name: "Price",
-      data_path: "products.price",
-      data: ["$999", "$25", "$79"],
-    },
-  ],
-};
-
-function App() {
-  return (
-    <DataViewWrapper
-      {...dataViewConfig}
-      onRowClick={(event, rowData) => {
-        console.log("Row clicked:", rowData);
-        // rowData contains all column values as key-value pairs
-      }}
-    />
-  );
-}
-```
-
-**Column Formatters**
-
-You can customize how cell values are displayed using formatter functions. Formatters receive the cell value and can return strings, numbers, or React elements:
-
-```jsx
-import DataViewWrapper from "@rhngui/patternfly-react-renderer";
-import { Icon } from "@patternfly/react-core";
-import { CheckCircleIcon } from "@patternfly/react-icons";
-
-const dataViewConfig = {
-  component: "data-view",
-  id: "formatted-table",
-  fields: [
-    {
-      id: "product-name",
-      name: "Product",
-      data_path: "products.name",
-      data: ["Laptop", "Mouse", "Keyboard"],
-    },
-    {
-      id: "status",
-      name: "Status",
-      data_path: "products.status",
-      data: [true, false, true],
-      formatter: (value) => {
-        return value ? (
-          <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <Icon status="success">
-              <CheckCircleIcon />
-            </Icon>
-            Active
-          </span>
-        ) : (
-          <span>Inactive</span>
-        );
-      },
-    },
-  ],
-};
-
-function App() {
-  return <DataViewWrapper {...dataViewConfig} />;
-}
-```
-
-**CSS Classes for Customization**
-
-Each field can have an optional `id` property. When provided, CSS classes are automatically generated and added to all data cells (not headers) in that column. This allows you to style specific columns using CSS:
-
-- Format: `field-id-{sanitized-id}`
-- Example: If `field.id = "user-name"`, cells get class `field-id-user-name`
-- Fallback: If no `id` is provided, the field `name` is used (sanitized)
-
-```jsx
-const dataViewConfig = {
-  component: "data-view",
-  id: "customizable-table",
-  fields: [
-    {
-      id: "user-name", // CSS class: field-id-user-name
-      name: "Name",
-      data_path: "users.name",
-      data: ["Alice", "Bob", "Carol"],
-    },
-    {
-      id: "user-email", // CSS class: field-id-user-email
-      name: "Email",
-      data_path: "users.email",
-      data: ["alice@example.com", "bob@example.com", "carol@example.com"],
-    },
-  ],
-};
-
-// Then in your CSS:
-// .field-id-user-name { color: blue; font-weight: bold; }
-// .field-id-user-email { font-style: italic; }
-```
+**Advanced:** Data View supports item click handlers (`onItemClick`), column formatters via the Component Handler Registry (including auto formatters and `autoFormatterOptions`), and CSS classes per column. The same formatters and registry also apply to **one-card** and **set-of-cards** for field value display. See [Advanced usage](ADVANCED.md) for details.
 
 ### VideoPlayer Component
 
@@ -287,6 +174,8 @@ function App() {
 ```
 
 ### SetOfCards Component
+
+Set-of-cards supports the same [Component Handler Registry](ADVANCED.md#column-formatters-and-registry) formatters as data-view and one-card for formatting field values. Pass `input_data_type` in config when using the registry.
 
 ```jsx
 import DynamicComponent from "@rhngui/patternfly-react-renderer";
@@ -859,5 +748,6 @@ This project uses automated releases via GitHub Actions. See the [Release Guide]
 - [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/renderer/patternfly_npm/)
 - [Source Code](https://github.com/RedHat-UX/next-gen-ui-react)
 - [Component Demo](https://redhat-ux.github.io/next-gen-ui-react/)
-- [Contributing Guide](https://github.com/RedHat-UX/next-gen-ui-react/blob/main/CONTRIBUTING.md)
-- [Release Guide](https://github.com/RedHat-UX/next-gen-ui-react/blob/main/RELEASING.md)
+- [Advanced usage](ADVANCED.md) — Data View item click; formatters and registry (data-view, one-card, set-of-cards); CSS
+- [Contributing Guide](CONTRIBUTING.md)
+- [Release Guide](RELEASING.md)

@@ -1,6 +1,11 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
+import React from "react";
 import "@testing-library/jest-dom";
 
+import {
+  ComponentHandlerRegistryProvider,
+  useComponentHandlerRegistry,
+} from "../../components/ComponentHandlerRegistry";
 import OneCardWrapper from "../../components/OneCardWrapper";
 
 const mockData = {
@@ -72,11 +77,16 @@ describe("OneCardWrapper", () => {
     expect(screen.getByText("Release Date")).toBeInTheDocument();
     expect(screen.getByText("Actors")).toBeInTheDocument();
 
-    // Check field values (descriptions)
+    // Check field values (descriptions); numbers use locale formatting (e.g. 1,995)
     expect(screen.getByText("Toy Story")).toBeInTheDocument();
-    expect(screen.getByText("1995")).toBeInTheDocument();
+    expect(screen.getByText("1,995")).toBeInTheDocument();
     expect(screen.getByText("8.3")).toBeInTheDocument();
-    expect(screen.getByText("2022-11-02 00:00:00")).toBeInTheDocument();
+    // "2022-11-02 00:00:00" is matched by relaxed ISO and formatted as date (e.g. "Nov 2, 2022, 12:00 AM")
+    expect(
+      screen.getByText(
+        (content) => content.includes("Nov") && content.includes("2022")
+      )
+    ).toBeInTheDocument();
     expect(
       screen.getByText("Jim Varney, Tim Allen, Tom Hanks, Don Rickles")
     ).toBeInTheDocument();
@@ -180,7 +190,7 @@ describe("OneCardWrapper", () => {
 
     render(<OneCardWrapper title="Test" fields={fieldsWithBoolean} />);
 
-    expect(screen.getByText("true, false")).toBeInTheDocument();
+    expect(screen.getByText("Yes, No")).toBeInTheDocument();
   });
 
   it("handles mixed data types in field data", () => {
@@ -194,7 +204,7 @@ describe("OneCardWrapper", () => {
 
     render(<OneCardWrapper title="Test" fields={fieldsWithMixedTypes} />);
 
-    expect(screen.getByText("string, 123, true, N/A")).toBeInTheDocument();
+    expect(screen.getByText("string, 123, Yes, N/A")).toBeInTheDocument();
   });
 
   it("applies correct card styling", () => {
@@ -232,6 +242,58 @@ describe("OneCardWrapper", () => {
     // Check that all field terms are present
     mockData.fields.forEach((field) => {
       expect(screen.getByText(field.name)).toBeInTheDocument();
+    });
+  });
+
+  describe("Registry integration", () => {
+    it("should display formatted value from registry formatter", async () => {
+      const inputDataType = "movies";
+      const formattedPrefix = "[formatted]";
+
+      function Wrapper() {
+        const registry = useComponentHandlerRegistry();
+        const [ready, setReady] = React.useState(false);
+        React.useEffect(() => {
+          registry.registerFormatter(
+            { name: "Year" },
+            (value) => `${formattedPrefix} ${value}`,
+            inputDataType
+          );
+          setReady(true);
+        }, [registry]);
+
+        if (!ready) return null;
+        return (
+          <OneCardWrapper
+            title="Movie Card"
+            id="onecard-registry-test"
+            inputDataType={inputDataType}
+            fields={[
+              {
+                name: "Title",
+                data_path: "movie.title",
+                data: ["Toy Story"],
+              },
+              {
+                name: "Year",
+                data_path: "movie.year",
+                data: [1995],
+              },
+            ]}
+          />
+        );
+      }
+
+      render(
+        <ComponentHandlerRegistryProvider>
+          <Wrapper />
+        </ComponentHandlerRegistryProvider>
+      );
+
+      await waitFor(() => {
+        expect(screen.getByText(`${formattedPrefix} 1995`)).toBeInTheDocument();
+      });
+      expect(screen.getByText("Toy Story")).toBeInTheDocument();
     });
   });
 });

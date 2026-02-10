@@ -4,19 +4,21 @@ interface FieldData {
   name: string;
   data_path: string;
   data: (string | number | boolean | null | (string | number)[])[];
+  id?: string;
 }
 
-interface SetOfCardsWrapperProps {
+export interface SetOfCardsWrapperProps {
   component: "set-of-cards";
   id: string;
   title: string;
   fields: FieldData[];
   images?: (string | null)[] | null;
   className?: string;
+  inputDataType?: string;
 }
 
 const SetOfCardsWrapper = (props: SetOfCardsWrapperProps) => {
-  const { title, id, fields, images, className } = props;
+  const { title, id, fields, images, className, inputDataType } = props;
 
   // Transform fields data into individual card data
   const transformFieldsToCardsData = () => {
@@ -36,6 +38,7 @@ const SetOfCardsWrapper = (props: SetOfCardsWrapperProps) => {
           name: field.name,
           data_path: field.data_path,
           data: data,
+          ...(field.id !== undefined && { id: field.id }),
         };
       });
 
@@ -44,6 +47,7 @@ const SetOfCardsWrapper = (props: SetOfCardsWrapperProps) => {
         fields: cardFields,
         id: `${id}-card-${i}`,
         image: images?.[i] ?? null,
+        ...(inputDataType && { inputDataType }),
       });
     }
 

@@ -112,20 +112,20 @@ describe("DynamicComponent", () => {
       const TestComponent = ({
         data,
         id,
-        input_data_type,
+        inputDataType,
       }: {
         data: { title: string };
         id: string;
-        input_data_type?: string | null;
+        inputDataType?: string | null;
       }) => (
         <div
           data-testid="hbc-component"
           data-id={id}
-          data-type={input_data_type || "default"}
-          className={input_data_type ? `type-${input_data_type}` : ""}
+          data-type={inputDataType || "default"}
+          className={inputDataType ? `type-${inputDataType}` : ""}
         >
           <h1>{data.title}</h1>
-          {input_data_type && <span>Type: {input_data_type}</span>}
+          {inputDataType && <span>Type: {inputDataType}</span>}
         </div>
       );
 
@@ -153,16 +153,16 @@ describe("DynamicComponent", () => {
       const TestComponent = ({
         data,
         id,
-        input_data_type,
+        inputDataType,
       }: {
         data: { title: string };
         id: string;
-        input_data_type?: string | null;
+        inputDataType?: string | null;
       }) => (
         <div
           data-testid="hbc-component"
           data-id={id}
-          data-type={input_data_type || "default"}
+          data-type={inputDataType || "default"}
         >
           <h1>{data.title}</h1>
         </div>
@@ -190,18 +190,16 @@ describe("DynamicComponent", () => {
       const TestComponent = ({
         data,
         id,
-        input_data_type,
+        inputDataType,
       }: {
         data: { title: string };
         id: string;
-        input_data_type?: string | null;
+        inputDataType?: string | null;
       }) => (
         <div
           data-testid="hbc-component"
           data-id={id}
-          data-has-type={
-            input_data_type !== null && input_data_type !== undefined
-          }
+          data-has-type={inputDataType !== null && inputDataType !== undefined}
         >
           <h1>{data.title}</h1>
         </div>

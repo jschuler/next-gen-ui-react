@@ -6,7 +6,9 @@
  * [hand-build-component.schema.json](https://github.com/RedHat-UX/next-gen-ui-agent/blob/main/spec/component/hand-build-component.schema.json)
  *
  * When using DynamicComponent with a registered custom component, pass a config
- * that conforms to this shape (or a superset of it).
+ * that conforms to this shape (or a superset of it). Config uses snake_case (e.g.
+ * input_data_type); the renderer maps these to camelCase when calling your
+ * component (e.g. inputDataType).
  */
 export interface HBCConfig {
   /** Type of the component to be used in renderer to select hand-build rendering implementation. */

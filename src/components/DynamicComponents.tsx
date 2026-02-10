@@ -7,15 +7,17 @@ import {
   cloneElement,
   isValidElement,
   useState,
-  ReactElement,
-  MouseEvent,
+  type ComponentType,
+  type ReactElement,
+  type MouseEvent,
 } from "react";
 
 import { componentsMap } from "../constants/componentsMap";
 import { getCustomComponent } from "../utils/customComponentRegistry";
+import { debugWarn } from "../utils/debug";
 
 // Type for component configuration
-interface ComponentConfig {
+export interface ComponentConfig {
   component?: string;
   key?: string;
   props?: Record<string, unknown>;
@@ -26,12 +28,15 @@ interface ComponentConfig {
 // Type for custom props values
 type CustomPropValue = unknown | ((...args: unknown[]) => void) | ReactElement;
 
-interface IProps {
+export interface DynamicComponentProps {
   config: ComponentConfig;
   customProps?: Record<string, Record<string, CustomPropValue>>;
 }
 
-const DynamicComponent = ({ config, customProps = {} }: IProps) => {
+const DynamicComponent = ({
+  config,
+  customProps = {},
+}: DynamicComponentProps) => {
   const [customData, setCustomData] = useState(null);
 
   if (!config || Object.keys(config).length === 0) {
@@ -44,6 +49,12 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
   const parseProps = (props?: Record<string, unknown>) => {
     const newProps: Record<string, unknown> = { ...props };
 
+    // Map snake_case from config to camelCase so rendered components only receive inputDataType
+    if (newProps.input_data_type !== undefined) {
+      newProps.inputDataType = newProps.input_data_type;
+      delete newProps.input_data_type;
+    }
+
     if (componentKey && customProps[componentKey]) {
       Object.entries(customProps[componentKey]).forEach(([key, value]) => {
         if (typeof value === "function") {
@@ -54,25 +65,39 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
               customData,
             });
         } else if (isValidElement(value)) {
-          newProps[key] = cloneElement(value, {
+          const elementWithProps = value as ReactElement<{
+            onClick?: (event: MouseEvent, context?: unknown) => void;
+          }>;
+          newProps[key] = cloneElement(elementWithProps, {
             onClick: (event: MouseEvent) =>
-              value.props.onClick?.(event, {
+              (
+                elementWithProps.props as {
+                  onClick?: (event: MouseEvent, context?: unknown) => void;
+                }
+              ).onClick?.(event, {
                 componentKey,
                 // config,
                 customData,
               }),
-          });
+          } as Partial<{ onClick: (event: MouseEvent) => void }>);
         } else if (Array.isArray(value) && value.every(isValidElement)) {
-          newProps[key] = value.map((element) =>
-            cloneElement(element, {
+          newProps[key] = value.map((element) => {
+            const elementWithProps = element as ReactElement<{
+              onClick?: (event: MouseEvent, context?: unknown) => void;
+            }>;
+            return cloneElement(elementWithProps, {
               onClick: (event: MouseEvent) =>
-                element.props.onClick?.(event, {
+                (
+                  elementWithProps.props as {
+                    onClick?: (event: MouseEvent, context?: unknown) => void;
+                  }
+                ).onClick?.(event, {
                   componentKey,
                   // config,
                   customData,
                 }),
-            })
-          );
+            } as Partial<{ onClick: (event: MouseEvent) => void }>);
+          });
         } else {
           newProps[key] = value;
         }
@@ -99,21 +124,22 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
     return newProps;
   };
 
-  // Check if component exists in componentsMap
-  let Component =
+  // Check if component exists in componentsMap (built-in) or custom registry (HBC)
+  let Component: ComponentType<any> | undefined =
     componentsMap[config?.component as keyof typeof componentsMap];
 
   // If not found in standard components, check custom component registry (HBC)
   if (!Component) {
-    Component = getCustomComponent(config?.component as string);
+    const customComponent = getCustomComponent(config?.component as string);
 
-    if (!Component) {
+    if (!customComponent) {
       // Return null for unknown components instead of throwing an error
-      console.warn(
+      debugWarn(
         `Component "${config?.component}" is not available in the React package or registered as a custom component. Available components: ${Object.keys(componentsMap).join(", ")}`
       );
       return null;
     }
+    Component = customComponent;
   }
 
   // For HBC (Hand Build Components), pass the data field as props
@@ -123,12 +149,7 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
   let propsToParse: Record<string, unknown>;
 
   if (isCustomComponent && config?.data !== undefined) {
-    // For HBC: pass data, input_data_type, and other config fields (like id) as props
-    propsToParse = {
-      ...config,
-      data: config.data,
-      input_data_type: config.input_data_type,
-    };
+    propsToParse = { ...config, data: config.data };
   } else {
     // For standard components: use props or the entire config
     propsToParse = config?.props || config;

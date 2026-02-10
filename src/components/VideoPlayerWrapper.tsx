@@ -3,7 +3,7 @@ import React, { useState } from "react";
 
 import ErrorPlaceholder from "./ErrorPlaceholder";
 
-interface VideoPlayerProps {
+export interface VideoPlayerProps {
   id?: string;
   title: string;
   video?: string | null;

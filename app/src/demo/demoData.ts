@@ -254,8 +254,6 @@ export const chartDemoLine = {
       ],
     },
   ],
-  width: 750,
-  height: 400,
   themeColor: "multi" as const,
 };
 
@@ -275,8 +273,6 @@ export const chartDemoPie = {
       ],
     },
   ],
-  width: 650,
-  height: 400,
   themeColor: "blue" as const,
 };
 
@@ -296,7 +292,6 @@ export const chartDemoDonut = {
       ],
     },
   ],
-  height: 400,
   themeColor: "multi" as const,
   donutSubTitle: "GB Used",
 };
@@ -338,8 +333,6 @@ export const chartDemoBarLargeNumbers = {
       ],
     },
   ],
-  width: 750,
-  height: 450,
   themeColor: "multi" as const,
 };
 
@@ -382,8 +375,6 @@ export const chartDemoLineLargeNumbers = {
       ],
     },
   ],
-  width: 800,
-  height: 450,
   themeColor: "multi" as const,
 };
 
@@ -570,8 +561,6 @@ export const chartDemoBarStacked = {
       ],
     },
   ],
-  width: 700,
-  height: 400,
   themeColor: "multi" as const,
 };
 
@@ -603,8 +592,6 @@ export const chartDemoLinePerformance = {
       ],
     },
   ],
-  width: 750,
-  height: 350,
   themeColor: "green" as const,
 };
 
@@ -623,8 +610,6 @@ export const chartDemoPieServerDistribution = {
       ],
     },
   ],
-  width: 550,
-  height: 400,
   themeColor: "purple" as const,
 };
 
@@ -644,8 +629,6 @@ export const chartDemoDonutCostBreakdown = {
       ],
     },
   ],
-  width: 600,
-  height: 400,
   themeColor: "orange" as const,
   donutSubTitle: "USD",
 };
@@ -667,83 +650,39 @@ export const chartDemoBarMoviesHorizontal = {
       ],
     },
   ],
-  width: 1000,
-  height: 450,
   themeColor: "blue" as const,
   horizontal: true,
   yAxisLabelAngle: 0,
 };
 
-export const chartDemoBarLongTitlesHorizontal = {
+export const chartDemoBarSubscriptionRuntimes = {
   component: "chart-bar" as const,
-  id: "chart-bar-long-titles-horizontal",
-  title: "Top Revenue by Movie Title",
+  id: "chart-bar-subscription-runtimes",
+  title: "Subscription Runtimes",
+  x_axis_label: "Subscription",
   data: [
     {
-      name: "Revenue (Millions)",
+      name: "Number of Runtimes",
       data: [
-        { x: "The Shawshank Redemption", y: 58.3 },
-        { x: "The Lord of the Rings: The Return of the King", y: 1119.9 },
-        { x: "Pirates of the Caribbean: Dead Man's Chest", y: 1066.2 },
-        { x: "Harry Potter and the Deathly Hallows – Part 2", y: 1342.0 },
-        { x: "The Dark Knight Rises", y: 1081.0 },
+        { name: null, x: "RHEL", y: 2 },
+        { name: null, x: "Red Hat Developer", y: 4 },
+        { name: null, x: "EAP", y: 3 },
+        { name: null, x: "ACVR", y: 5 },
+        { name: null, x: "Red Hat SSS subscription", y: 1 },
+        { name: null, x: "OLP", y: 2 },
+        { name: null, x: "JSR subscription", y: 2 },
+        { name: null, x: "MMM", y: 3 },
+        { name: null, x: "KOLER subscription", y: 2 },
+        { name: null, x: "FEL subscription", y: 4 },
+        { name: null, x: "OLPIC subscription", y: 2 },
+        { name: null, x: "SAE subscription", y: 3 },
+        { name: null, x: "MEKOL subscription", y: 2 },
+        { name: null, x: "Red Hat ORUL subscription", y: 2 },
+        { name: null, x: "YOLO subscription", y: 325 },
       ],
     },
   ],
-  width: 600,
-  height: 400,
-  themeColor: "green" as const,
-  horizontal: true,
-};
-
-export const chartDemoBarLongLabelsVertical = {
-  component: "chart-bar" as const,
-  id: "chart-bar-long-labels-vertical",
-  title: "Product Performance by Category",
-  data: [
-    {
-      name: "Sales (USD)",
-      data: [
-        { x: "Enterprise Software Solutions", y: 245000 },
-        { x: "Cloud Infrastructure Services", y: 189000 },
-        { x: "Data Analytics Platform", y: 312000 },
-        { x: "Cybersecurity Solutions", y: 156000 },
-        { x: "Mobile Application Development", y: 98000 },
-      ],
-    },
-  ],
-  width: 600,
-  height: 400,
-  themeColor: "purple" as const,
-};
-
-export const chartDemoBarResponsive = {
-  component: "chart-bar" as const,
-  id: "chart-bar-responsive",
-  title: "Responsive Bar Chart (No Fixed Width)",
-  data: [
-    {
-      name: "Revenue",
-      data: [
-        { x: "Q1 2024", y: 12500 },
-        { x: "Q2 2024", y: 15800 },
-        { x: "Q3 2024", y: 18200 },
-        { x: "Q4 2024", y: 21000 },
-      ],
-    },
-    {
-      name: "Expenses",
-      data: [
-        { x: "Q1 2024", y: 8500 },
-        { x: "Q2 2024", y: 9200 },
-        { x: "Q3 2024", y: 10100 },
-        { x: "Q4 2024", y: 11500 },
-      ],
-    },
-  ],
-  // No width specified - will be responsive to parent container
-  height: 350,
-  themeColor: "cyan" as const,
+  themeColor: "blue" as const,
 };
 
 export const imageLogoGrid = {
@@ -793,7 +732,6 @@ export const chartMovieROISimple = {
       ],
     },
   ],
-  height: 350,
   themeColor: "multi" as const,
 };
 
@@ -816,8 +754,6 @@ export const chartMovieROI = {
       ],
     },
   ],
-  width: 700,
-  height: 250,
   themeColor: "green" as const,
 };
 
@@ -839,8 +775,6 @@ export const chartMovieBudget = {
       ],
     },
   ],
-  width: 700,
-  height: 250,
   themeColor: "blue" as const,
   showAbsoluteValues: true,
 };
@@ -888,154 +822,6 @@ export const emptyStateCustomIcon = {
 };
 
 // DataView demos
-export const dataViewRepositories = {
-  component: "data-view" as const,
-  id: "dataview-repos",
-  fields: [
-    {
-      name: "Repository",
-      data_path: "repositories.name",
-      data: [
-        "next-gen-ui-react",
-        "patternfly-react",
-        "patternfly",
-        "react-data-view",
-        "react-charts",
-        "react-table",
-      ],
-    },
-    {
-      name: "Branch",
-      data_path: "repositories.branch",
-      data: ["main", "main", "main", "development", "main", "feature-branch"],
-    },
-    {
-      name: "Pull Requests",
-      data_path: "repositories.prs",
-      data: ["3 open", "12 open", "8 open", "2 open", "5 open", "1 open"],
-    },
-    {
-      name: "Workspace",
-      data_path: "repositories.workspace",
-      data: [
-        "UI Components",
-        "UI Components",
-        "Design System",
-        "Extensions",
-        "Extensions",
-        "Core",
-      ],
-    },
-    {
-      name: "Last Commit",
-      data_path: "repositories.lastCommit",
-      data: [
-        "2 hours ago",
-        "1 day ago",
-        "3 hours ago",
-        "5 days ago",
-        "2 days ago",
-        "1 week ago",
-      ],
-    },
-  ],
-  perPage: 5,
-  enableFilters: true,
-  enablePagination: true,
-  enableSort: true,
-};
-
-export const dataViewUsers = {
-  component: "data-view" as const,
-  id: "dataview-users",
-  fields: [
-    {
-      name: "Name",
-      data_path: "users.name",
-      data: [
-        "Alice Johnson",
-        "Bob Smith",
-        "Carol Williams",
-        "David Brown",
-        "Eve Davis",
-        "Frank Miller",
-        "Grace Wilson",
-        "Henry Moore",
-        "Ivy Taylor",
-        "Jack Anderson",
-      ],
-    },
-    {
-      name: "Email",
-      data_path: "users.email",
-      data: [
-        "alice.j@example.com",
-        "bob.smith@example.com",
-        "carol.w@example.com",
-        "david.b@example.com",
-        "eve.d@example.com",
-        "frank.m@example.com",
-        "grace.w@example.com",
-        "henry.m@example.com",
-        "ivy.t@example.com",
-        "jack.a@example.com",
-      ],
-    },
-    {
-      name: "Role",
-      data_path: "users.role",
-      data: [
-        "Admin",
-        "Developer",
-        "Designer",
-        "Developer",
-        "QA Engineer",
-        "Product Manager",
-        "Developer",
-        "DevOps",
-        "Designer",
-        "Developer",
-      ],
-    },
-    {
-      name: "Status",
-      data_path: "users.status",
-      data: [
-        "Active",
-        "Active",
-        "Active",
-        "Inactive",
-        "Active",
-        "Active",
-        "Active",
-        "Active",
-        "Inactive",
-        "Active",
-      ],
-    },
-    {
-      name: "Last Login",
-      data_path: "users.lastLogin",
-      data: [
-        "5 mins ago",
-        "2 hours ago",
-        "1 day ago",
-        "2 weeks ago",
-        "30 mins ago",
-        "4 hours ago",
-        "Yesterday",
-        "3 days ago",
-        "1 month ago",
-        "Just now",
-      ],
-    },
-  ],
-  perPage: 10,
-  enableFilters: true,
-  enablePagination: true,
-  enableSort: true,
-};
-
 export const dataViewServers = {
   component: "data-view" as const,
   id: "dataview-servers",
@@ -1098,32 +884,6 @@ export const dataViewServers = {
   perPage: 10,
   enableFilters: true,
   enablePagination: true,
-  enableSort: true,
-};
-
-export const dataViewSimple = {
-  component: "data-view" as const,
-  id: "dataview-simple",
-  fields: [
-    {
-      name: "Product",
-      data_path: "products.name",
-      data: ["Laptop", "Mouse", "Keyboard"],
-    },
-    {
-      name: "Price",
-      data_path: "products.price",
-      data: ["$999", "$25", "$79"],
-    },
-    {
-      name: "Stock",
-      data_path: "products.stock",
-      data: ["15", "50", "32"],
-    },
-  ],
-  perPage: 5,
-  enableFilters: false,
-  enablePagination: false,
   enableSort: true,
 };
 
@@ -1334,10 +1094,10 @@ export const dataViewDateSort = {
   // 2024-12-20 < 2025-01-15 < 2025-02-10 < 2025-03-05 < 2025-04-01 < 2025-04-15
 };
 
-// DataView demonstrating row click functionality
-export const dataViewRowClick = {
+// DataView demonstrating item click functionality
+export const dataViewItemClick = {
   component: "data-view" as const,
-  id: "dataview-row-click",
+  id: "dataview-item-click",
   fields: [
     {
       id: "product-name",
@@ -1380,10 +1140,9 @@ export const dataViewRowClick = {
   enableFilters: true,
   enablePagination: true,
   enableSort: true,
-  // Note: onRowClick handler will be added in ComponentDemo.tsx
 };
 
-// DataView demonstrating formatter functions with icons
+// DataView demonstrating formatter functions with icons.
 export const dataViewWithIcons = {
   component: "data-view" as const,
   id: "dataview-with-icons",
@@ -1435,5 +1194,184 @@ export const dataViewWithIcons = {
   enableFilters: true,
   enablePagination: true,
   enableSort: true,
-  // Note: formatter functions with icons will be added in ComponentDemo.tsx
+};
+
+// DynamicComponents example using DataView with formatted columns
+export const dynamicDemoDataViewWithFormatters = {
+  component: "data-view" as const,
+  key: "dataview-formatters-demo",
+  props: dataViewWithIcons,
+};
+
+// DataView demonstrating subscriptions with dates, booleans, and URLs
+export const dataViewSubscriptions = {
+  component: "data-view" as const,
+  id: "inline_table.dataset_1",
+  title: "Subscriptions",
+  fields: [
+    {
+      id: "subscriptions-id",
+      name: "ID",
+      data_path: "$..subscriptions[*].id",
+      data: [
+        "EUS-101",
+        "EUS-112",
+        "EUS-254",
+        "EUS-111",
+        "EUS-132",
+        "EUS-354",
+        "EUS-401",
+        "EUS-412",
+        "EUS-554",
+        "EUS-501",
+        "EUS-512",
+        "EUS-654",
+        "EUS-601",
+        "EUS-612",
+        "EUS-654",
+      ],
+    },
+    {
+      id: "subscriptions-name",
+      name: "Name",
+      data_path: "$..subscriptions[*].name",
+      data: [
+        "RHEL",
+        "Red Hat Developer",
+        "EAP",
+        "ACVR",
+        "Red Hat SSS subscription",
+        "OLP",
+        "JSR subscription",
+        "MMM",
+        "KOLER subscription",
+        "FEL subscription",
+        "OLPIC subscription",
+        "SAE subscription",
+        "MEKOL subscription",
+        "Red Hat ORUL subscription",
+        "YOLO subscription",
+      ],
+    },
+    {
+      id: "subscriptions-viewUrl",
+      name: "View URL",
+      data_path: "$..subscriptions[*].viewUrl",
+      data: [
+        "https://access.redhat.com/sub/EUS-101",
+        "https://access.redhat.com/sub/EUS-112",
+        "https://access.redhat.com/sub/EUS-254",
+        "https://access.redhat.com/sub/asdasdad",
+        "https://access.redhat.com/sub/45gdfge",
+        "https://access.redhat.com/sub/w4tgtedgsd",
+        "https://access.redhat.com/sub/45tgedsweerf",
+        "https://access.redhat.com/sub/435tefvsd",
+        "https://access.redhat.com/sub/4w5tgeagncj",
+        "https://access.redhat.com/sub/kj34w5ywh",
+        "https://access.redhat.com/sub/2tgergsd",
+        "https://access.redhat.com/sub/45tgesdf",
+        "https://access.redhat.com/sub/45gsdf",
+        "https://access.redhat.com/sub/543tgeasdvs",
+        "https://access.redhat.com/sub/08it7jrdntrfg",
+      ],
+    },
+    {
+      id: "subscriptions-endDate",
+      name: "End Date",
+      data_path: "$..subscriptions[*].endDate",
+      data: [
+        "2024-12-24",
+        "2025-04-13",
+        "2025-07-26",
+        "2024-12-24",
+        "2025-04-13",
+        "2025-07-26",
+        "2024-12-24",
+        "2025-04-13",
+        "2025-07-26",
+        "2024-12-24",
+        "2025-04-13",
+        "2025-07-26",
+        "2024-12-24",
+        "2025-04-13",
+        "2025-07-26",
+      ],
+    },
+    {
+      id: "subscriptions-supported",
+      name: "Supported",
+      data_path: "$..subscriptions[*].supported",
+      data: [
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+        true,
+        false,
+        true,
+      ],
+    },
+    {
+      id: "subscriptions-numOfRuntimes",
+      name: "Number of Runtimes",
+      data_path: "$..subscriptions[*].numOfRuntimes",
+      data: [2, 4, 3, 5, 1, 2, 2, 3, 2, 4, 2, 3, 2, 2, 325],
+    },
+    {
+      id: "subscriptions-editLink",
+      name: "Edit Link",
+      data_path: "$..subscriptions[*].editLink",
+      data: [
+        "https://access.redhat.com/sub/e/3ygrstg",
+        "https://access.redhat.com/sub/e/3ygrstg2",
+        "https://access.redhat.com/sub/e/3ygrst3",
+        "https://access.redhat.com/sub/e/asdasdad",
+        "https://access.redhat.com/sub/e/45gdfge",
+        "https://access.redhat.com/sub/e/w4tgtedgsd",
+        "https://access.redhat.com/sub/e/45tgedsweerf",
+        "https://access.redhat.com/sub/e/435tefvsd",
+        "https://access.redhat.com/sub/e/4w5tgeagncj",
+        "https://access.redhat.com/sub/e/kj34w5ywh",
+        "https://access.redhat.com/sub/e/2tgergsd",
+        "https://access.redhat.com/sub/e/45tgesdf",
+        "https://access.redhat.com/sub/e/45gsdf",
+        "https://access.redhat.com/sub/e/543tgeasdvs",
+        "https://access.redhat.com/sub/e/08it7jrdntrfg",
+      ],
+    },
+    {
+      id: "subscriptions-renewalLink",
+      name: "Renewal Link",
+      data_path: "$..subscriptions[*].renewalLink",
+      data: [
+        "https://access.redhat.com/sub/r/3ygrstg",
+        "https://access.redhat.com/sub/r/3ygrstg2",
+        "https://access.redhat.com/sub/r/3ygrst3",
+        "https://access.redhat.com/sub/r/asdasdad",
+        "https://access.redhat.com/sub/r/45gdfge",
+        "https://access.redhat.com/sub/r/w4tgtedgsd",
+        "https://access.redhat.com/sub/r/45tgedsweerf",
+        "https://access.redhat.com/sub/r/435tefvsd",
+        "https://access.redhat.com/sub/r/4w5tgeagncj",
+        "https://access.redhat.com/sub/r/kj34w5ywh",
+        "https://access.redhat.com/sub/r/2tgergsd",
+        "https://access.redhat.com/sub/r/45tgesdf",
+        "https://access.redhat.com/sub/r/45gsdf",
+        "https://access.redhat.com/sub/r/543tgeasdvs",
+        "https://access.redhat.com/sub/r/08it7jrdntrfg",
+      ],
+    },
+  ],
+  perPage: 10,
+  enableFilters: true,
+  enablePagination: true,
+  enableSort: true,
 };
