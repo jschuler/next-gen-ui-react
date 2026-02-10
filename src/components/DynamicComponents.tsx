@@ -49,7 +49,7 @@ const DynamicComponent = ({
   const parseProps = (props?: Record<string, unknown>) => {
     const newProps: Record<string, unknown> = { ...props };
 
-    // Map snake_case props from JSON to camelCase props expected by components (including HBC)
+    // Map snake_case from config to camelCase so rendered components only receive inputDataType
     if (newProps.input_data_type !== undefined) {
       newProps.inputDataType = newProps.input_data_type;
       delete newProps.input_data_type;
@@ -149,12 +149,7 @@ const DynamicComponent = ({
   let propsToParse: Record<string, unknown>;
 
   if (isCustomComponent && config?.data !== undefined) {
-    // For HBC: pass data, input_data_type, and other config fields (like id) as props
-    propsToParse = {
-      ...config,
-      data: config.data,
-      input_data_type: config.input_data_type,
-    };
+    propsToParse = { ...config, data: config.data };
   } else {
     // For standard components: use props or the entire config
     propsToParse = config?.props || config;

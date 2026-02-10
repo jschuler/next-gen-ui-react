@@ -47,6 +47,8 @@ npm install @rhngui/patternfly-react-renderer
 
 ### OneCard Component
 
+One-card supports the same [Component Handler Registry](ADVANCED.md#column-formatters-and-registry) formatters as data-view for formatting field values (e.g. dates, numbers, booleans). Pass `input_data_type` in config when using the registry.
+
 ```jsx
 import DynamicComponent from "@rhngui/patternfly-react-renderer";
 
@@ -152,7 +154,7 @@ function App() {
 }
 ```
 
-**Advanced:** Data View supports item click handlers (`onItemClick`), column formatters via the Component Handler Registry (including auto formatters and `autoFormatterOptions`), and CSS classes per column. See [Advanced usage](ADVANCED.md) for details.
+**Advanced:** Data View supports item click handlers (`onItemClick`), column formatters via the Component Handler Registry (including auto formatters and `autoFormatterOptions`), and CSS classes per column. The same formatters and registry also apply to **one-card** and **set-of-cards** for field value display. See [Advanced usage](ADVANCED.md) for details.
 
 ### VideoPlayer Component
 
@@ -172,6 +174,8 @@ function App() {
 ```
 
 ### SetOfCards Component
+
+Set-of-cards supports the same [Component Handler Registry](ADVANCED.md#column-formatters-and-registry) formatters as data-view and one-card for formatting field values. Pass `input_data_type` in config when using the registry.
 
 ```jsx
 import DynamicComponent from "@rhngui/patternfly-react-renderer";
@@ -744,6 +748,6 @@ This project uses automated releases via GitHub Actions. See the [Release Guide]
 - [Documentation](https://redhat-ux.github.io/next-gen-ui-agent/guide/renderer/patternfly_npm/)
 - [Source Code](https://github.com/RedHat-UX/next-gen-ui-react)
 - [Component Demo](https://redhat-ux.github.io/next-gen-ui-react/)
-- [Advanced usage](ADVANCED.md) — Data View item click, formatters, registry, CSS
+- [Advanced usage](ADVANCED.md) — Data View item click; formatters and registry (data-view, one-card, set-of-cards); CSS
 - [Contributing Guide](CONTRIBUTING.md)
 - [Release Guide](RELEASING.md)

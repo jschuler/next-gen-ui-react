@@ -3,7 +3,11 @@ import {
   useComponentHandlerRegistry,
 } from "@local-lib/components/ComponentHandlerRegistry";
 import DataViewWrapper from "@local-lib/components/DataViewWrapper";
+import type { DataViewWrapperProps } from "@local-lib/components/DataViewWrapper";
 import OneCardWrapper from "@local-lib/components/OneCardWrapper";
+import type { OneCardProps } from "@local-lib/components/OneCardWrapper";
+import SetOfCardsWrapper from "@local-lib/components/SetOfCardsWrapper";
+import type { SetOfCardsWrapperProps } from "@local-lib/components/SetOfCardsWrapper";
 import {
   Alert,
   AlertVariant,
@@ -33,7 +37,14 @@ import {
   registryDemoCssClasses,
   registryDemoBuiltInFormatters,
   registryDemoOneCard,
+  registryDemoSetOfCards,
 } from "../demo/registryDemoData";
+
+/** Demo example data is one of the three wrapper configs (used for the preview switch). */
+type RegistryExampleData =
+  | DataViewWrapperProps
+  | (OneCardProps & { component: "one-card" })
+  | (SetOfCardsWrapperProps & { component: "set-of-cards" });
 
 // Helper function to create a URL-friendly slug from a title
 const createSlug = (title: string): string => {
@@ -49,14 +60,12 @@ const patternDemoRegexRef = { current: null as RegExp | null };
 // Component that registers formatters and handlers
 function RegistrySetup() {
   const registry = useComponentHandlerRegistry();
-  const registeredRef = useRef(false);
+  // After effect cleanup (e.g. React 18 Strict Mode), bump so useMemo re-runs and re-registers
+  const [registerTick, setRegisterTick] = useState(0);
 
-  // Register formatters synchronously using useMemo to ensure they're registered before render
-  // This ensures they're available before DataViewWrapper tries to resolve them
+  // Register formatters in useMemo so they're available before child components resolve them.
+  // Deps include registerTick so that after cleanup (Strict Mode or unmount) we can re-register.
   useMemo(() => {
-    if (registeredRef.current) return; // Only register once
-    registeredRef.current = true;
-
     // Example 1 (inputDataType "products"): Register by ID — format Product and Status columns
     registry.registerFormatterById(
       "product-name",
@@ -221,6 +230,61 @@ function RegistrySetup() {
       "servers"
     );
 
+    // Example 10 (SetOfCardsWrapper, inputDataType "servers"): Healthy (boolean) and CPU % with distinct styling
+    registry.registerFormatterById(
+      "server-healthy",
+      (value) => {
+        const isHealthy = value === true;
+        const bg = isHealthy ? "#d4edda" : "#f8d7da";
+        const color = isHealthy ? "#155724" : "#721c24";
+        const text = isHealthy ? "Yes" : "No";
+        return (
+          <span
+            style={{
+              display: "inline-block",
+              padding: "2px 10px",
+              borderRadius: "12px",
+              fontSize: "0.85em",
+              fontWeight: 700,
+              backgroundColor: bg,
+              color,
+              border: `1px solid ${color}`,
+            }}
+          >
+            {text}
+          </span>
+        );
+      },
+      "servers"
+    );
+    registry.registerFormatterById(
+      "server-cpu_pct",
+      (value) => {
+        const num =
+          typeof value === "number" ? value : parseFloat(String(value));
+        const isLow = num < 50;
+        const isHigh = num >= 80;
+        const bg = isLow ? "#d4edda" : isHigh ? "#f8d7da" : "#fff3cd";
+        const color = isLow ? "#155724" : isHigh ? "#721c24" : "#856404";
+        return (
+          <span
+            style={{
+              display: "inline-block",
+              padding: "2px 10px",
+              borderRadius: "4px",
+              fontFamily: "monospace",
+              fontWeight: 700,
+              backgroundColor: bg,
+              color,
+            }}
+          >
+            {num.toFixed(1)}%
+          </span>
+        );
+      },
+      "servers"
+    );
+
     // Example 3 (inputDataType "inventory"): Register by DataPath — format Price and Category columns (paths that exist in table)
     registry.registerFormatterByDataPath(
       "products.price",
@@ -308,9 +372,10 @@ function RegistrySetup() {
         `Item clicked!\n\nProduct: ${itemData["Product"]}\nStatus: ${itemData["Status"]}\nPrice: ${itemData["Price"]}\nCategory: ${itemData["Category"]}`
       );
     });
-  }, [registry]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- registerTick forces re-register after cleanup (Strict Mode)
+  }, [registry, registerTick]);
 
-  // Cleanup on unmount
+  // Cleanup on unmount (and in React 18 Strict Mode). Schedule re-register so useMemo runs again.
   useEffect(() => {
     return () => {
       registry.unregisterFormatterById("product-name", "products");
@@ -319,6 +384,8 @@ function RegistrySetup() {
       registry.unregisterFormatterByName("Price", "servers");
       registry.unregisterFormatterById("server-status", "servers");
       registry.unregisterFormatterById("server-health", "servers");
+      registry.unregisterFormatterById("server-healthy", "servers");
+      registry.unregisterFormatterById("server-cpu_pct", "servers");
       registry.unregisterFormatterByDataPath("products.price", "inventory");
       registry.unregisterFormatterByDataPath("products.category", "inventory");
       registry.unregisterFormatter(
@@ -333,6 +400,8 @@ function RegistrySetup() {
         patternDemoRegexRef.current = null;
       }
       registry.unregisterItemClick("catalog");
+      // Re-run registration after cleanup (React 18 Strict Mode unmounts then remounts)
+      setTimeout(() => setRegisterTick((t) => t + 1), 0);
     };
   }, [registry]);
 
@@ -714,6 +783,52 @@ registry.registerFormatterById("server-health", ..., "servers")`}</CodeBlockCode
       </>
     ),
   },
+  {
+    title: "Example 10: SetOfCardsWrapper",
+    data: registryDemoSetOfCards,
+    description:
+      "Set-of-cards forwards input_data_type to each card so registry formatters apply. Status (icon + border), Healthy (Yes/No badge), and CPU % (color-coded) use custom formatters; Last seen uses auto date formatting.",
+    strategyDetails: (
+      <>
+        <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
+          <strong>Formatters applied:</strong> Status and Health (shared with
+          Example 9), plus <code>server-healthy</code> (boolean → Yes/No badge)
+          and <code>server-cpu_pct</code> (color by value). SetOfCardsWrapper
+          forwards <code>inputDataType</code> / <code>input_data_type</code> to
+          each OneCardWrapper. Wrap with{" "}
+          <code>ComponentHandlerRegistryProvider</code> and pass{" "}
+          <code>input_data_type</code> in config. Each card receives
+          inputDataType so formatters match.
+        </Content>
+        <CodeBlock style={{ marginTop: "8px" }}>
+          <CodeBlockCode>{`<SetOfCardsWrapper
+  id="registry-demo-setofcards"
+  title="Servers (formatted fields)"
+  inputDataType="servers"
+  fields={[
+    { id: "server-status", name: "Status", data_path: "servers.status", data: [...] },
+    { id: "server-healthy", name: "Healthy", data_path: "servers.healthy", data: [true, false, true] },
+    { id: "server-cpu_pct", name: "CPU %", data_path: "servers.cpu_pct", data: [12.5, 0, 88.2] },
+    ...
+  ]}
+/>`}</CodeBlockCode>
+        </CodeBlock>
+        <Alert
+          variant={AlertVariant.info}
+          isInline
+          title="One-card and set-of-cards"
+          style={{ marginTop: "12px" }}
+        >
+          <Content component={ContentVariants.p}>
+            Formatters apply to data-view, one-card, and set-of-cards. Use the
+            same provider and <code>input_data_type</code> (or{" "}
+            <code>inputDataType</code>) so values are formatted consistently
+            across tables, single cards, and card grids.
+          </Content>
+        </Alert>
+      </>
+    ),
+  },
 ];
 
 export default function RegistryDemo() {
@@ -971,14 +1086,22 @@ function MyComponent() {
                   backgroundColor: "#fafafa",
                 }}
               >
-                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                {(example.data as any).component === "one-card" ? (
-                  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                  <OneCardWrapper {...(example.data as any)} />
-                ) : (
-                  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-                  <DataViewWrapper {...(example.data as any)} />
-                )}
+                {(() => {
+                  const data = example.data as RegistryExampleData;
+                  if (data.component === "one-card") {
+                    return <OneCardWrapper {...(data as OneCardProps)} />;
+                  }
+                  if (data.component === "set-of-cards") {
+                    return (
+                      <SetOfCardsWrapper
+                        {...(data as SetOfCardsWrapperProps)}
+                      />
+                    );
+                  }
+                  return (
+                    <DataViewWrapper {...(data as DataViewWrapperProps)} />
+                  );
+                })()}
               </div>
 
               <div

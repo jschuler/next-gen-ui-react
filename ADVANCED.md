@@ -1,12 +1,12 @@
 # Advanced Usage
 
-This document covers advanced **Data View** features: item click handlers, column formatters (Component Handler Registry), and CSS classes for column styling.
+This document covers advanced features: **Data View** item click handlers and column CSS; and **formatters (Component Handler Registry)**, which work for **data-view**, **one-card**, and **set-of-cards**.
 
 **Contents**
 
-- [Item click handler](#item-click-handler) — make rows clickable (prop or registry)
-- [Column formatters and registry](#column-formatters-and-registry) — customize cell display, auto formatters, and options
-- [CSS classes](#css-classes-for-columns) — style columns by field `id`
+- [Item click handler](#item-click-handler) — make Data View rows clickable (prop or registry)
+- [Column formatters and registry](#column-formatters-and-registry) — customize value display in data-view, one-card, and set-of-cards; auto formatters and options
+- [CSS classes](#css-classes-for-columns) — style Data View columns by field `id`
 
 ---
 
@@ -54,7 +54,7 @@ function App() {
 
 ## Column formatters and registry
 
-Customize how cell values are displayed by registering formatters by **field id**, **name**, or **data path** (and optionally by `inputDataType`). The resolver looks up by data_path, then id, then name. Types are detected automatically, so you don’t need formatters in field definitions.
+Customize how cell values are displayed by registering formatters by **field id**, **name**, or **data path** (and optionally by `inputDataType`). Formatters apply to **data-view** (table cells), **one-card** (description list values), and **set-of-cards** (card field values). The resolver looks up by data_path, then id, then name. Use the `input_data_type` config when rendering so the registry can match formatters by context. Types are detected automatically, so you don’t need formatters in field definitions.
 
 ### 1. Provider and auto formatters
 

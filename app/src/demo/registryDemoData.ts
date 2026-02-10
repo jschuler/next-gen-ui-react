@@ -179,3 +179,47 @@ export const registryDemoOneCard = {
     },
   ],
 };
+
+// Example 10: SetOfCardsWrapper with formatters (ids match registry; inputDataType forwarded to cards)
+export const registryDemoSetOfCards = {
+  component: "set-of-cards" as const,
+  id: "registry-demo-setofcards",
+  title: "Servers (formatted fields)",
+  inputDataType: "servers",
+  fields: [
+    {
+      id: "server-name",
+      name: "Server",
+      data_path: "servers.name",
+      data: ["web-01", "web-02", "db-01"],
+    },
+    {
+      id: "server-status",
+      name: "Status",
+      data_path: "servers.status",
+      data: ["Running", "Stopped", "Running"],
+    },
+    {
+      id: "server-last-seen",
+      name: "Last seen",
+      data_path: "servers.last_seen",
+      data: [
+        "2025-01-15T14:30:00Z",
+        "2025-01-14T09:00:00Z",
+        "2025-01-15T08:00:00Z",
+      ],
+    },
+    {
+      id: "server-healthy",
+      name: "Healthy",
+      data_path: "servers.healthy",
+      data: [true, false, true],
+    },
+    {
+      id: "server-cpu_pct",
+      name: "CPU %",
+      data_path: "servers.cpu_pct",
+      data: [12.5, 0, 88.2],
+    },
+  ],
+};
