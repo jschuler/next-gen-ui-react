@@ -7,11 +7,13 @@ import {
   cloneElement,
   isValidElement,
   useState,
-  ReactElement,
-  MouseEvent,
+  type ComponentType,
+  type ReactElement,
+  type MouseEvent,
 } from "react";
 
 import { componentsMap } from "../constants/componentsMap";
+import { getCustomComponent } from "../utils/customComponentRegistry";
 import { debugWarn } from "../utils/debug";
 
 // Type for component configuration
@@ -47,7 +49,7 @@ const DynamicComponent = ({
   const parseProps = (props?: Record<string, unknown>) => {
     const newProps: Record<string, unknown> = { ...props };
 
-    // Map snake_case props from JSON to camelCase props expected by components
+    // Map snake_case props from JSON to camelCase props expected by components (including HBC)
     if (newProps.input_data_type !== undefined) {
       newProps.inputDataType = newProps.input_data_type;
       delete newProps.input_data_type;
@@ -122,19 +124,43 @@ const DynamicComponent = ({
     return newProps;
   };
 
-  // Check if component exists in componentsMap
-  const Component =
+  // Check if component exists in componentsMap (built-in) or custom registry (HBC)
+  let Component: ComponentType<any> | undefined =
     componentsMap[config?.component as keyof typeof componentsMap];
 
+  // If not found in standard components, check custom component registry (HBC)
   if (!Component) {
-    // Return null for unknown components instead of throwing an error
-    debugWarn(
-      `Component "${config?.component}" is not available in the React package. Available components: ${Object.keys(componentsMap).join(", ")}`
-    );
-    return null;
+    const customComponent = getCustomComponent(config?.component as string);
+
+    if (!customComponent) {
+      // Return null for unknown components instead of throwing an error
+      debugWarn(
+        `Component "${config?.component}" is not available in the React package or registered as a custom component. Available components: ${Object.keys(componentsMap).join(", ")}`
+      );
+      return null;
+    }
+    Component = customComponent;
   }
 
-  const newProps = parseProps(config?.props || config);
+  // For HBC (Hand Build Components), pass the data field as props
+  // Standard components use props or the entire config
+  const isCustomComponent =
+    !componentsMap[config?.component as keyof typeof componentsMap];
+  let propsToParse: Record<string, unknown>;
+
+  if (isCustomComponent && config?.data !== undefined) {
+    // For HBC: pass data, input_data_type, and other config fields (like id) as props
+    propsToParse = {
+      ...config,
+      data: config.data,
+      input_data_type: config.input_data_type,
+    };
+  } else {
+    // For standard components: use props or the entire config
+    propsToParse = config?.props || config;
+  }
+
+  const newProps = parseProps(propsToParse);
 
   const ComponentToRender = Component as React.ComponentType<any>;
 

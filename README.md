@@ -16,6 +16,10 @@ This module is part of the [Next Gen UI Agent project](https://github.com/RedHat
   - `video-player` supports YouTube video URLs and direct video file URLs
   - `set-of-cards` displays multiple OneCard components in an auto-aligned grid layout
   - Chart components support multiple data series with interactive legends and tooltips
+- [Hand Build Components (HBC)](https://redhat-ux.github.io/next-gen-ui-agent/spec/component/#hand-build-component-aka-hbc) support:
+  - Register custom React components via `register()` function
+  - Support for single or batch component registration
+  - Full integration with `DynamicComponent` system
 - Dynamic Component Renderer
   - `DynamicComponent`
 - Patternfly React Components
@@ -370,6 +374,360 @@ function App() {
   return <DynamicComponent config={mirroredBarChartConfig} />;
 }
 ```
+
+### Hand Build Components (HBC)
+
+Register custom React components to render through `DynamicComponent`. Follows the [HBC specification](https://redhat-ux.github.io/next-gen-ui-agent/spec/component/#hand-build-component-aka-hbc).
+
+#### Component API
+
+When you register an HBC component, it will receive the following props:
+
+- **`data`** (required): The JSON backend data to be rendered. The structure depends on your backend implementation.
+- **`id`** (required): The ID of the backend data this component is for.
+- **`input_data_type`** (optional): The type of the input data. Can be used for frontend customization of the component for concrete data type, e.g. by using it in CSS class names or conditional rendering.
+- **`component`**: The component type string (typically not needed in your component implementation).
+
+Your component should return a valid React element (JSX). The component can be a functional component or a class component.
+
+**Example component implementation:**
+
+```tsx
+import DynamicComponent, {
+  register,
+  type HBCConfig,
+} from "@rhngui/patternfly-react-renderer";
+
+interface MovieDetailProps {
+  data: {
+    title: string;
+    year: string;
+    poster?: string;
+  };
+  id: string;
+  input_data_type?: string | null;
+}
+
+const MovieDetail = ({ data, id, input_data_type }: MovieDetailProps) => {
+  const dataTypeClass = input_data_type ? `movie-${input_data_type}` : "";
+
+  return (
+    <div className={dataTypeClass} data-id={id}>
+      <h1>{data.title}</h1>
+      <p>Year: {data.year}</p>
+      {data.poster && <img src={data.poster} alt={data.title} />}
+    </div>
+  );
+};
+
+// Register the component
+register("movies:movie-detail", MovieDetail);
+
+// Use HBCConfig type for type-safe configuration
+const config: HBCConfig = {
+  component: "movies:movie-detail",
+  id: "movie-123",
+  input_data_type: "action",
+  data: {
+    title: "Avatar",
+    year: "2009",
+    poster: "https://example.com/avatar.jpg",
+  },
+};
+
+<DynamicComponent config={config} />;
+```
+
+#### Using PatternFly Components
+
+Yes, you can use existing PatternFly components in your HBC implementations! Create a wrapper component that transforms the HBC data into the props expected by PatternFly components.
+
+**Example using PatternFly Card:**
+
+```tsx
+import { Card, CardBody, CardHeader, CardTitle } from "@patternfly/react-core";
+import DynamicComponent, {
+  register,
+  type HBCConfig,
+} from "@rhngui/patternfly-react-renderer";
+
+interface MovieCardProps {
+  data: {
+    title: string;
+    year: string;
+    description?: string;
+  };
+  id: string;
+  input_data_type?: string | null;
+}
+
+const MovieCard = ({ data, id, input_data_type }: MovieCardProps) => {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{data.title}</CardTitle>
+      </CardHeader>
+      <CardBody>
+        <p>Year: {data.year}</p>
+        {data.description && <p>{data.description}</p>}
+        {input_data_type && <span className="badge">{input_data_type}</span>}
+      </CardBody>
+    </Card>
+  );
+};
+
+// Register the component
+register("movies:movie-card", MovieCard);
+
+// Use HBCConfig type for type-safe configuration
+const config: HBCConfig = {
+  component: "movies:movie-card",
+  id: "movie-card-123",
+  input_data_type: "drama",
+  data: {
+    title: "The Shawshank Redemption",
+    year: "1994",
+    description: "Two imprisoned men bond over a number of years...",
+  },
+};
+
+<DynamicComponent config={config} />;
+```
+
+#### Loading Additional Resources
+
+HBC components can load additional resources (JS files, images, CSS files) just like any React component. You can:
+
+- **Import CSS files**: Use standard CSS imports in your component file
+- **Import images**: Use standard image imports or public URLs
+- **Load external scripts**: Use `useEffect` hooks to dynamically load scripts
+- **Use CSS-in-JS**: Use any styling solution (styled-components, emotion, etc.)
+
+**Example with external resources:**
+
+```tsx
+import { useEffect } from "react";
+import DynamicComponent, {
+  register,
+  type HBCConfig,
+} from "@rhngui/patternfly-react-renderer";
+import "./MovieDetail.css"; // Import CSS file
+import defaultPoster from "./default-poster.png"; // Import image
+
+interface MovieDetailProps {
+  data: {
+    title: string;
+    poster?: string;
+  };
+  id: string;
+  input_data_type?: string | null;
+}
+
+const MovieDetail = ({ data, id, input_data_type }: MovieDetailProps) => {
+  useEffect(() => {
+    // Load external script if needed
+    const script = document.createElement("script");
+    script.src = "https://example.com/movie-widget.js";
+    script.async = true;
+    document.body.appendChild(script);
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  return (
+    <div className={`movie-detail ${input_data_type || ""}`}>
+      <img src={data.poster || defaultPoster} alt={data.title} />
+      <h1>{data.title}</h1>
+    </div>
+  );
+};
+
+// Register the component
+register("movies:movie-detail", MovieDetail);
+
+// Use HBCConfig type for type-safe configuration
+const config: HBCConfig = {
+  component: "movies:movie-detail",
+  id: "movie-123",
+  input_data_type: "action",
+  data: {
+    title: "Avatar",
+    poster: "https://example.com/avatar.jpg",
+  },
+};
+
+<DynamicComponent config={config} />;
+```
+
+#### Registering Components
+
+**Register a single component:**
+
+```tsx
+import DynamicComponent, {
+  register,
+  type HBCConfig,
+} from "@rhngui/patternfly-react-renderer";
+
+// Define your component
+const MovieDetail = ({
+  data,
+  id,
+  input_data_type,
+}: {
+  data: { title: string; year: string };
+  id: string;
+  input_data_type?: string | null;
+}) => (
+  <div>
+    <h1>{data.title}</h1>
+    <p>Year: {data.year}</p>
+  </div>
+);
+
+// Register the component
+register("movies:movie-detail", MovieDetail);
+
+// Use HBCConfig type for type-safe configuration
+const config: HBCConfig = {
+  component: "movies:movie-detail",
+  id: "movie-123",
+  input_data_type: "action", // Optional: used for customization
+  data: {
+    title: "Avatar",
+    year: "2009",
+  },
+};
+
+<DynamicComponent config={config} />;
+```
+
+**Register multiple components:**
+
+```tsx
+import DynamicComponent, {
+  register,
+  type HBCConfig,
+} from "@rhngui/patternfly-react-renderer";
+
+// Define your components
+const MovieDetail = ({ data, id }: { data: { title: string }; id: string }) => (
+  <div>
+    <h1>{data.title}</h1>
+  </div>
+);
+
+const MovieList = ({
+  data,
+  id,
+}: {
+  data: { movies: string[] };
+  id: string;
+}) => (
+  <ul>
+    {data.movies.map((m) => (
+      <li key={m}>{m}</li>
+    ))}
+  </ul>
+);
+
+const MovieCard = ({ data, id }: { data: { title: string }; id: string }) => (
+  <div className="card">{data.title}</div>
+);
+
+// Register multiple components at once
+register({
+  "movies:movie-detail": MovieDetail,
+  "movies:movie-list": MovieList,
+  "movies:movie-card": MovieCard,
+});
+
+// Use HBCConfig type for type-safe configuration
+const detailConfig: HBCConfig = {
+  component: "movies:movie-detail",
+  id: "movie-1",
+  data: { title: "Avatar" },
+};
+
+const listConfig: HBCConfig = {
+  component: "movies:movie-list",
+  id: "movie-list-1",
+  data: { movies: ["Avatar", "Inception"] },
+};
+
+function App() {
+  return (
+    <>
+      <DynamicComponent config={detailConfig} />
+      <DynamicComponent config={listConfig} />
+    </>
+  );
+}
+```
+
+#### TypeScript Support
+
+For TypeScript users, import the `HBCConfig` type to ensure your config objects match the expected shape:
+
+```tsx
+import DynamicComponent, {
+  register,
+  type HBCConfig,
+} from "@rhngui/patternfly-react-renderer";
+
+// Define your component with proper types
+interface MovieData {
+  title: string;
+  year: string;
+  poster?: string;
+}
+
+const MovieDetail = ({
+  data,
+  id,
+  input_data_type,
+}: {
+  data: MovieData;
+  id: string;
+  input_data_type?: string | null;
+}) => {
+  return (
+    <div className={input_data_type ? `movie-${input_data_type}` : ""}>
+      <h1>{data.title}</h1>
+      <p>Year: {data.year}</p>
+    </div>
+  );
+};
+
+// Register the component
+register("movies:movie-detail", MovieDetail);
+
+// Create config using HBCConfig type for type safety
+const config: HBCConfig = {
+  component: "movies:movie-detail",
+  id: "movie-123",
+  data: {
+    title: "Avatar",
+    year: "2009",
+    poster: "https://example.com/avatar.jpg",
+  },
+  input_data_type: "action", // Optional: used for customization
+};
+
+// Use with DynamicComponent
+function App() {
+  return <DynamicComponent config={config} />;
+}
+```
+
+**Benefits of using HBCConfig:**
+
+- Type safety: Ensures your config matches the expected HBC specification
+- IntelliSense: Get autocomplete for all config fields
+- Documentation: Type definition includes JSDoc comments explaining each field
+- Validation: Catch configuration errors at compile time
 
 ## Development
 
