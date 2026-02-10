@@ -27,6 +27,7 @@ import { BrowserRouter, Route, Routes, useLocation } from "react-router-dom";
 import { getComponentByPath } from "./config/componentRegistry";
 import Sidebar from "./layout/Sidebar";
 import ComponentDemo from "./pages/ComponentDemo";
+import HandBuildComponentsDemo from "./pages/HandBuildComponentsDemo";
 import Home from "./pages/Home";
 import PerformanceDemo from "./pages/PerformanceDemo";
 import RegistryDemo from "./pages/RegistryDemo";
@@ -160,6 +161,10 @@ function AppContent() {
         <div id={mainContainerId} tabIndex={-1}>
           <Routes>
             <Route path="/" element={<Home />} />
+            <Route
+              path="/demo/hand-build-components"
+              element={<HandBuildComponentsDemo />}
+            />
             <Route path="/performance" element={<PerformanceDemo />} />
             <Route path="/component/registry" element={<RegistryDemo />} />
             <Route path="/component/:componentId" element={<ComponentDemo />} />
