@@ -132,6 +132,28 @@ describe("builtInFormatters", () => {
       const result2 = datetimeFormatter("2025-12-31");
       expect(result1).toBe(result2);
     });
+
+    it("should format 24-hour time-only strings with short time", () => {
+      expect(datetimeFormatter("17:00")).toBeTruthy();
+      expect(typeof datetimeFormatter("17:00")).toBe("string");
+      expect(datetimeFormatter("17:00")).toMatch(/\d/); // contains digits (locale-dependent)
+      expect(datetimeFormatter("9:00")).toBeTruthy();
+      expect(datetimeFormatter("17:00:00")).toBeTruthy();
+    });
+
+    it("should format 12-hour time-only strings (AM/PM) with short time", () => {
+      expect(datetimeFormatter("5:00 PM")).toBeTruthy();
+      expect(typeof datetimeFormatter("5:00 PM")).toBe("string");
+      expect(datetimeFormatter("9:30 AM")).toBeTruthy();
+      expect(datetimeFormatter("12:00 PM")).toBeTruthy();
+      expect(datetimeFormatter("12:00 AM")).toBeTruthy();
+    });
+
+    it("should return time-only string as-is when invalid", () => {
+      expect(datetimeFormatter("25:00")).toBe("25:00");
+      expect(datetimeFormatter("12:60")).toBe("12:60");
+      expect(datetimeFormatter("just text")).toBe("just text");
+    });
   });
 
   describe("urlFormatter", () => {

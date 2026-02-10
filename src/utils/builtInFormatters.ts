@@ -4,6 +4,63 @@ import type { CellFormatter } from "../components/ComponentHandlerRegistry";
 
 const URL_PATTERN = /^https?:\/\/\S+$/;
 
+/** 24-hour time: H?:MM or H?:MM:SS */
+const TIME_24_PATTERN = /^(\d{1,2}):(\d{2})(?::(\d{2}))?$/;
+/** 12-hour time with AM/PM: H?:MM or H?:MM:SS AM|PM */
+const TIME_12_PATTERN = /^(\d{1,2}):(\d{2})(?::(\d{2}))?\s*(AM|PM)$/i;
+
+/**
+ * Parses time-only strings (24h or 12h) into a Date on a fixed reference day (1970-01-01).
+ * Returns null if the string does not match a supported time-only format.
+ */
+function parseTimeOnly(str: string): Date | null {
+  const trimmed = str.trim();
+  let hour: number;
+  let minute: number;
+  let second: number;
+
+  const m24 = TIME_24_PATTERN.exec(trimmed);
+  if (m24) {
+    hour = parseInt(m24[1], 10);
+    minute = parseInt(m24[2], 10);
+    second = m24[3] != null ? parseInt(m24[3], 10) : 0;
+    if (
+      hour < 0 ||
+      hour > 23 ||
+      minute < 0 ||
+      minute > 59 ||
+      second < 0 ||
+      second > 59
+    ) {
+      return null;
+    }
+    return new Date(1970, 0, 1, hour, minute, second);
+  }
+
+  const m12 = TIME_12_PATTERN.exec(trimmed);
+  if (m12) {
+    hour = parseInt(m12[1], 10);
+    minute = parseInt(m12[2], 10);
+    second = m12[3] != null ? parseInt(m12[3], 10) : 0;
+    const am = (m12[4] || "").toUpperCase() === "AM";
+    if (
+      hour < 1 ||
+      hour > 12 ||
+      minute < 0 ||
+      minute > 59 ||
+      second < 0 ||
+      second > 59
+    ) {
+      return null;
+    }
+    if (am && hour === 12) hour = 0;
+    else if (!am && hour !== 12) hour += 12;
+    return new Date(1970, 0, 1, hour, minute, second);
+  }
+
+  return null;
+}
+
 /**
  * Formats date/time values for display using Intl.DateTimeFormat.
  *
@@ -22,7 +79,21 @@ const URL_PATTERN = /^https?:\/\/\S+$/;
  *    - `1735689600` (10-digit, seconds)
  *    - `1735689600000` (13-digit, milliseconds)
  *
- * Unparseable values are returned as-is. Renders locale-aware (e.g. "Jan 15, 2025, 2:30 PM").
+ * **Rendered output (current locale):** The first argument to Intl.DateTimeFormat
+ * is `undefined`, so the runtime uses the default locale (usually the user's
+ * browser or system locale). Examples for en-US:
+ *
+ * - Date only: `"2025-01-15"` → `"Jan 15, 2025"`
+ * - Date + time: `"2025-01-15T14:30:00Z"` → `"Jan 15, 2025, 2:30 PM"`
+ * - Unix (seconds): `1735689600` → `"Jan 1, 2025, 12:00 AM"` (UTC; local time in locale)
+ *
+ * 4. **Time only** (no date → 24-hour time, e.g. `"17:00"`):
+ *    - `"17:00"`, `"17:00:00"` (24-hour input)
+ *    - `"5:00 PM"`, `"9:30 AM"` (12-hour input; displayed as 24-hour)
+ *
+ * Other locales vary (e.g. fr: "15 janv. 2025, 14:30", de: "15.01.2025, 14:30").
+ * Unix: 10-digit (seconds) is the usual Unix/POSIX format; 13-digit (milliseconds) is common in JS/JSON.
+ * Unparseable values are returned as-is.
  */
 export const datetimeFormatter: CellFormatter = (value): string | ReactNode => {
   if (value === null || value === undefined) return "";
@@ -30,6 +101,7 @@ export const datetimeFormatter: CellFormatter = (value): string | ReactNode => {
   const strValue = String(value).trim();
   let date: Date | null = null;
   let hasTime = false;
+  let timeOnly = false;
 
   if (isUnixTimestamp(value)) {
     if (typeof value === "number") {
@@ -46,11 +118,25 @@ export const datetimeFormatter: CellFormatter = (value): string | ReactNode => {
   ) {
     date = new Date(strValue);
     hasTime = strValue.includes("T") || /\d{2}:\d{2}/.test(strValue);
+  } else if (typeof value === "string") {
+    const parsed = parseTimeOnly(strValue);
+    if (parsed !== null) {
+      date = parsed;
+      hasTime = true;
+      timeOnly = true;
+    }
   }
 
   if (date == null || isNaN(date.getTime())) return strValue;
 
   try {
+    if (timeOnly) {
+      return new Intl.DateTimeFormat(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).format(date);
+    }
     if (hasTime) {
       return new Intl.DateTimeFormat(undefined, {
         dateStyle: "medium",
