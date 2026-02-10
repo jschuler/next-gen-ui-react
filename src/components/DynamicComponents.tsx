@@ -12,6 +12,7 @@ import {
 } from "react";
 
 import { componentsMap } from "../constants/componentsMap";
+import { getCustomComponent } from "../utils/customComponentRegistry";
 
 // Type for component configuration
 interface ComponentConfig {
@@ -99,18 +100,41 @@ const DynamicComponent = ({ config, customProps = {} }: IProps) => {
   };
 
   // Check if component exists in componentsMap
-  const Component =
+  let Component =
     componentsMap[config?.component as keyof typeof componentsMap];
 
+  // If not found in standard components, check custom component registry (HBC)
   if (!Component) {
-    // Return null for unknown components instead of throwing an error
-    console.warn(
-      `Component "${config?.component}" is not available in the React package. Available components: ${Object.keys(componentsMap).join(", ")}`
-    );
-    return null;
+    Component = getCustomComponent(config?.component as string);
+
+    if (!Component) {
+      // Return null for unknown components instead of throwing an error
+      console.warn(
+        `Component "${config?.component}" is not available in the React package or registered as a custom component. Available components: ${Object.keys(componentsMap).join(", ")}`
+      );
+      return null;
+    }
   }
 
-  const newProps = parseProps(config?.props || config);
+  // For HBC (Hand Build Components), pass the data field as props
+  // Standard components use props or the entire config
+  const isCustomComponent =
+    !componentsMap[config?.component as keyof typeof componentsMap];
+  let propsToParse: Record<string, unknown>;
+
+  if (isCustomComponent && config?.data !== undefined) {
+    // For HBC: pass data, input_data_type, and other config fields (like id) as props
+    propsToParse = {
+      ...config,
+      data: config.data,
+      input_data_type: config.input_data_type,
+    };
+  } else {
+    // For standard components: use props or the entire config
+    propsToParse = config?.props || config;
+  }
+
+  const newProps = parseProps(propsToParse);
 
   const ComponentToRender = Component as React.ComponentType<any>;
 
