@@ -4,7 +4,26 @@ import type { CellFormatter } from "../components/ComponentHandlerRegistry";
 
 const URL_PATTERN = /^https?:\/\/\S+$/;
 
-/** ISO date strings (incl. relaxed) and Unix timestamps (10/13-digit). Renders via Intl.DateTimeFormat. */
+/**
+ * Formats date/time values for display using Intl.DateTimeFormat.
+ *
+ * **Accepted formats:**
+ *
+ * 1. **ISO date** (date only → medium date):
+ *    - `"2025-01-15"`
+ *
+ * 2. **ISO date-time** (date + time → medium date + short time):
+ *    - `"2025-01-15T14:30:00Z"`
+ *    - `"2025-01-15T14:30:00.000Z"`
+ *    - `"2025-01-15 14:30:00"` (space instead of T)
+ *    - `"2025-01-15T14:30:00+01:00"`
+ *
+ * 3. **Unix timestamps** (seconds or milliseconds):
+ *    - `1735689600` (10-digit, seconds)
+ *    - `1735689600000` (13-digit, milliseconds)
+ *
+ * Unparseable values are returned as-is. Renders locale-aware (e.g. "Jan 15, 2025, 2:30 PM").
+ */
 export const datetimeFormatter: CellFormatter = (value): string | ReactNode => {
   if (value === null || value === undefined) return "";
 

@@ -1,13 +1,20 @@
 import { describe, it, expect } from "vitest";
 
 import {
+  autoFormatter,
+  booleanFormatter,
+  builtInFormatters,
+  createCurrencyFormatter,
+  currencyUsdFormatter,
   datetimeFormatter,
-  urlFormatter,
+  emptyFormatter,
+  getAutoFormatter,
   isISODate,
   ISO_DATE_PATTERN,
   ISO_DATE_PATTERN_SORT,
-  builtInFormatters,
-  getAutoFormatter,
+  numberFormatter,
+  percentFormatter,
+  urlFormatter,
   type BuiltInFormatterId,
 } from "../../utils/builtInFormatters";
 
@@ -270,6 +277,173 @@ describe("builtInFormatters", () => {
       expect(ISO_DATE_PATTERN_SORT.test("12/31/2025")).toBe(false);
       expect(ISO_DATE_PATTERN_SORT.test("2025")).toBe(false);
       expect(ISO_DATE_PATTERN_SORT.test("2025-12")).toBe(false);
+    });
+  });
+
+  describe("booleanFormatter", () => {
+    it("should format true as Yes", () => {
+      expect(booleanFormatter(true)).toBe("Yes");
+    });
+
+    it("should format false as No", () => {
+      expect(booleanFormatter(false)).toBe("No");
+    });
+
+    it("should format string 'true' as Yes", () => {
+      expect(booleanFormatter("true")).toBe("Yes");
+      expect(booleanFormatter("TRUE")).toBe("Yes");
+    });
+
+    it("should format string 'false' as No", () => {
+      expect(booleanFormatter("false")).toBe("No");
+      expect(booleanFormatter("FALSE")).toBe("No");
+    });
+
+    it("should return empty string for null and undefined", () => {
+      expect(booleanFormatter(null)).toBe("");
+      expect(booleanFormatter(undefined)).toBe("");
+    });
+
+    it("should return value as-is for non-boolean strings", () => {
+      expect(booleanFormatter("yes")).toBe("yes");
+      expect(booleanFormatter("1")).toBe("1");
+    });
+  });
+
+  describe("numberFormatter", () => {
+    it("should format integers with locale (e.g. thousands separator)", () => {
+      const result = numberFormatter(1995);
+      expect(result).toBeTruthy();
+      expect(typeof result).toBe("string");
+      expect(result).not.toBe("1995");
+      expect(numberFormatter(1000)).toMatch(/\d/);
+    });
+
+    it("should format floats with up to 2 decimal places", () => {
+      const result = numberFormatter(8.3);
+      expect(result).toBeTruthy();
+      expect(typeof result).toBe("string");
+      expect(result).toMatch(/8[.,]3/);
+    });
+
+    it("should return empty string for null and undefined", () => {
+      expect(numberFormatter(null)).toBe("");
+      expect(numberFormatter(undefined)).toBe("");
+    });
+
+    it("should return value as-is for non-numeric strings", () => {
+      expect(numberFormatter("not a number")).toBe("not a number");
+    });
+
+    it("should format numeric string", () => {
+      const result = numberFormatter("1234.56");
+      expect(result).toBeTruthy();
+      expect(result).toMatch(/\d/);
+    });
+  });
+
+  describe("createCurrencyFormatter and currencyUsdFormatter", () => {
+    it("should format number as USD currency", () => {
+      const result = currencyUsdFormatter(99.99);
+      expect(result).toContain("99");
+      expect(result).toMatch(/\$|USD|99/);
+    });
+
+    it("should use 2 decimal places for currency", () => {
+      const result = currencyUsdFormatter(100);
+      expect(result).toMatch(/100[.,]00|100\.00/);
+    });
+
+    it("should return empty string for null and undefined", () => {
+      expect(currencyUsdFormatter(null)).toBe("");
+      expect(currencyUsdFormatter(undefined)).toBe("");
+    });
+
+    it("createCurrencyFormatter should accept currency and optional locale", () => {
+      const eurFormatter = createCurrencyFormatter("EUR");
+      const result = eurFormatter(42.5);
+      expect(result).toBeTruthy();
+      expect(typeof result).toBe("string");
+    });
+  });
+
+  describe("percentFormatter", () => {
+    it("should format decimal as percentage (0.85 → 85%)", () => {
+      const result = percentFormatter(0.85);
+      expect(result).toContain("%");
+      expect(result).toMatch(/85/);
+    });
+
+    it("should format 1 as 100%", () => {
+      const result = percentFormatter(1);
+      expect(result).toContain("100");
+      expect(result).toContain("%");
+    });
+
+    it("should return empty string for null and undefined", () => {
+      expect(percentFormatter(null)).toBe("");
+      expect(percentFormatter(undefined)).toBe("");
+    });
+
+    it("should return value as-is for non-numeric strings", () => {
+      expect(percentFormatter("x")).toBe("x");
+    });
+  });
+
+  describe("emptyFormatter", () => {
+    it("should return em dash for null and undefined", () => {
+      expect(emptyFormatter(null)).toBe("—");
+      expect(emptyFormatter(undefined)).toBe("—");
+    });
+
+    it("should return em dash for empty string", () => {
+      expect(emptyFormatter("")).toBe("—");
+      expect(emptyFormatter("   ")).toBe("—");
+    });
+
+    it("should return trimmed string for non-empty value", () => {
+      expect(emptyFormatter("  hello  ")).toBe("hello");
+      expect(emptyFormatter("text")).toBe("text");
+    });
+  });
+
+  describe("autoFormatter", () => {
+    it("should detect and format boolean as Yes/No", () => {
+      expect(autoFormatter(true)).toBe("Yes");
+      expect(autoFormatter(false)).toBe("No");
+    });
+
+    it("should detect and format number with locale", () => {
+      const result = autoFormatter(1000);
+      expect(result).toBeTruthy();
+      expect(result).not.toBe("1000");
+    });
+
+    it("should detect and format ISO date string", () => {
+      const result = autoFormatter("2025-01-15");
+      expect(result).toBeTruthy();
+      expect(result).not.toBe("2025-01-15");
+    });
+
+    it("should detect URL and return React element (link)", () => {
+      const result = autoFormatter("https://example.com");
+      expect(result).toBeTruthy();
+      if (typeof result !== "string" && result != null && "type" in result) {
+        expect((result as { type: string }).type).toBe("a");
+      }
+    });
+
+    it("should return em dash for null and undefined", () => {
+      expect(autoFormatter(null)).toBe("—");
+      expect(autoFormatter(undefined)).toBe("—");
+    });
+
+    it("should return string as-is when no type matches", () => {
+      expect(autoFormatter("plain text")).toBe("plain text");
+    });
+
+    it("should format array as string (String(value))", () => {
+      expect(autoFormatter(["a", "b"])).toBe("a,b");
     });
   });
 
