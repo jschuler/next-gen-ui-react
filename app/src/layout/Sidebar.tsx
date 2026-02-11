@@ -12,9 +12,10 @@ import { componentRegistry } from "../config/componentRegistry";
 
 export default function Sidebar() {
   const dynamicComponent = componentRegistry.find((c) => c.id === "dynamic");
+  const hbcComponent = componentRegistry.find((c) => c.id === "hbc");
   const registryComponent = componentRegistry.find((c) => c.id === "registry");
   const regularComponents = componentRegistry.filter(
-    (c) => c.id !== "dynamic" && c.id !== "registry"
+    (c) => c.id !== "dynamic" && c.id !== "hbc" && c.id !== "registry"
   );
 
   const nav = (
@@ -26,6 +27,11 @@ export default function Sidebar() {
         {dynamicComponent && (
           <NavItem itemId="dynamic">
             <Link to={dynamicComponent.path}>{dynamicComponent.name}</Link>
+          </NavItem>
+        )}
+        {hbcComponent && (
+          <NavItem itemId="hbc">
+            <Link to={hbcComponent.path}>{hbcComponent.name}</Link>
           </NavItem>
         )}
         <Divider />

@@ -151,6 +151,15 @@ function MyLayout() {
     ],
   },
   {
+    id: "hbc",
+    name: "Hand Build Components",
+    path: "/demo/hand-build-components",
+    sourceUrl:
+      "https://github.com/RedHat-UX/next-gen-ui-react/blob/main/src/utils/customComponentRegistry.ts",
+    componentImportPath: "@local-lib/utils/customComponentRegistry",
+    examples: [],
+  },
+  {
     id: "error",
     name: "ErrorPlaceholder",
     path: "/component/error",
