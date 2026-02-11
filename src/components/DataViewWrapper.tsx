@@ -18,7 +18,10 @@ import { Tbody, Td, ThProps, Tr } from "@patternfly/react-table";
 import { FunctionComponent, useMemo } from "react";
 import type { MouseEvent, KeyboardEvent, ReactNode } from "react";
 
-import { useComponentHandlerRegistry } from "./ComponentHandlerRegistry";
+import {
+  type ItemDataFieldValue,
+  useComponentHandlerRegistry,
+} from "./ComponentHandlerRegistry";
 import ErrorPlaceholder from "./ErrorPlaceholder";
 import { ISO_DATE_PATTERN_SORT } from "../utils/builtInFormatters";
 import { getDataTypeClass, sanitizeClassName } from "../utils/cssClassHelpers";
@@ -26,7 +29,7 @@ import { debugLog } from "../utils/debug";
 import { resolveFormatterForField } from "../utils/formatterResolution";
 
 interface FieldData {
-  id?: string;
+  id: string;
   name: string;
   data_path: string;
   data: (string | number | boolean | null | (string | number)[])[];
@@ -35,7 +38,8 @@ interface FieldData {
 interface DataViewColumn {
   label: string;
   key: string;
-  fieldId?: string;
+  fieldId: string;
+  dataPath?: string;
   sortable?: boolean;
   filterable?: boolean;
   formatter?: (
@@ -58,7 +62,7 @@ export interface DataViewWrapperProps {
   inputDataType?: string;
   onItemClick?: (
     event: React.MouseEvent | React.KeyboardEvent,
-    itemData: Record<string, string | number>
+    itemData: Record<string, ItemDataFieldValue>
   ) => void;
 }
 
@@ -116,33 +120,30 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
     // Find the maximum number of data items across all fields
     const maxDataLength = Math.max(...fields.map((field) => field.data.length));
 
-    // Create columns from field names (formatter resolution shared with OneCardWrapper)
     const transformedColumns: DataViewColumn[] = fields.map((field) => {
       const resolvedFormatter = resolveFormatterForField(registry, field, {
         inputDataType,
         componentId: id,
       });
       return {
-        key: field.name,
+        key: field.id,
         label: field.name,
         fieldId: field.id,
+        dataPath: field.data_path,
         formatter: resolvedFormatter,
         sortable: true,
         filterable: true,
       };
     });
 
-    // Create rows based on the maximum data length
-    // Store raw values so the column formatter (from registry) does the formatting
     type CellValue = string | number | boolean | null | (string | number)[];
     const transformedRows: Record<string, CellValue>[] = [];
     for (let i = 0; i < maxDataLength; i++) {
       const row: Record<string, CellValue> = {};
       fields.forEach((field) => {
         const originalValue = field.data[i];
-        row[field.name] = originalValue as CellValue;
-        // Store original value with a special key for sorting
-        row[`__sort_${field.name}`] =
+        row[field.id] = originalValue as CellValue;
+        row[`__sort_${field.id}`] =
           originalValue === null || originalValue === undefined
             ? ""
             : Array.isArray(originalValue)
@@ -329,18 +330,26 @@ const DataViewWrapper: FunctionComponent<DataViewWrapperProps> = ({
                 `handler:`,
                 resolvedOnItemClick
               );
-              // Create a clean row data object without internal sorting keys (coerce to string | number for handler API)
-              const rowData: Record<string, string | number> = {};
+              // Build itemData keyed by field.id; value = { id, name, data_path, value }
+              const rowData: Record<string, ItemDataFieldValue> = {};
               columns.forEach((col) => {
                 const v = row[col.key];
-                rowData[col.key] =
+                const coercedValue: string | number | boolean | null =
                   typeof v === "string" || typeof v === "number"
                     ? v
-                    : v == null
-                      ? ""
-                      : Array.isArray(v)
-                        ? v.join(", ")
-                        : String(v);
+                    : typeof v === "boolean"
+                      ? v
+                      : v == null
+                        ? ""
+                        : Array.isArray(v)
+                          ? (v.join(", ") as string)
+                          : String(v);
+                rowData[col.key] = {
+                  id: col.fieldId,
+                  name: col.label,
+                  data_path: col.dataPath,
+                  value: coercedValue,
+                };
               });
               // Call handler - only if we have a MouseEvent (has 'button' property)
               // KeyboardEvent doesn't have 'button', so we skip it for now

@@ -13,9 +13,24 @@ import {
   matchesContextValue,
 } from "../utils/registryMatchers";
 
+/** Shape of each field in itemData passed to ItemClickHandler. */
+export interface ItemDataFieldValue {
+  /** Field id */
+  id: string;
+  /** Field name */
+  name: string;
+  /** Data path */
+  data_path?: string;
+  /** Cell value for this field in the clicked row. */
+  value: string | number | boolean | null;
+}
+
+/**
+ * Handler for row/item click. itemData keys are field.id; each value is ItemDataFieldValue.
+ */
 export type ItemClickHandler = (
   event: React.MouseEvent | React.KeyboardEvent,
-  itemData: Record<string, string | number | boolean | null>
+  itemData: Record<string, ItemDataFieldValue>
 ) => void;
 export type CellFormatter = (
   value: string | number | boolean | null | (string | number)[]

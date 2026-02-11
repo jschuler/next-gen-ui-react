@@ -368,8 +368,13 @@ function RegistrySetup() {
 
     // Example 5: Item click handler
     registry.registerItemClick("catalog", (event, itemData) => {
+      console.log("Item click handler – full itemData:", itemData);
+      const product = itemData["product-name"]?.value ?? "—";
+      const status = itemData["product-status"]?.value ?? "—";
+      const price = itemData["product-price"]?.value ?? "—";
+      const category = itemData["product-category"]?.value ?? "—";
       alert(
-        `Item clicked!\n\nProduct: ${itemData["Product"]}\nStatus: ${itemData["Status"]}\nPrice: ${itemData["Price"]}\nCategory: ${itemData["Category"]}`
+        `Item clicked!\n\nProduct: ${product}\nStatus: ${status}\nPrice: ${price}\nCategory: ${category}`
       );
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps -- registerTick forces re-register after cleanup (Strict Mode)
@@ -632,8 +637,14 @@ function App() {
           <strong>Registered handler:</strong>
         </Content>
         <CodeBlock>
-          <CodeBlockCode>{`registry.registerItemClick("catalog", (event, itemData) => {
-  alert(\`Item clicked!\\n\\nProduct: \${itemData["Product"]}\\nStatus: \${itemData["Status"]}\\nPrice: \${itemData["Price"]}\\nCategory: \${itemData["Category"]}\\nRole: \${itemData["Role"]}\\nEmail: \${itemData["Email"]}\`);
+          <CodeBlockCode>{`// itemData is keyed by field.id; each entry has { id, name, data_path?, value }
+registry.registerItemClick("catalog", (event, itemData) => {
+  console.log("Item click handler – full itemData:", itemData);
+  const product = itemData["product-name"]?.value ?? "—";
+  const status = itemData["product-status"]?.value ?? "—";
+  const price = itemData["product-price"]?.value ?? "—";
+  const category = itemData["product-category"]?.value ?? "—";
+  alert(\`Item clicked! Product: \${product}, Status: \${status}, Price: \${price}, Category: \${category}\`);
 });`}</CodeBlockCode>
         </CodeBlock>
         <Content component={ContentVariants.p} style={{ marginTop: "8px" }}>
@@ -1000,7 +1011,7 @@ function MyComponent() {
       return formatDate(value);
     });
 
-    // Register an item click handler
+    // Register an item click handler (itemData keyed by field.id, each value has .value)
     registry.registerItemClick('catalog', (event, itemData) => {
       console.log('Item clicked:', itemData);
     });
@@ -1326,9 +1337,12 @@ registry.registerFormatterById(/.*-endDate$/, (value) => formatDate(value));`}</
               </li>
             </ul>
             <CodeBlock style={{ marginTop: "12px" }}>
-              <CodeBlockCode>{`// By inputDataType (exact)
+              <CodeBlockCode>{`// itemData: Record<field.id, ItemDataFieldValue> — use .value for the cell value
+// By inputDataType (exact)
 registry.registerItemClick("catalog", (event, itemData) => {
-  console.log("Item clicked:", itemData);
+  const name = itemData["product-name"]?.value;
+  const status = itemData["product-status"]?.value;
+  console.log("Item clicked:", name, status);
 });
 
 // By RegExp (match multiple types)
@@ -1484,9 +1498,16 @@ registry.registerItemClick(/catalog|inventory/, (event, itemData) => {
               ItemClickHandler
             </Content>
             <CodeBlock>
-              <CodeBlockCode>{`type ItemClickHandler = (
+              <CodeBlockCode>{`interface ItemDataFieldValue {
+  id: string;
+  name: string;
+  data_path?: string;
+  value: string | number | boolean | null;
+}
+
+type ItemClickHandler = (
   event: React.MouseEvent | React.KeyboardEvent,
-  itemData: Record<string, string | number | boolean | null>
+  itemData: Record<string, ItemDataFieldValue>
 ) => void;`}</CodeBlockCode>
             </CodeBlock>
             <Content
@@ -1494,7 +1515,8 @@ registry.registerItemClick(/catalog|inventory/, (event, itemData) => {
               style={{ marginTop: "12px", marginBottom: "0" }}
             >
               Function type for handling item click events. Receives the click
-              event and the item data object.
+              event and itemData: keys are field.id, each value is
+              ItemDataFieldValue (id, name, data_path, value).
             </Content>
           </div>
 

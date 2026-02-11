@@ -19,6 +19,7 @@ export {
   type FormatterContextMatcher,
   type CellFormatter,
   type ItemClickHandler,
+  type ItemDataFieldValue,
 } from "./components/ComponentHandlerRegistry";
 
 // Re-export built-in formatters
