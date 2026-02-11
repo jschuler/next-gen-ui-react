@@ -301,7 +301,6 @@ export default function ComponentDemo() {
                           event: MouseEvent | KeyboardEvent,
                           itemData: Record<string, ItemDataFieldValue>
                         ) => {
-                          // Demo: Show an alert with the clicked item data (each entry is { id, name, data_path, value })
                           const itemInfo = Object.entries(itemData)
                             .map(([key, field]) => `${key}: ${field.value}`)
                             .join(", ");

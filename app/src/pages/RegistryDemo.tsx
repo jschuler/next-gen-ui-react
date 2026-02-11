@@ -1011,7 +1011,7 @@ function MyComponent() {
       return formatDate(value);
     });
 
-    // Register an item click handler (itemData keyed by field.id, each value has .value)
+    // Register an item click handler
     registry.registerItemClick('catalog', (event, itemData) => {
       console.log('Item clicked:', itemData);
     });
