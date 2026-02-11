@@ -1332,8 +1332,22 @@ registry.registerFormatterById(/.*-endDate$/, (value) => formatDate(value));`}</
                 <code>"catalog"</code>) or RegExp to match multiple types.
               </li>
               <li>
-                <code>handler</code> - Function that receives the click event
-                and item data.
+                <code>handler</code> - Function called when a row is clicked (or
+                activated via keyboard). It receives:
+                <ul>
+                  <li>
+                    <code>event</code> - The React mouse or keyboard event.
+                  </li>
+                  <li>
+                    <code>itemData</code> - Object keyed by each column’s{" "}
+                    <code>field.id</code>. Each value is an{" "}
+                    <code>ItemDataFieldValue</code> with <code>id</code>,{" "}
+                    <code>name</code>, optional <code>data_path</code>, and{" "}
+                    <code>value</code> (the cell value). Use{" "}
+                    <code>itemData["my-field-id"]?.value</code> to read a
+                    column’s value for the clicked row.
+                  </li>
+                </ul>
               </li>
             </ul>
             <CodeBlock style={{ marginTop: "12px" }}>
@@ -1514,9 +1528,13 @@ type ItemClickHandler = (
               component={ContentVariants.p}
               style={{ marginTop: "12px", marginBottom: "0" }}
             >
-              Function type for handling item click events. Receives the click
-              event and itemData: keys are field.id, each value is
-              ItemDataFieldValue (id, name, data_path, value).
+              Function type for handling item click events. First argument: the
+              React event. Second argument: <code>itemData</code>, an object
+              whose keys are <code>field.id</code> and whose values are{" "}
+              <code>ItemDataFieldValue</code> (with <code>id</code>,{" "}
+              <code>name</code>, <code>data_path?</code>, <code>value</code>).
+              Use <code>itemData[fieldId].value</code> to get the cell value for
+              the clicked row.
             </Content>
           </div>
 
