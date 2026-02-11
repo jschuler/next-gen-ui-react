@@ -1,4 +1,5 @@
 import DynamicComponent from "@local-lib/components/DynamicComponents";
+import type { HBCConfig } from "@local-lib/types/HBCConfig";
 import { register } from "@local-lib/utils/customComponentRegistry";
 import {
   Alert,
@@ -13,103 +14,71 @@ import {
   Title,
 } from "@patternfly/react-core";
 
-type MovieData = {
-  movie?: {
-    title: string;
-    year: string;
-    poster?: string;
-    tagline?: string;
-    rating?: number;
-    genres?: string[];
-  };
+// Example HBC: feature/release highlight card
+type FeatureData = {
+  title?: string;
+  description?: string;
+  version?: string;
+  date?: string;
 };
 
-// Example HBC: movie card with poster, rating, genres, tagline
-const MovieDetail = ({ data, id }: { data?: MovieData; id?: string }) => {
-  const m = data?.movie;
-  return (
+const FeatureCard = ({ data, id }: { data?: FeatureData; id?: string }) => (
+  <div
+    style={{
+      border: "1px solid var(--pf-v6-global--BorderColor--100)",
+      borderRadius: 8,
+      padding: 16,
+      maxWidth: 400,
+      boxShadow: "var(--pf-v6-global--BoxShadow--sm)",
+    }}
+  >
     <div
-      style={{
-        border: "1px solid var(--pf-v6-global--BorderColor--100)",
-        borderRadius: 8,
-        overflow: "hidden",
-        maxWidth: 380,
-        boxShadow: "var(--pf-v6-global--BoxShadow--sm)",
-      }}
+      style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}
     >
-      {m?.poster && (
-        <img
-          src={m.poster}
-          alt=""
+      <Title headingLevel="h3" style={{ margin: 0, flex: 1 }}>
+        {data?.title ?? "—"}
+      </Title>
+      {data?.version && (
+        <Badge
           style={{
-            width: "100%",
-            height: 220,
-            objectFit: "cover",
-            display: "block",
+            backgroundColor: "var(--pf-v6-global--palette--blue-500)",
+            color: "#fff",
           }}
-        />
+        >
+          v{data.version}
+        </Badge>
       )}
-      <div style={{ padding: 16 }}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 8,
-            marginBottom: 6,
-          }}
-        >
-          <Title headingLevel="h3" style={{ margin: 0, flex: 1 }}>
-            {m?.title ?? "—"}
-          </Title>
-          {m?.rating != null && (
-            <Badge
-              style={{
-                backgroundColor: "var(--pf-v6-global--palette--orange-400)",
-                color: "#fff",
-              }}
-            >
-              ★ {m.rating}
-            </Badge>
-          )}
-        </div>
-        <p
-          style={{
-            margin: "0 0 8px",
-            fontSize: 14,
-            color: "var(--pf-v6-global--Color--200)",
-          }}
-        >
-          {m?.year}
-          {m?.genres?.length ? ` · ${m.genres.join(", ")}` : ""}
-        </p>
-        {m?.tagline && (
-          <p
-            style={{
-              margin: 0,
-              fontSize: 13,
-              fontStyle: "italic",
-              color: "var(--pf-v6-global--Color--200)",
-            }}
-          >
-            {m.tagline}
-          </p>
-        )}
-        {id && (
-          <span
-            style={{
-              fontSize: 11,
-              color: "var(--pf-v6-global--Color--300)",
-              marginTop: 8,
-              display: "block",
-            }}
-          >
-            id: {id}
-          </span>
-        )}
-      </div>
     </div>
-  );
-};
+    {data?.description && (
+      <p
+        style={{
+          margin: "0 0 8px",
+          fontSize: 14,
+          color: "var(--pf-v6-global--Color--200)",
+        }}
+      >
+        {data.description}
+      </p>
+    )}
+    {data?.date && (
+      <span style={{ fontSize: 12, color: "var(--pf-v6-global--Color--300)" }}>
+        {data.date}
+      </span>
+    )}
+    {id && (
+      <span
+        style={{
+          fontSize: 11,
+          color: "var(--pf-v6-global--Color--300)",
+          marginTop: 8,
+          display: "block",
+        }}
+      >
+        id: {id}
+      </span>
+    )}
+  </div>
+);
 
 // Example HBC: service/deployment card with status badge and metadata
 type ServiceData = {
@@ -275,54 +244,58 @@ const MetricCard = ({ data }: { data?: MetricData }) => {
 };
 
 // Register demo HBCs at module load so they exist before first render
-register("demo:movie-detail", MovieDetail);
+register("demo:feature-card", FeatureCard);
 register("demo:key-value-list", KeyValueList);
 register("demo:metric-card", MetricCard);
 
-const REGISTRATION_SNIPPET = `import DynamicComponent, { register } from "@rhngui/patternfly-react-renderer";
+const REGISTRATION_SNIPPET = `import DynamicComponent, { register, type HBCConfig } from "@rhngui/patternfly-react-renderer";
 
-const MovieDetail = ({ data, id }) => ( ... );
+const FeatureCard = ({ data, id }) => ( ... );
 const KeyValueList = ({ data }) => ( ... );
 const MetricCard = ({ data }) => ( ... );
 
-register("demo:movie-detail", MovieDetail);
+register("demo:feature-card", FeatureCard);
 register("demo:key-value-list", KeyValueList);
 register("demo:metric-card", MetricCard);
 
-<DynamicComponent config={{ component: "demo:movie-detail", id: "x", data: { movie: { title: "Avatar", year: "2009", rating: 8.5, genres: ["Sci-Fi"] } } }} />`;
+// Example 1: feature card
+const featureConfig: HBCConfig = {
+  component: "demo:feature-card",
+  id: "release-1",
+  data: { title: "Hand Build Components", version: "1.0", description: "Register custom React components and render them via DynamicComponent.", date: "2025-02-06" },
+};
+<DynamicComponent config={featureConfig} />
+
+// Example 2: service card
+const serviceConfig: HBCConfig = {
+  component: "demo:key-value-list",
+  id: "api-gateway",
+  data: { title: "api-gateway", status: "running", items: [{ label: "Version", value: "2.4.1" }, { label: "Region", value: "us-east-1" }] },
+};
+<DynamicComponent config={serviceConfig} />
+
+// Example 3: metric card
+const metricConfig: HBCConfig = {
+  component: "demo:metric-card",
+  id: "users",
+  data: { label: "Active users", value: "12.4k", unit: "", trend: "up", subtitle: "vs last 30 days" },
+};
+<DynamicComponent config={metricConfig} />`;
 
 export default function HandBuildComponentsDemo() {
-  const example1Config = {
-    id: "movie-1",
-    component: "demo:movie-detail",
+  const example1Config: HBCConfig & Record<string, unknown> = {
+    id: "release-1",
+    component: "demo:feature-card",
     data: {
-      movie: {
-        title: "Avatar",
-        year: "2009",
-        poster: "https://picsum.photos/seed/avatar-poster/440/660",
-        tagline: "Enter the world of Pandora.",
-        rating: 8.5,
-        genres: ["Sci-Fi", "Adventure", "Action"],
-      },
+      title: "Hand Build Components",
+      version: "1.0",
+      description:
+        "Register custom React components and render them through DynamicComponent using config from the Next Gen UI Agent or any JSON config.",
+      date: "2025-02-06",
     },
   };
 
-  const example2Config = {
-    id: "movie-2",
-    component: "demo:movie-detail",
-    data: {
-      movie: {
-        title: "Toy Story",
-        year: "1995",
-        tagline:
-          "A cowboy doll is profoundly threatened when a new spaceman figure supplants him.",
-        rating: 8.3,
-        genres: ["Animation", "Comedy", "Family"],
-      },
-    },
-  };
-
-  const example3Config = {
+  const example3Config: HBCConfig & Record<string, unknown> = {
     id: "service-api",
     component: "demo:key-value-list",
     data: {
@@ -337,7 +310,7 @@ export default function HandBuildComponentsDemo() {
     },
   };
 
-  const example4Config = {
+  const example4Config: HBCConfig & Record<string, unknown> = {
     id: "service-degraded",
     component: "demo:key-value-list",
     data: {
@@ -352,7 +325,7 @@ export default function HandBuildComponentsDemo() {
     },
   };
 
-  const example5Configs = [
+  const example5Configs: (HBCConfig & Record<string, unknown>)[] = [
     {
       id: "metric-1",
       component: "demo:metric-card",
@@ -399,10 +372,11 @@ export default function HandBuildComponentsDemo() {
         <p>
           Hand Build Components let you register custom React components and
           render them through <strong>DynamicComponent</strong> using config
-          from the Next Gen UI Agent (or any JSON config). The{" "}
-          <code>component</code> value in the config must match the name you
-          passed to <code>register()</code>. The <code>data</code> shape is
-          defined by your app or the agent.
+          from the Next Gen UI Agent (or any JSON config). The config shape is
+          typed as <code>HBCConfig</code> (component, id, data,
+          input_data_type). The <code>component</code> value must match the name
+          you passed to <code>register()</code>; the structure of the{" "}
+          <code>data</code> payload is defined by your app or the agent.
         </p>
         <p style={{ marginTop: 8, marginBottom: 0 }}>
           <a
@@ -415,34 +389,26 @@ export default function HandBuildComponentsDemo() {
         </p>
       </Alert>
 
-      <Content component={ContentVariants.h2}>
-        Movie card (poster, rating, genres, tagline)
-      </Content>
+      <Content component={ContentVariants.h2}>Registration code</Content>
       <p style={{ marginBottom: 16 }}>
-        <code>demo:movie-detail</code> with rich <code>data.movie</code>:
-        poster, rating badge, genres, and tagline.
+        These demos register three custom components at load time:
+      </p>
+      <CodeBlock>
+        <CodeBlockCode>{REGISTRATION_SNIPPET}</CodeBlockCode>
+      </CodeBlock>
+
+      <Divider style={{ marginTop: 32, marginBottom: 32 }} />
+
+      <Content component={ContentVariants.h2}>Feature card</Content>
+      <p style={{ marginBottom: 16 }}>
+        <code>demo:feature-card</code> with <code>data</code>: title, version
+        badge, description, and date.
       </p>
       <DynamicComponent config={example1Config} />
       <ExpandableSection toggleText="Config JSON" style={{ marginTop: 16 }}>
         <CodeBlock>
           <CodeBlockCode>
             {JSON.stringify(example1Config, null, 2)}
-          </CodeBlockCode>
-        </CodeBlock>
-      </ExpandableSection>
-
-      <Divider style={{ marginTop: 32, marginBottom: 32 }} />
-
-      <Content component={ContentVariants.h2}>Movie card (no poster)</Content>
-      <p style={{ marginBottom: 16 }}>
-        Same component with a different payload (no image, different genres and
-        tagline).
-      </p>
-      <DynamicComponent config={example2Config} />
-      <ExpandableSection toggleText="Config JSON" style={{ marginTop: 16 }}>
-        <CodeBlock>
-          <CodeBlockCode>
-            {JSON.stringify(example2Config, null, 2)}
           </CodeBlockCode>
         </CodeBlock>
       </ExpandableSection>
@@ -496,16 +462,6 @@ export default function HandBuildComponentsDemo() {
           </CodeBlockCode>
         </CodeBlock>
       </ExpandableSection>
-
-      <Divider style={{ marginTop: 32, marginBottom: 32 }} />
-
-      <Content component={ContentVariants.h2}>Registration code</Content>
-      <p style={{ marginBottom: 16 }}>
-        These demos register three custom components at load time:
-      </p>
-      <CodeBlock>
-        <CodeBlockCode>{REGISTRATION_SNIPPET}</CodeBlockCode>
-      </CodeBlock>
     </div>
   );
 }
