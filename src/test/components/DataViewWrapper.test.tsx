@@ -886,8 +886,10 @@ describe("DataViewWrapper Component", () => {
       expect(mockHandler).toHaveBeenCalledWith(
         expect.anything(),
         expect.objectContaining({
-          repository: expect.objectContaining({ value: "repo-one" }),
-          branch: expect.objectContaining({ value: "main" }),
+          fields: expect.objectContaining({
+            repository: expect.objectContaining({ value: "repo-one" }),
+            branch: expect.objectContaining({ value: "main" }),
+          }),
         })
       );
     });

@@ -20,9 +20,16 @@ export interface ItemDataFieldValue {
   value: string | number | boolean | null;
 }
 
+export interface ItemClickPayload {
+  componentId?: string;
+  inputDataType?: string;
+  index?: number;
+  fields: Record<string, ItemDataFieldValue>;
+}
+
 export type ItemClickHandler = (
   event: React.MouseEvent | React.KeyboardEvent,
-  itemData: Record<string, ItemDataFieldValue>
+  payload: ItemClickPayload
 ) => void;
 export type CellFormatter = (
   value: string | number | boolean | null | (string | number)[]
