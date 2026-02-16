@@ -19,6 +19,13 @@ You can make rows clickable in two ways:
 
 When a handler is set (either way), rows are clickable with hover styling.
 
+The handler receives `(event, payload)` where `payload` is an **ItemClickPayload**:
+
+- **componentId** — the component `id`
+- **inputDataType** — the component’s `inputDataType` (if set)
+- **index** — 0-based row index (data-view) or card index (set-of-cards, when supported)
+- **fields** — `Record<string, ItemDataFieldValue>` keyed by field `id`; each value has `id`, `name`, `data_path?`, and `value` (the cell value). Use `payload.fields["field-id"]?.value` to read a column.
+
 ```jsx
 import DataViewWrapper from "@rhngui/patternfly-react-renderer";
 
@@ -27,11 +34,13 @@ const dataViewConfig = {
   id: "interactive-table",
   fields: [
     {
+      id: "product",
       name: "Product",
       data_path: "products.name",
       data: ["Laptop", "Mouse", "Keyboard"],
     },
     {
+      id: "price",
       name: "Price",
       data_path: "products.price",
       data: ["$999", "$25", "$79"],
@@ -43,9 +52,10 @@ function App() {
   return (
     <DataViewWrapper
       {...dataViewConfig}
-      onItemClick={(event, itemData) => {
-        console.log("Item clicked:", itemData);
-        // itemData contains all column values as key-value pairs
+      onItemClick={(event, payload) => {
+        console.log("Item clicked:", payload);
+        const product = payload.fields["product"]?.value;
+        const price = payload.fields["price"]?.value;
       }}
     />
   );

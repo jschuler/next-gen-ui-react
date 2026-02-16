@@ -1522,9 +1522,9 @@ registry.registerItemClick(/catalog|inventory/, (event, payload) => {
 }
 
 interface ItemClickPayload {
-  componentId?: string;   // DataViewWrapper id
-  inputDataType?: string; // DataViewWrapper inputDataType
-  index?: number;         // 0-based index in entire dataset (ignoring search/sort/pagination)
+  componentId?: string;   // component id
+  inputDataType?: string; // component inputDataType
+  index?: number;         // 0-based index
   fields: Record<string, ItemDataFieldValue>;
 }
 
